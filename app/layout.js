@@ -7,9 +7,21 @@ const actionUrl = publicFormUrl || formSheetUrl;
 const actionLabel = publicFormUrl ? 'Dodaj ogłoszenie' : 'Arkusz zgłoszeń';
 
 export const metadata = {
+  metadataBase: new URL('https://wypozycz.online'),
   title: 'Wynajem sprzętu budowlanego - Marketplace',
-  description: 'Łatwo znajdź i wypożycz sprzęt budowlany w swojej okolicy.',
-  keywords: 'wynajem, sprzęt budowlany, koparki, ładowarki, wypożyczalnia',
+  description: 'Łatwo znajdź i wypożycz sprzęt budowlany w swojej okolicy. Darmowe ogłoszenia sprzętu budowlanego.',
+  keywords: 'wynajem, sprzęt budowlany, koparki, ładowarki, wypożyczalnia, wrocław, dolny śląsk',
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: 'Wynajem sprzętu budowlanego - Marketplace',
+    description: 'Łatwo znajdź i wypożycz sprzęt budowlany w swojej okolicy.',
+    url: 'https://wypozycz.online',
+    siteName: 'WypożyczSprzęt',
+    locale: 'pl_PL',
+    type: 'website',
+  },
   verification: {
     google: 'UTKre7BkIREzsP437M9akUdcQ5ER_pIKUPDc6TUYD5g',
   },
