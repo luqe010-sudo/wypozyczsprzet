@@ -1,9 +1,12 @@
 "use client";
 
+import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function ListingCard({ listing }) {
   const [showPhone, setShowPhone] = useState(false);
+  const router = useRouter();
   const company = listing.companyDetails || {};
   const phoneNumber = String(company.Telefon || '').trim();
 
@@ -24,15 +27,24 @@ export default function ListingCard({ listing }) {
     return 'https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=800'; // fallback
   };
 
+  const handleCardClick = (e) => {
+    // Prevent navigation if clicking on a button or link inside
+    if (e.target.closest('button') || e.target.closest('a')) {
+      return;
+    }
+    router.push(`/oferta/${listing.slug}`);
+  };
+
   return (
-    <Link href={`/oferta/${listing.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-      <article className="listing-card">
-        <div className="listing-image-container">
+    <article className="listing-card" onClick={handleCardClick} style={{ cursor: 'pointer' }}>
+      <div className="listing-image-container">
+        <Link href={`/oferta/${listing.slug}`} tabIndex="-1">
           <img 
             src={getImageUrl(listing.Kategoria, listing.Zdjecie)} 
             alt={listing['Sprz\u0119t']} 
             className="listing-image"
           />
+        </Link>
         {listing.isUserSubmitted && (
           <span
             style={{
@@ -56,7 +68,13 @@ export default function ListingCard({ listing }) {
 
       <div className="listing-content">
         <span className="listing-category">{listing.Kategoria}</span>
-        <h3 className="listing-title">{listing['Sprz\u0119t']}</h3>
+        <Link href={`/oferta/${listing.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+          <h3 className="listing-title" style={{ transition: 'color 0.2s' }} 
+              onMouseOver={(e) => e.target.style.color = 'var(--primary)'} 
+              onMouseOut={(e) => e.target.style.color = 'inherit'}>
+            {listing['Sprz\u0119t']}
+          </h3>
+        </Link>
 
         <div className="listing-price">
           {listing.Cena_od} PLN <span>/ {listing.Czas || 'doba'}</span>
@@ -126,6 +144,5 @@ export default function ListingCard({ listing }) {
         </div>
       </div>
     </article>
-    </Link>
   );
 }
