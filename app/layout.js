@@ -23,6 +23,7 @@ export const metadata = {
     type: 'website',
   },
   verification: {
+    // Google site verification tag
     google: 'UTKre7BkIREzsP437M9akUdcQ5ER_plKUPDc6TUYD5g',
   },
 };
