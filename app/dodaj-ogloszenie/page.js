@@ -21,7 +21,7 @@ export default function AddListingPage() {
         </a>
       </div>
 
-      <div className="search-hero" style={{ padding: '0', overflow: 'hidden', minHeight: '800px' }}>
+      <div style={{ padding: '0', overflow: 'hidden', minHeight: '800px', backgroundColor: 'white', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
         {formUrl ? (
           <iframe
             src={embedUrl}
