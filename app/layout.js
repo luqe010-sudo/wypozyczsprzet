@@ -9,6 +9,9 @@ export const metadata = {
   title: 'Wynajem sprz\u0119tu budowlanego - Marketplace',
   description: '\u0141atwo znajd\u017a i wypo\u017cycz sprz\u0119t budowlany w swojej okolicy.',
   keywords: 'wynajem, sprz\u0119t budowlany, koparki, \u0142adowarki, wypo\u017cyczalnia',
+  verification: {
+    google: 'NU9bld4tQwGGrUiUCBLDCrF-Zgshi8Z9hwC3qmbdq6I',
+  },
 };
 
 export default function RootLayout({ children }) {
