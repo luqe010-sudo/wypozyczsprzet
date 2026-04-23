@@ -11,7 +11,7 @@ export const metadata = {
   description: 'Łatwo znajdź i wypożycz sprzęt budowlany w swojej okolicy.',
   keywords: 'wynajem, sprzęt budowlany, koparki, ładowarki, wypożyczalnia',
   verification: {
-    google: 'NU9bld4tQwGGrUiUCBLDCrF-Zgshi8Z9hwC3qmbdq6I',
+    google: 'UTKre7BkIREzsP437M9akUdcQ5ER_pIKUPDc6TUYD5g',
   },
 };
 
