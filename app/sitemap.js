@@ -1,4 +1,4 @@
-const BASE_URL = 'https://wypozyczsprzet.vercel.app';
+const BASE_URL = 'https://wypozycz.online';
 
 export default function sitemap() {
   return [
