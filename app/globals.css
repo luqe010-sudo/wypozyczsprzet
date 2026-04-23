@@ -581,18 +581,51 @@ body {
   
   .navbar-container {
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.25rem;
     padding: 0 1rem;
+    text-align: center;
   }
   
   .nav-links {
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-direction: column;
     gap: 1rem;
+    width: 100%;
   }
   
   .nav-links a {
-    font-size: 0.875rem;
+    font-size: 1rem;
+    width: 100%;
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-links a:last-child {
+    border-bottom: none;
+  }
+
+  .nav-links a.btn-primary {
+    border-bottom: none;
+    margin-top: 0.5rem;
+  }
+  
+  /* Sidebar adjustments */
+  .sidebar {
+    position: static;
+    margin-bottom: 2rem;
+  }
+
+  .filter-card {
+    gap: 1.5rem;
+  }
+
+  /* Content banner adjustments */
+  .ux-info-banner {
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .responsive-title {
+    font-size: 1.75rem !important;
   }
 }
 

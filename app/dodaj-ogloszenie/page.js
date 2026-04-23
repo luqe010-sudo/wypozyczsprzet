@@ -68,7 +68,7 @@ export default function AddListingPage() {
         </Link>
       </div>
 
-      <div style={{ backgroundColor: 'white', padding: '3rem', borderRadius: '16px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
+      <div className="responsive-article-pad" style={{ backgroundColor: 'white', borderRadius: '16px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
         <h1 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '0.5rem' }}>Dodaj swoje ogłoszenie</h1>
         <p style={{ color: 'var(--muted)', marginBottom: '2.5rem', lineHeight: 1.6 }}>
           Wypełnij poniższy formularz, aby dodać swój sprzęt do naszej bazy. Pojawi się on na stronie głównej i będzie widoczny dla tysięcy użytkowników.
