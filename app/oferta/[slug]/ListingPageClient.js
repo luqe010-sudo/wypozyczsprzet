@@ -1,0 +1,141 @@
+"use client";
+
+import { useState } from 'react';
+import Link from 'next/link';
+
+const getImageUrl = (category, sheetImage) => {
+  if (sheetImage && String(sheetImage).startsWith('http')) return sheetImage;
+  const cat = String(category || '').toLowerCase();
+  if (cat.includes('koparka') || cat.includes('minikoparka')) return 'https://images.unsplash.com/photo-1579450370423-f36b3383a18a?auto=format&fit=crop&q=80&w=1200';
+  if (cat.includes('\u0142adowarka')) return 'https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=1200';
+  if (cat.includes('narz\u0119dzi') || cat.includes('sprz\u0119t')) return 'https://images.unsplash.com/photo-1581141849291-1125c7b692b5?auto=format&fit=crop&q=80&w=1200';
+  if (cat.includes('podno\u015bnik')) return 'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?auto=format&fit=crop&q=80&w=1200';
+  if (cat.includes('ogrod')) return 'https://images.unsplash.com/photo-1558905619-17254263bc8a?auto=format&fit=crop&q=80&w=1200';
+  return 'https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=1200';
+};
+
+export default function ListingPageClient({ listing, seoDescription, faqItems, related }) {
+  const [showPhone, setShowPhone] = useState(false);
+  const [openFaq, setOpenFaq] = useState(null);
+
+  const name = listing['Sprzęt'] || 'Sprzęt';
+  const company = listing.companyDetails || {};
+  const phoneNumber = String(company.Telefon || '').trim();
+
+  return (
+    <>
+      {/* Hero Image */}
+      <div style={{ borderRadius: '16px', overflow: 'hidden', marginBottom: '2rem', position: 'relative', paddingTop: '50%', backgroundColor: 'var(--primary-light)' }}>
+        <img
+          src={getImageUrl(listing.Kategoria, listing.Zdjecie)}
+          alt={name}
+          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+      </div>
+
+      {/* Title + Price + Contact */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '2rem', marginBottom: '3rem', alignItems: 'start' }}>
+        <div>
+          <span className="listing-category">{listing.Kategoria}</span>
+          <h1 style={{ fontSize: '2rem', fontWeight: 800, lineHeight: 1.2, marginBottom: '1rem' }}>{name}</h1>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', color: 'var(--muted)', fontSize: '0.9375rem' }}>
+            <span>{'📍'} {listing.Miasto}</span>
+            <span>{'🏢'} {company.Nazwa || 'Brak firmy'}</span>
+            {listing['Dostępność'] && listing['Dostępność'] !== 'brak danych' && (
+              <span style={{ color: '#059669' }}>{'🟢'} {listing['Dostępność']}</span>
+            )}
+          </div>
+        </div>
+        <div style={{ textAlign: 'right', minWidth: '200px' }}>
+          <div style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--primary)' }}>
+            {listing.Cena_od} <span style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--muted)' }}>PLN / {listing.Czas || 'doba'}</span>
+          </div>
+          <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {phoneNumber ? (
+              showPhone ? (
+                <a href={`tel:${phoneNumber.replace(/\s/g, '')}`} className="btn-primary" style={{ fontSize: '1.125rem', padding: '0.875rem 2rem' }}>
+                  {'📞 '}{phoneNumber}
+                </a>
+              ) : (
+                <button className="btn-primary" style={{ fontSize: '1.125rem', padding: '0.875rem 2rem' }} onClick={() => setShowPhone(true)}>
+                  {'Pokaż numer'}
+                </button>
+              )
+            ) : null}
+            {listing.olxUrl && (
+              <a href={listing.olxUrl} target="_blank" rel="noopener noreferrer" className="btn-secondary"
+                style={{ backgroundColor: '#23e5db', borderColor: '#23e5db', color: '#002f34' }}>
+                <strong>{'Załatw przez OLX'}</strong>
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Description */}
+      <section style={{ marginBottom: '3rem', backgroundColor: 'white', padding: '2rem', borderRadius: '16px', border: '1px solid var(--border)' }}>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.5rem' }}>{'O sprzęcie'}</h2>
+        {seoDescription.split('\n\n').map((paragraph, i) => (
+          <p key={i} style={{ marginBottom: '1rem', lineHeight: 1.8, color: 'var(--muted)' }}>{paragraph}</p>
+        ))}
+      </section>
+
+      {/* FAQ */}
+      <section style={{ marginBottom: '3rem', backgroundColor: 'white', padding: '2rem', borderRadius: '16px', border: '1px solid var(--border)' }}>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.5rem' }}>{'Najczęściej zadawane pytania'}</h2>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+          {faqItems.map((item, i) => (
+            <div key={i} style={{ borderBottom: i < faqItems.length - 1 ? '1px solid var(--border)' : 'none' }}>
+              <button
+                onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                style={{
+                  width: '100%', textAlign: 'left', background: 'none', border: 'none',
+                  padding: '1.25rem 0', cursor: 'pointer', fontSize: '1rem', fontWeight: 600,
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                  fontFamily: 'inherit', color: 'var(--foreground)',
+                }}
+              >
+                {item.question}
+                <span style={{ fontSize: '1.25rem', transition: 'transform 0.2s', transform: openFaq === i ? 'rotate(180deg)' : 'none' }}>{'▼'}</span>
+              </button>
+              {openFaq === i && (
+                <p style={{ padding: '0 0 1.25rem', lineHeight: 1.7, color: 'var(--muted)' }}>{item.answer}</p>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Related */}
+      {related.length > 0 && (
+        <section style={{ marginBottom: '3rem' }}>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.5rem' }}>{'Inne oferty w tej kategorii'}</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
+            {related.map((item) => (
+              <Link key={item.slug} href={`/oferta/${item.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div className="listing-card">
+                  <div className="listing-image-container">
+                    <img src={getImageUrl(item.Kategoria, item.Zdjecie)} alt={item['Sprzęt']} className="listing-image" />
+                  </div>
+                  <div className="listing-content">
+                    <span className="listing-category">{item.Kategoria}</span>
+                    <h3 className="listing-title">{item['Sprzęt']}</h3>
+                    <div className="listing-price">{item.Cena_od} PLN <span>/ {item.Czas || 'doba'}</span></div>
+                    <div className="info-item">{'📍'} {item.Miasto}</div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Back */}
+      <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+        <Link href="/" className="btn-secondary" style={{ textDecoration: 'none' }}>
+          {'← Powrót do wszystkich ofert'}
+        </Link>
+      </div>
+    </>
+  );
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import Link from 'next/link';
 
 export default function ListingCard({ listing }) {
   const [showPhone, setShowPhone] = useState(false);
@@ -25,13 +25,14 @@ export default function ListingCard({ listing }) {
   };
 
   return (
-    <article className="listing-card">
-      <div className="listing-image-container">
-        <img 
-          src={getImageUrl(listing.Kategoria, listing.Zdjecie)} 
-          alt={listing['Sprz\u0119t']} 
-          className="listing-image"
-        />
+    <Link href={`/oferta/${listing.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+      <article className="listing-card">
+        <div className="listing-image-container">
+          <img 
+            src={getImageUrl(listing.Kategoria, listing.Zdjecie)} 
+            alt={listing['Sprz\u0119t']} 
+            className="listing-image"
+          />
         {listing.isUserSubmitted && (
           <span
             style={{
@@ -125,5 +126,6 @@ export default function ListingCard({ listing }) {
         </div>
       </div>
     </article>
+    </Link>
   );
 }
