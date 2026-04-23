@@ -83,7 +83,7 @@ export default function AddListingPage() {
         ) : (
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+            <div className="responsive-grid-2">
               <div>
                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Nazwa Firmy / Osoby</label>
                 <input required type="text" name="company" value={formData.company} onChange={handleChange} 
@@ -96,7 +96,7 @@ export default function AddListingPage() {
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+            <div className="responsive-grid-2">
               <div>
                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Miasto</label>
                 <input required type="text" name="city" value={formData.city} onChange={handleChange} 
@@ -122,7 +122,7 @@ export default function AddListingPage() {
                      style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border)' }} />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+            <div className="responsive-grid-2">
               <div>
                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Cena za dobę (PLN)</label>
                 <input required type="number" name="price" value={formData.price} onChange={handleChange} 

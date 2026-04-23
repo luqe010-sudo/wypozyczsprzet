@@ -33,7 +33,7 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
 
 
       {/* Title + Price + Contact */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '2rem', marginBottom: '3rem', alignItems: 'start' }}>
+      <div className="responsive-listing-header">
         <div>
           <span className="listing-category">{listing.Kategoria}</span>
           <h1 style={{ fontSize: '2rem', fontWeight: 800, lineHeight: 1.2, marginBottom: '1rem' }}>{name}</h1>

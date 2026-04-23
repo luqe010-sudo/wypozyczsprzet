@@ -298,7 +298,7 @@ body {
 /* Listing Cards */
 .listings-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 2rem;
 }
 
@@ -526,3 +526,73 @@ body {
   transform: translateY(-4px);
   box-shadow: var(--shadow-md);
 }
+
+/* --- Responsive Utility Classes --- */
+.responsive-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.responsive-listing-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2rem;
+  margin-bottom: 3rem;
+  align-items: start;
+}
+
+.responsive-article-pad {
+  padding: 3rem;
+}
+
+.responsive-title {
+  font-size: 2.5rem;
+}
+
+@media (max-width: 768px) {
+  .responsive-grid-2 {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .responsive-listing-header {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .responsive-listing-header > div:last-child {
+    text-align: left !important;
+  }
+  
+  .responsive-article-pad {
+    padding: 1.5rem;
+  }
+  
+  .responsive-title {
+    font-size: 1.75rem !important;
+  }
+  
+  /* Navbar adjustments */
+  .navbar {
+    height: auto;
+    padding: 1rem 0;
+  }
+  
+  .navbar-container {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+  
+  .nav-links {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+  }
+  
+  .nav-links a {
+    font-size: 0.875rem;
+  }
+}
+

@@ -101,7 +101,7 @@ export default function ArticlePage({ params }) {
           <span style={{ color: 'var(--foreground)' }}>{article.title}</span>
         </nav>
 
-        <article style={{ backgroundColor: 'white', padding: '3rem', borderRadius: '16px', border: '1px solid var(--border)' }}>
+        <article className="responsive-article-pad" style={{ backgroundColor: 'white', borderRadius: '16px', border: '1px solid var(--border)' }}>
           <header style={{ marginBottom: '3rem', borderBottom: '1px solid var(--border)', paddingBottom: '2rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
               <span style={{ backgroundColor: 'var(--primary-light)', color: 'var(--primary)', padding: '0.25rem 0.75rem', borderRadius: '99px', fontWeight: 600 }}>
@@ -109,7 +109,7 @@ export default function ArticlePage({ params }) {
               </span>
               <span style={{ color: 'var(--muted)' }}>{article.date}</span>
             </div>
-            <h1 style={{ fontSize: '2.5rem', fontWeight: 800, lineHeight: 1.2, color: 'var(--foreground)', marginBottom: '1.5rem' }}>
+            <h1 className="responsive-title" style={{ fontWeight: 800, lineHeight: 1.2, color: 'var(--foreground)', marginBottom: '1.5rem' }}>
               {article.title}
             </h1>
             <p style={{ fontSize: '1.25rem', color: 'var(--muted)', lineHeight: 1.6 }}>
