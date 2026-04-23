@@ -1,14 +1,15 @@
 import './globals.css';
+import Navbar from '../components/Navbar';
 
 const publicFormUrl = process.env.NEXT_PUBLIC_FORM_URL || process.env.FORM_URL || '';
 const formSheetUrl = process.env.FORM_SHEET_URL || '';
 const actionUrl = publicFormUrl || formSheetUrl;
-const actionLabel = publicFormUrl ? 'Dodaj og\u0142oszenie' : 'Arkusz zg\u0142osze\u0144';
+const actionLabel = publicFormUrl ? 'Dodaj ogłoszenie' : 'Arkusz zgłoszeń';
 
 export const metadata = {
-  title: 'Wynajem sprz\u0119tu budowlanego - Marketplace',
-  description: '\u0141atwo znajd\u017a i wypo\u017cycz sprz\u0119t budowlany w swojej okolicy.',
-  keywords: 'wynajem, sprz\u0119t budowlany, koparki, \u0142adowarki, wypo\u017cyczalnia',
+  title: 'Wynajem sprzętu budowlanego - Marketplace',
+  description: 'Łatwo znajdź i wypożycz sprzęt budowlany w swojej okolicy.',
+  keywords: 'wynajem, sprzęt budowlany, koparki, ładowarki, wypożyczalnia',
   verification: {
     google: 'NU9bld4tQwGGrUiUCBLDCrF-Zgshi8Z9hwC3qmbdq6I',
   },
@@ -18,34 +19,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="pl">
       <body>
-        <nav className="navbar">
-          <div className="navbar-container">
-            <a href="/" className="logo">
-              {'Wypo\u017cycz'}<span>{'Sprz\u0119t'}</span>
-            </a>
-            <div className="nav-links">
-              <a href="/">{'Strona główna'}</a>
-              <a href="/blog">{'Poradniki'}</a>
-              <a href="/kontakt">{'Kontakt'}</a>
-              {actionUrl ? (
-                <a
-                  href="/dodaj-ogloszenie"
-                  className="btn-primary"
-                >
-                  {actionLabel}
-                </a>
-              ) : (
-                <span
-                  className="btn-primary"
-                  style={{ opacity: 0.6, cursor: 'not-allowed' }}
-                  aria-disabled="true"
-                >
-                  {'Formularz niedost\u0119pny'}
-                </span>
-              )}
-            </div>
-          </div>
-        </nav>
+        <Navbar actionUrl={actionUrl} actionLabel={actionLabel} />
         <main>{children}</main>
         <footer className="footer">
           <div className="navbar-container">

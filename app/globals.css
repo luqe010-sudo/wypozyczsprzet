@@ -48,6 +48,10 @@ body {
     gap: 2rem;
     padding: 1.5rem;
   }
+  .sidebar {
+    position: static;
+    margin-bottom: 1.5rem;
+  }
 }
 
 /* Navbar */
@@ -575,57 +579,23 @@ body {
   
   /* Navbar adjustments */
   .navbar {
+    position: static; /* Nie zjeżdża razem ze stroną */
     height: auto;
-    padding: 1rem 0;
+    padding: 0.75rem 0;
   }
   
   .navbar-container {
-    flex-direction: column;
-    gap: 1.25rem;
     padding: 0 1rem;
-    text-align: center;
   }
   
   .nav-links {
-    flex-direction: column;
-    gap: 1rem;
-    width: 100%;
-  }
-  
-  .nav-links a {
-    font-size: 1rem;
-    width: 100%;
-    padding: 0.5rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .nav-links a:last-child {
-    border-bottom: none;
-  }
-
-  .nav-links a.btn-primary {
-    border-bottom: none;
-    margin-top: 0.5rem;
-  }
-  
-  /* Sidebar adjustments */
-  .sidebar {
-    position: static;
-    margin-bottom: 2rem;
-  }
-
-  .filter-card {
-    gap: 1.5rem;
+    /* Styles moved to Navbar.js inline styles for dynamic state */
   }
 
   /* Content banner adjustments */
   .ux-info-banner {
     margin-top: 1rem;
     margin-bottom: 2rem;
-  }
-  
-  .responsive-title {
-    font-size: 1.75rem !important;
   }
 }
 
