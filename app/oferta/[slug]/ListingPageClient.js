@@ -2,17 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-
-const getImageUrl = (category, sheetImage) => {
-  if (sheetImage && String(sheetImage).startsWith('http')) return sheetImage;
-  const cat = String(category || '').toLowerCase();
-  if (cat.includes('koparka') || cat.includes('minikoparka')) return 'https://images.unsplash.com/photo-1579450370423-f36b3383a18a?auto=format&fit=crop&q=80&w=1200';
-  if (cat.includes('\u0142adowarka')) return 'https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=1200';
-  if (cat.includes('narz\u0119dzi') || cat.includes('sprz\u0119t')) return 'https://images.unsplash.com/photo-1581141849291-1125c7b692b5?auto=format&fit=crop&q=80&w=1200';
-  if (cat.includes('podno\u015bnik')) return 'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?auto=format&fit=crop&q=80&w=1200';
-  if (cat.includes('ogrod')) return 'https://images.unsplash.com/photo-1558905619-17254263bc8a?auto=format&fit=crop&q=80&w=1200';
-  return 'https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=1200';
-};
+import DynamicPlaceholder from '../../../components/DynamicPlaceholder';
 
 export default function ListingPageClient({ listing, seoDescription, faqItems, related }) {
   const [showPhone, setShowPhone] = useState(false);
@@ -22,16 +12,25 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
   const company = listing.companyDetails || {};
   const phoneNumber = String(company.Telefon || '').trim();
 
+  const hasHeroImage = listing.Zdjecie && String(listing.Zdjecie).startsWith('http');
+
   return (
     <>
       {/* Hero Image */}
-      <div style={{ borderRadius: '16px', overflow: 'hidden', marginBottom: '2rem', position: 'relative', paddingTop: '50%', backgroundColor: 'var(--primary-light)' }}>
-        <img
-          src={getImageUrl(listing.Kategoria, listing.Zdjecie)}
-          alt={name}
-          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-        />
+      <div style={{ borderRadius: '16px', overflow: 'hidden', marginBottom: '2rem', position: 'relative', paddingTop: hasHeroImage ? '50%' : '0', backgroundColor: 'var(--primary-light)', minHeight: hasHeroImage ? '0' : '400px' }}>
+        {hasHeroImage ? (
+          <img
+            src={listing.Zdjecie}
+            alt={name}
+            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        ) : (
+          <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
+            <DynamicPlaceholder title={name} category={listing.Kategoria} />
+          </div>
+        )}
       </div>
+
 
       {/* Title + Price + Contact */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '2rem', marginBottom: '3rem', alignItems: 'start' }}>
@@ -115,7 +114,11 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
               <Link key={item.slug} href={`/oferta/${item.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                 <div className="listing-card">
                   <div className="listing-image-container">
-                    <img src={getImageUrl(item.Kategoria, item.Zdjecie)} alt={item['Sprzęt']} className="listing-image" />
+                    {item.Zdjecie && String(item.Zdjecie).startsWith('http') ? (
+                      <img src={item.Zdjecie} alt={item['Sprzęt']} className="listing-image" />
+                    ) : (
+                      <DynamicPlaceholder title={item['Sprzęt']} category={item.Kategoria} />
+                    )}
                   </div>
                   <div className="listing-content">
                     <span className="listing-category">{item.Kategoria}</span>

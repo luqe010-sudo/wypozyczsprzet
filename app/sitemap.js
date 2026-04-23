@@ -1,4 +1,5 @@
 import { fetchAllSlugs } from '../lib/googleSheets';
+import { articles } from '../lib/articles';
 
 const BASE_URL = 'https://wypozycz.online';
 
@@ -12,6 +13,13 @@ export default async function sitemap() {
     priority: 0.9,
   }));
 
+  const blogPages = articles.map((article) => ({
+    url: `${BASE_URL}/blog/${article.slug}`,
+    lastModified: new Date(article.date),
+    changeFrequency: 'monthly',
+    priority: 0.8,
+  }));
+
   return [
     {
       url: BASE_URL,
@@ -20,6 +28,13 @@ export default async function sitemap() {
       priority: 1,
     },
     ...listingPages,
+    ...blogPages,
+    {
+      url: `${BASE_URL}/blog`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
     {
       url: `${BASE_URL}/dodaj-ogloszenie`,
       lastModified: new Date(),

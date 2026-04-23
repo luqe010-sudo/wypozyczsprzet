@@ -3,29 +3,13 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import DynamicPlaceholder from './DynamicPlaceholder';
 
 export default function ListingCard({ listing }) {
   const [showPhone, setShowPhone] = useState(false);
   const router = useRouter();
   const company = listing.companyDetails || {};
   const phoneNumber = String(company.Telefon || '').trim();
-
-  // Map categories to Unsplash images
-  const getImageUrl = (category, sheetImage) => {
-    // Priority 1: Image from Google Sheet
-    if (sheetImage && String(sheetImage).startsWith('http')) {
-      return sheetImage;
-    }
-
-    // Priority 2: Fallback to category-based Unsplash images
-    const cat = String(category || '').toLowerCase();
-    if (cat.includes('koparka') || cat.includes('minikoparka')) return 'https://images.unsplash.com/photo-1579450370423-f36b3383a18a?auto=format&fit=crop&q=80&w=800';
-    if (cat.includes('\u0142adowarka')) return 'https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=800';
-    if (cat.includes('narz\u0119dzi') || cat.includes('sprz\u0119t')) return 'https://images.unsplash.com/photo-1581141849291-1125c7b692b5?auto=format&fit=crop&q=80&w=800';
-    if (cat.includes('podno\u015bnik')) return 'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?auto=format&fit=crop&q=80&w=800';
-    if (cat.includes('ogrod')) return 'https://images.unsplash.com/photo-1558905619-17254263bc8a?auto=format&fit=crop&q=80&w=800';
-    return 'https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=800'; // fallback
-  };
 
   const handleCardClick = (e) => {
     // Prevent navigation if clicking on a button or link inside
@@ -35,15 +19,21 @@ export default function ListingCard({ listing }) {
     router.push(`/oferta/${listing.slug}`);
   };
 
+  const hasImage = listing.Zdjecie && String(listing.Zdjecie).startsWith('http');
+
   return (
     <article className="listing-card" onClick={handleCardClick} style={{ cursor: 'pointer' }}>
       <div className="listing-image-container">
-        <Link href={`/oferta/${listing.slug}`} tabIndex="-1">
-          <img 
-            src={getImageUrl(listing.Kategoria, listing.Zdjecie)} 
-            alt={listing['Sprz\u0119t']} 
-            className="listing-image"
-          />
+        <Link href={`/oferta/${listing.slug}`} tabIndex="-1" style={{ display: 'block', width: '100%', height: '100%' }}>
+          {hasImage ? (
+            <img 
+              src={listing.Zdjecie} 
+              alt={listing['Sprz\u0119t']} 
+              className="listing-image"
+            />
+          ) : (
+            <DynamicPlaceholder title={listing['Sprz\u0119t']} category={listing.Kategoria} />
+          )}
         </Link>
         {listing.isUserSubmitted && (
           <span

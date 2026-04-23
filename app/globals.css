@@ -518,3 +518,11 @@ body {
     gap: 0.5rem;
   }
 }
+
+.blog-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.blog-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}

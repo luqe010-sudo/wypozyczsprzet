@@ -25,6 +25,7 @@ export default function RootLayout({ children }) {
             </a>
             <div className="nav-links">
               <a href="/">{'Strona główna'}</a>
+              <a href="/blog">{'Poradniki'}</a>
               <a href="/kontakt">{'Kontakt'}</a>
               {actionUrl ? (
                 <a
