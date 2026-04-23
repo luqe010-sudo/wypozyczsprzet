@@ -3,15 +3,15 @@ import React from 'react';
 export default function DynamicPlaceholder({ title, category }) {
   let imageSrc = '/placeholders/narzedzia.png'; // default fallback
 
-  const cat = String(category || '').toLowerCase();
+  const searchStr = `${category || ''} ${title || ''}`.toLowerCase();
   
-  if (cat.includes('koparka') || cat.includes('minikoparka')) {
+  if (searchStr.includes('koparka') || searchStr.includes('minikoparka')) {
     imageSrc = '/placeholders/koparka.png';
-  } else if (cat.includes('\u0142adowarka')) {
+  } else if (searchStr.includes('\u0142adowarka')) {
     imageSrc = '/placeholders/ladowarka.png';
-  } else if (cat.includes('podno\u015bnik')) {
+  } else if (searchStr.includes('podno\u015bnik')) {
     imageSrc = '/placeholders/podnosnik.png';
-  } else if (cat.includes('ogrod') || cat.includes('ogród')) {
+  } else if (searchStr.includes('ogrod') || searchStr.includes('ogród')) {
     imageSrc = '/placeholders/ogrod.png';
   }
 
