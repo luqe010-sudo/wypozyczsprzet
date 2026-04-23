@@ -1,0 +1,622 @@
+'npm' is not recognized as an internal or external command,
+operable program or batch file.
+ ⚠ ./lib/googleSheets.js
+Attempted import error: 'xlsx' does not contain a default export (imported as 'XLSX').
+
+Import trace for requested module:
+./lib/googleSheets.js
+./app/page.js
+
+./lib/googleSheets.js
+Attempted import error: 'xlsx' does not contain a default export (imported as 'XLSX').
+
+Import trace for requested module:
+./lib/googleSheets.js
+./app/page.js
+CSV fetch failed: Error: Failed to fetch CSV: https://docs.google.com/spreadsheets/d/1Ykx4f8D7nD-vR3Fnf4FqouzGfGde768F0rknirLabpM/export?format=csv&gid=0 (400)
+    at fetchCSV (webpack-internal:///(rsc)/./lib/googleSheets.js:27:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Promise.all (index 0)
+    at async fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:192:59)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: TypeError: Cannot read properties of undefined (reading 'readFile')
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:57:71)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:197:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+CSV fetch failed: Error: Failed to fetch CSV: https://docs.google.com/spreadsheets/d/1Ykx4f8D7nD-vR3Fnf4FqouzGfGde768F0rknirLabpM/export?format=csv&gid=0 (400)
+    at fetchCSV (webpack-internal:///(rsc)/./lib/googleSheets.js:27:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Promise.all (index 0)
+    at async fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:192:59)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: TypeError: Cannot read properties of undefined (reading 'readFile')
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:57:71)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:197:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+CSV fetch failed: Error: Failed to fetch CSV: https://docs.google.com/spreadsheets/d/1Ykx4f8D7nD-vR3Fnf4FqouzGfGde768F0rknirLabpM/export?format=csv&gid=0 (400)
+    at fetchCSV (webpack-internal:///(rsc)/./lib/googleSheets.js:27:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Promise.all (index 0)
+    at async fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:192:59)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: TypeError: Cannot read properties of undefined (reading 'readFile')
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:57:71)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:197:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+CSV fetch failed: Error: Failed to fetch CSV: https://docs.google.com/spreadsheets/d/1Ykx4f8D7nD-vR3Fnf4FqouzGfGde768F0rknirLabpM/export?format=csv&gid=0 (400)
+    at fetchCSV (webpack-internal:///(rsc)/./lib/googleSheets.js:27:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Promise.all (index 0)
+    at async fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:192:59)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: TypeError: Cannot read properties of undefined (reading 'readFile')
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:57:71)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:197:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+ ⚠ ./lib/googleSheets.js
+Attempted import error: 'xlsx' does not contain a default export (imported as 'XLSXModule').
+
+Import trace for requested module:
+./lib/googleSheets.js
+./app/page.js
+CSV fetch failed: Error: Failed to fetch CSV: https://docs.google.com/spreadsheets/d/1Ykx4f8D7nD-vR3Fnf4FqouzGfGde768F0rknirLabpM/export?format=csv&gid=0 (400)
+    at fetchCSV (webpack-internal:///(rsc)/./lib/googleSheets.js:28:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Promise.all (index 0)
+    at async fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:193:59)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:58:31)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:198:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+CSV fetch failed: Error: Failed to fetch CSV: https://docs.google.com/spreadsheets/d/1Ykx4f8D7nD-vR3Fnf4FqouzGfGde768F0rknirLabpM/export?format=csv&gid=0 (400)
+    at fetchCSV (webpack-internal:///(rsc)/./lib/googleSheets.js:28:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Promise.all (index 0)
+    at async fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:193:59)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:58:31)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:198:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:57:60)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:197:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+ ⚠ ./lib/googleSheets.js
+Attempted import error: 'xlsx' does not contain a default export (imported as 'XLSX').
+
+Import trace for requested module:
+./lib/googleSheets.js
+./app/page.js
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:61:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:201:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:61:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:201:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:61:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:201:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:61:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:201:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:61:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:201:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:61:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:201:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:61:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:201:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+ ⚠ ./lib/googleSheets.js
+Attempted import error: 'xlsx' does not contain a default export (imported as 'XLSX').
+
+Import trace for requested module:
+./lib/googleSheets.js
+./app/page.js
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:61:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:202:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+ ⚠ ./lib/googleSheets.js
+Attempted import error: 'xlsx' does not contain a default export (imported as 'XLSX').
+
+Import trace for requested module:
+./lib/googleSheets.js
+./app/page.js
+ ⚠ ./lib/googleSheets.js
+Attempted import error: 'xlsx' does not contain a default export (imported as 'XLSX').
+
+Import trace for requested module:
+./lib/googleSheets.js
+./app/page.js
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:61:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:202:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+ ⚠ ./lib/googleSheets.js
+Attempted import error: 'xlsx' does not contain a default export (imported as 'XLSX').
+
+Import trace for requested module:
+./lib/googleSheets.js
+./app/page.js
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:61:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:202:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+ ⚠ ./lib/googleSheets.js
+Attempted import error: 'xlsx' does not contain a default export (imported as 'XLSX').
+
+Import trace for requested module:
+./lib/googleSheets.js
+./app/page.js
+ ⚠ ./lib/googleSheets.js
+Attempted import error: 'xlsx' does not contain a default export (imported as 'XLSX').
+
+Import trace for requested module:
+./lib/googleSheets.js
+./app/page.js
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:61:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:202:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:61:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:202:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:61:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:202:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:61:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:202:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:61:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:202:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:61:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:202:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:61:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:202:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+ ⚠ ./lib/googleSheets.js
+Attempted import error: 'xlsx' does not contain a default export (imported as 'XLSX').
+
+Import trace for requested module:
+./lib/googleSheets.js
+./app/page.js
+ ⚠ ./lib/googleSheets.js
+Attempted import error: 'xlsx' does not contain a default export (imported as 'XLSX').
+
+Import trace for requested module:
+./lib/googleSheets.js
+./app/page.js
+ ⚠ ./lib/googleSheets.js
+Attempted import error: 'xlsx' does not contain a default export (imported as 'XLSX').
+
+Import trace for requested module:
+./lib/googleSheets.js
+./app/page.js
+ ⚠ ./lib/googleSheets.js
+Attempted import error: 'xlsx' does not contain a default export (imported as 'XLSX').
+
+Import trace for requested module:
+./lib/googleSheets.js
+./app/page.js
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:61:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:202:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:206:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:206:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename 'D:\sprzety_budowlane\.next\cache\webpack\client-development\3.pack.gz_' -> 'D:\sprzety_budowlane\.next\cache\webpack\client-development\3.pack.gz'
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:206:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:206:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:206:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:206:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:206:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:206:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:206:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:206:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:206:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:206:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:216:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:216:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:216:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:216:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:216:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:216:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:216:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:216:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:216:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:216:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:216:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:216:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:216:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:216:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:225:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:225:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:225:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:225:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:225:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:225:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:228:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:228:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:13:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:228:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:17:18)
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:228:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:17:18)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat 'D:\sprzety_budowlane\.next\server\app\_not-found'
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../../.next/server/app/_not-found/page' in D:\sprzety_budowlane\node_modules\next\dist\server for build dependencies doesn't lead to expected result 'D:\sprzety_budowlane\.next\server\app\_not-found\page.js', but to 'Error: Can't resolve '../../../../.next/server/app/_not-found/page' in 'D:\sprzety_budowlane\node_modules\next\dist\server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../../.next/server/app/_not-found/page (expected D:\sprzety_budowlane\.next\server\app\_not-found\page.js)
+<w>  at file dependencies D:\sprzety_budowlane\node_modules\next\dist\server\require.js
+<w>  at file D:\sprzety_budowlane\node_modules\next\dist\server\require.js
+<w>  at file dependencies D:\sprzety_budowlane\node_modules\next\dist\server\load-components.js
+<w>  at file D:\sprzety_budowlane\node_modules\next\dist\server\load-components.js
+<w>  at file dependencies D:\sprzety_budowlane\node_modules\next\dist\build\utils.js
+<w>  at file D:\sprzety_budowlane\node_modules\next\dist\build\utils.js
+<w>  at file dependencies D:\sprzety_budowlane\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w>  at file D:\sprzety_budowlane\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+<w>  at resolve commonjs D:\sprzety_budowlane\node_modules\next\dist\build\webpack\loaders\next-route-loader\index.js
+Local workbook fallback failed: Error: Cannot access file D:\sprzety_budowlane\baza_wynajem_ulepszona.xlsx
+    at read_binary (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:3255:8)
+    at readSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23832:69)
+    at Module.readFileSync (webpack-internal:///(rsc)/./node_modules/xlsx/xlsx.mjs:23872:9)
+    at readLocalWorkbookData (webpack-internal:///(rsc)/./lib/googleSheets.js:65:28)
+    at fetchMarketplaceData (webpack-internal:///(rsc)/./lib/googleSheets.js:228:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Home (webpack-internal:///(rsc)/./app/page.js:17:18)
+^C

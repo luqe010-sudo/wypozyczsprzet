@@ -1,0 +1,5 @@
+ID_sprzetu,ID_firmy,Kategoria,Sprzęt,Cena_od,Czas,Dostępność,Miasto,Priorytet,Popyt,Uwagi
+1,1,Ogród,glebogryzarka,140 zl,doba,brak danych,Wrocław,,,
+2,1,Ogród,kosiarka elektryczna,40 zl,doba,brak danych,Wrocław,,,
+3,1,Ogród,kosiarka spalinowa,60 zl,doba,brak danych,Wrocław,,,
+4,1,Ogród,kosiarka spalinowa z napędem,200 zl,doba,brak danych,Wrocław,,,

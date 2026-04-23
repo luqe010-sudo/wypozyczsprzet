@@ -1,0 +1,89 @@
+  ▲ Next.js 14.2.3
+  - Local:        http://localhost:3000
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 3.6s
+ ○ Compiling / ...
+ GET / 200 in 6524ms
+ GET / 200 in 847ms
+ GET / 200 in 912ms
+ GET / 200 in 813ms
+ GET / 200 in 893ms
+ ✓ Compiled / in 336ms (234 modules)
+ GET / 200 in 994ms
+ GET / 200 in 843ms
+ GET / 200 in 924ms
+ GET / 200 in 878ms
+ GET / 200 in 790ms
+ GET / 200 in 811ms
+   Reload env: .env.local
+ GET /GOOGLE_FORM_URL_HERE 404 in 378ms
+ ○ Compiling /_not-found ...
+ GET / 200 in 789ms
+ GET /GOOGLE_FORM_URL_HERE 404 in 47ms
+ GET / 200 in 793ms
+ GET / 200 in 929ms
+ GET /GOOGLE_FORM_URL_HERE 404 in 61ms
+ GET /GOOGLE_FORM_URL_HERE 404 in 56ms
+ GET / 200 in 809ms
+ GET /GOOGLE_FORM_URL_HERE 404 in 41ms
+ GET / 200 in 1388ms
+ GET /GOOGLE_FORM_URL_HERE 404 in 66ms
+ GET / 200 in 1282ms
+ GET /GOOGLE_FORM_URL_HERE 404 in 72ms
+ GET / 200 in 821ms
+ GET /GOOGLE_FORM_URL_HERE 404 in 32ms
+ GET / 404 in 4233ms
+ GET / 404 in 19ms
+ GET / 404 in 18ms
+ GET / 404 in 30ms
+ GET / 404 in 23ms
+ GET / 200 in 1219ms
+ ✓ Compiled /_error in 913ms (274 modules)
+ ✓ Compiled in 948ms (684 modules)
+ ✓ Compiled /_not-found in 201ms (687 modules)
+ GET /_next/static/webpack/9b7da6ca14eac363.webpack.hot-update.json 404 in 360ms
+ GET / 200 in 892ms
+   Reload env: .env.local
+ ✓ Compiled in 4.2s (684 modules)
+ GET / 200 in 1057ms
+ ✓ Compiled in 1553ms (684 modules)
+ ✓ Compiled in 404ms (274 modules)
+ ✓ Compiled in 210ms (274 modules)
+ ✓ Compiled in 456ms (684 modules)
+ ✓ Compiled in 449ms (698 modules)
+ GET / 200 in 886ms
+ ✓ Compiled /dodaj-ogloszenie in 283ms (688 modules)
+ GET /dodaj-ogloszenie 200 in 394ms
+ GET / 200 in 1043ms
+ ✓ Compiled in 475ms (277 modules)
+ GET /dodaj-ogloszenie 200 in 90ms
+ ✓ Compiled in 760ms (688 modules)
+ GET / 200 in 1969ms
+ GET / 200 in 3252ms
+ ✓ Compiled in 567ms (688 modules)
+ GET / 200 in 889ms
+ GET /dodaj-ogloszenie 200 in 50ms
+ GET / 200 in 4000ms
+ ✓ Compiled in 736ms (688 modules)
+ GET / 200 in 1086ms
+ GET / 200 in 843ms
+ ✓ Compiled in 796ms (688 modules)
+ ✓ Compiled in 312ms (277 modules)
+ ✓ Compiled /kontakt in 332ms (690 modules)
+ GET /kontakt 200 in 515ms
+ GET / 200 in 2870ms
+ GET / 200 in 987ms
+ ✓ Compiled in 673ms (279 modules)
+ GET /dodaj-ogloszenie 200 in 106ms
+ GET /kontakt 200 in 96ms
+ GET / 200 in 862ms
+ GET / 200 in 863ms
+ GET / 200 in 940ms
+ GET / 200 in 853ms
+ ✓ Compiled in 765ms (279 modules)
+ ✓ Compiled in 693ms (279 modules)
+ GET / 200 in 1522ms
+ GET /kontakt 200 in 112ms
+ GET /dodaj-ogloszenie 200 in 103ms
