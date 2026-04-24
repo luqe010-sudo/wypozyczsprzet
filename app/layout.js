@@ -32,9 +32,8 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="pl">
-      <head>
+      <body>
         <Script
-          async
           src="https://www.googletagmanager.com/gtag/js?id=G-02JHGY66TQ"
           strategy="afterInteractive"
         />
@@ -47,8 +46,6 @@ export default function RootLayout({ children }) {
             gtag('config', 'G-02JHGY66TQ');
           `}
         </Script>
-      </head>
-      <body>
         <Navbar actionUrl={actionUrl} actionLabel={actionLabel} />
         <main>{children}</main>
         <footer className="footer">
