@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { trackEvent } from '../lib/gtag';
 
 export default function Navbar({ actionUrl, actionLabel }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -39,7 +40,7 @@ export default function Navbar({ actionUrl, actionLabel }) {
             <Link
               href="/dodaj-ogloszenie"
               className="btn-primary"
-              onClick={() => setIsOpen(false)}
+              onClick={() => { setIsOpen(false); trackEvent('click_add_listing', { source: 'navbar' }); }}
             >
               {actionLabel}
             </Link>

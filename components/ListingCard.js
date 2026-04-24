@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import DynamicPlaceholder from './DynamicPlaceholder';
+import { trackEvent } from '../lib/gtag';
 
 export default function ListingCard({ listing }) {
   const [showPhone, setShowPhone] = useState(false);
@@ -91,7 +92,7 @@ export default function ListingCard({ listing }) {
                 href={`tel:${phoneNumber.replace(/\s/g, '')}`}
                 className="btn-primary"
                 style={{ width: '100%', fontSize: '1rem' }}
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => { e.stopPropagation(); trackEvent('click_phone', { listing_name: listing['Sprzęt'], phone: phoneNumber }); }}
               >
                 {'📞 '} {phoneNumber}
               </a>
@@ -103,6 +104,7 @@ export default function ListingCard({ listing }) {
                   e.preventDefault();
                   e.stopPropagation();
                   setShowPhone(true);
+                  trackEvent('show_phone', { listing_name: listing['Sprzęt'] });
                 }}
               >
                 {'Poka\u017c numer'}
@@ -126,7 +128,7 @@ export default function ListingCard({ listing }) {
                 borderColor: '#23e5db',
                 color: '#002f34'
               }}
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => { e.stopPropagation(); trackEvent('click_olx', { listing_name: listing['Sprzęt'], olx_url: listing.olxUrl }); }}
             >
               <strong>{'Za\u0142atw przez OLX'}</strong>
             </a>

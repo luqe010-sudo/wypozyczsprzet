@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Filters from './Filters';
+import { trackEvent } from '../lib/gtag';
 import ListingGrid from './ListingGrid';
 
 export default function Marketplace({ initialData }) {
@@ -103,7 +104,8 @@ export default function Marketplace({ initialData }) {
               <p>{'Chcesz doda\u0107 og\u0142oszenie?'}</p>
               <span style={{ fontSize: '0.9rem', opacity: 0.9 }}>{'Wype\u0142nij prosty formularz \u2013 bez logowania.'}</span>
             </div>
-            <a href="/dodaj-ogloszenie" className="btn-secondary">
+            <a href="/dodaj-ogloszenie" className="btn-secondary"
+              onClick={() => trackEvent('click_add_listing', { source: 'marketplace_banner' })}>
               {'Dodaj og\u0142oszenie teraz'}
             </a>
           </div>

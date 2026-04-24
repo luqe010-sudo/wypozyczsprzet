@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import DynamicPlaceholder from '../../../components/DynamicPlaceholder';
+import { trackEvent } from '../../../lib/gtag';
 
 export default function ListingPageClient({ listing, seoDescription, faqItems, related }) {
   const [showPhone, setShowPhone] = useState(false);
@@ -13,6 +14,14 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
   const phoneNumber = String(company.Telefon || '').trim();
 
   const hasHeroImage = listing.Zdjecie && String(listing.Zdjecie).startsWith('http');
+
+  useEffect(() => {
+    trackEvent('view_listing', {
+      listing_name: name,
+      listing_category: listing.Kategoria,
+      listing_city: listing.Miasto,
+    });
+  }, [name, listing.Kategoria, listing.Miasto]);
 
   return (
     <>
@@ -52,18 +61,20 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
           <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {phoneNumber ? (
               showPhone ? (
-                <a href={`tel:${phoneNumber.replace(/\s/g, '')}`} className="btn-primary" style={{ fontSize: '1.125rem', padding: '0.875rem 2rem' }}>
+                <a href={`tel:${phoneNumber.replace(/\s/g, '')}`} className="btn-primary" style={{ fontSize: '1.125rem', padding: '0.875rem 2rem' }}
+                  onClick={() => trackEvent('click_phone', { listing_name: name, phone: phoneNumber })}>
                   {'📞 '}{phoneNumber}
                 </a>
               ) : (
-                <button className="btn-primary" style={{ fontSize: '1.125rem', padding: '0.875rem 2rem' }} onClick={() => setShowPhone(true)}>
+                <button className="btn-primary" style={{ fontSize: '1.125rem', padding: '0.875rem 2rem' }} onClick={() => { setShowPhone(true); trackEvent('show_phone', { listing_name: name }); }}>
                   {'Pokaż numer'}
                 </button>
               )
             ) : null}
             {listing.olxUrl && (
               <a href={listing.olxUrl} target="_blank" rel="noopener noreferrer" className="btn-secondary"
-                style={{ backgroundColor: '#23e5db', borderColor: '#23e5db', color: '#002f34' }}>
+                style={{ backgroundColor: '#23e5db', borderColor: '#23e5db', color: '#002f34' }}
+                onClick={() => trackEvent('click_olx', { listing_name: name, olx_url: listing.olxUrl })}>
                 <strong>{'Załatw przez OLX'}</strong>
               </a>
             )}

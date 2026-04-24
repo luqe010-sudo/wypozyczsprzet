@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { trackEvent } from '../../lib/gtag';
 
 export default function AddListingPage() {
   const [status, setStatus] = useState('idle'); // idle, submitting, success, error
@@ -54,6 +55,7 @@ export default function AddListingPage() {
       });
       // no-cors always returns opaque response, assume success
       setStatus('success');
+      trackEvent('submit_listing', { equipment: formData.equipment, category: formData.category, city: formData.city });
       setFormData({ company: '', phone: '', city: '', category: 'Koparki', equipment: '', price: '', availability: 'Dostępne od zaraz', description: '' });
     } catch (err) {
       setStatus('error');
