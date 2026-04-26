@@ -7,6 +7,8 @@ export default function FiltersSidebar({
   setSelectedCity,
   selectedCategory,
   setSelectedCategory,
+  maxPrice,
+  setMaxPrice,
 }) {
   return (
     <div className="w-full">
@@ -17,6 +19,7 @@ export default function FiltersSidebar({
             onClick={() => {
               setSelectedCity('');
               setSelectedCategory('');
+              setMaxPrice(2000);
             }}
             className="text-sm text-blue-600 hover:text-blue-800 font-medium"
           >
@@ -65,11 +68,32 @@ export default function FiltersSidebar({
             </div>
           </div>
 
-          {/* Price Slider (Visual Only) */}
+          {/* Price Slider & Input */}
           <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold text-gray-900">Cena za dzień</label>
+            <div className="flex justify-between items-center">
+              <label className="text-sm font-semibold text-gray-900">Max. cena za dzień</label>
+              <div className="flex items-center gap-1">
+                <input 
+                  type="number" 
+                  min="0" 
+                  max="10000" 
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(Number(e.target.value))}
+                  className="w-20 px-2 py-1 text-right text-sm border border-gray-300 rounded-lg outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-bold text-blue-700 bg-blue-50"
+                />
+                <span className="text-sm font-medium text-gray-500">zł</span>
+              </div>
+            </div>
             <div className="mt-2">
-              <input type="range" min="0" max="2000" defaultValue="2000" className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" />
+              <input 
+                type="range" 
+                min="0" 
+                max="2000" 
+                step="50"
+                value={maxPrice > 2000 ? 2000 : maxPrice}
+                onChange={(e) => setMaxPrice(Number(e.target.value))}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" 
+              />
               <div className="flex justify-between text-xs text-gray-500 mt-2 font-medium">
                 <span>0 zł</span>
                 <span>2000+ zł</span>

@@ -15,13 +15,19 @@ export default function Marketplace({ initialData }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [maxPrice, setMaxPrice] = useState(2000);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState('20');
 
   useEffect(() => {
     setIsLoading(true);
+    setCurrentPage(1); // Reset page on filter change
     const timer = setTimeout(() => setIsLoading(false), 300);
     return () => clearTimeout(timer);
-  }, [searchTerm, selectedCity, selectedCategory]);
+  }, [searchTerm, selectedCity, selectedCategory, maxPrice]);
 
   const filteredListings = useMemo(() => {
     return listings.filter((item) => {
@@ -36,15 +42,36 @@ export default function Marketplace({ initialData }) {
 
       const matchCity = selectedCity ? item.Miasto === selectedCity : true;
       const matchCategory = selectedCategory ? item.Kategoria === selectedCategory : true;
+      const priceVal = parseFloat(item.Cena_od);
+      const matchPrice = !isNaN(priceVal) ? priceVal <= maxPrice : true;
 
-      return matchSearch && matchCity && matchCategory;
+      return matchSearch && matchCity && matchCategory && matchPrice;
     });
   }, [listings, searchTerm, selectedCity, selectedCategory]);
+
+  const totalItems = filteredListings.length;
+  const totalPages = itemsPerPage === 'all' ? 1 : Math.ceil(totalItems / parseInt(itemsPerPage, 10));
+
+  const currentListings = useMemo(() => {
+    if (itemsPerPage === 'all') return filteredListings;
+    const limit = parseInt(itemsPerPage, 10);
+    const start = (currentPage - 1) * limit;
+    return filteredListings.slice(start, start + limit);
+  }, [filteredListings, currentPage, itemsPerPage]);
 
   return (
     <div className="bg-gray-50 min-h-screen">
       {/* Hero Section */}
-      <Hero searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      <Hero 
+        searchTerm={searchTerm} 
+        setSearchTerm={setSearchTerm} 
+        availableCities={filters.cities}
+        availableCategories={filters.categories}
+        selectedCity={selectedCity}
+        setSelectedCity={setSelectedCity}
+        selectedCategory={selectedCategory}
+        setSelectedCategory={setSelectedCategory}
+      />
 
       {/* Trust & Benefits Bar */}
       <TrustBar />
@@ -62,6 +89,8 @@ export default function Marketplace({ initialData }) {
                 setSelectedCity={setSelectedCity}
                 selectedCategory={selectedCategory}
                 setSelectedCategory={setSelectedCategory}
+                maxPrice={maxPrice}
+                setMaxPrice={setMaxPrice}
               />
               
               {/* CTA for adding listing inside sidebar on desktop */}
@@ -84,13 +113,31 @@ export default function Marketplace({ initialData }) {
               <h2 className="text-2xl font-bold text-gray-900">
                 Najnowsze ogłoszenia
               </h2>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-500">Sortuj</span>
-                <select className="bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-sm font-medium text-gray-700 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 appearance-none pr-8 relative cursor-pointer">
-                  <option>Najnowsze</option>
-                  <option>Od najtańszych</option>
-                  <option>Od najdroższych</option>
-                </select>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-gray-500 hidden sm:block">Pokaż</span>
+                  <select 
+                    className="bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-sm font-medium text-gray-700 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 appearance-none pr-8 relative cursor-pointer"
+                    value={itemsPerPage}
+                    onChange={(e) => {
+                      setItemsPerPage(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                  >
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="all">Wszystkie</option>
+                  </select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-gray-500">Sortuj</span>
+                  <select className="bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-sm font-medium text-gray-700 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 appearance-none pr-8 relative cursor-pointer">
+                    <option>Najnowsze</option>
+                    <option>Od najtańszych</option>
+                    <option>Od najdroższych</option>
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -100,7 +147,50 @@ export default function Marketplace({ initialData }) {
                 <h3 className="text-lg font-medium text-gray-600">Trwa wyszukiwanie...</h3>
               </div>
             ) : filteredListings.length > 0 ? (
-              <ListingGrid listings={filteredListings} />
+              <>
+                <ListingGrid listings={currentListings} />
+                
+                {totalPages > 1 && (
+                  <div className="mt-10 flex flex-col sm:flex-row justify-center items-center gap-4">
+                    <button 
+                      onClick={() => {
+                        setCurrentPage(prev => Math.max(prev - 1, 1));
+                        window.scrollTo({ top: document.querySelector('main')?.offsetTop - 80 || 600, behavior: 'smooth' });
+                      }}
+                      disabled={currentPage === 1}
+                      className="px-5 py-2.5 border border-gray-300 rounded-xl bg-white text-gray-700 font-semibold hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
+                    >
+                      Poprzednia
+                    </button>
+                    
+                    <div className="flex items-center gap-2 overflow-x-auto max-w-full px-2">
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                        <button
+                          key={page}
+                          onClick={() => {
+                            setCurrentPage(page);
+                            window.scrollTo({ top: document.querySelector('main')?.offsetTop - 80 || 600, behavior: 'smooth' });
+                          }}
+                          className={`w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-xl font-bold transition-all shadow-sm ${currentPage === page ? 'bg-blue-600 text-white ring-2 ring-blue-600 ring-offset-2' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:border-blue-300'}`}
+                        >
+                          {page}
+                        </button>
+                      ))}
+                    </div>
+
+                    <button 
+                      onClick={() => {
+                        setCurrentPage(prev => Math.min(prev + 1, totalPages));
+                        window.scrollTo({ top: document.querySelector('main')?.offsetTop - 80 || 600, behavior: 'smooth' });
+                      }}
+                      disabled={currentPage === totalPages}
+                      className="px-5 py-2.5 border border-gray-300 rounded-xl bg-white text-gray-700 font-semibold hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
+                    >
+                      Następna
+                    </button>
+                  </div>
+                )}
+              </>
             ) : (
               <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center shadow-sm">
                 <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
@@ -114,6 +204,7 @@ export default function Marketplace({ initialData }) {
                     setSearchTerm('');
                     setSelectedCity('');
                     setSelectedCategory('');
+                    setMaxPrice(2000);
                   }}
                 >
                   Wyczyść filtry

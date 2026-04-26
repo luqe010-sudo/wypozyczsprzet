@@ -10,153 +10,242 @@ export default function AddListingPage() {
     company: '',
     phone: '',
     city: '',
-    category: 'Koparki',
+    category: 'Budowlane',
     equipment: '',
     price: '',
-    availability: 'Dostępne od zaraz',
-    description: ''
+    availability: 'od ręki',
+    description: '',
+    time: 'doba',
+    wantsPromotion: false,
+    image: null
   });
 
-  const formUrl = process.env.NEXT_PUBLIC_FORM_URL || '';
-
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value, type, checked, files } = e.target;
+    if (type === 'checkbox') {
+      setFormData({ ...formData, [name]: checked });
+    } else if (type === 'file') {
+      setFormData({ ...formData, [name]: files[0] });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus('submitting');
 
-    // === UWAGA DLA UŻYTKOWNIKA ===
-    // Aby to działało z Twoim Google Form, musisz zamienić "entry.XXXXXX" na odpowiednie ID z Twojego formularza.
-    // Musisz również upewnić się, że formularz w Google nie wymaga logowania (wyłączone zbieranie emaili i brak pola na plik).
-    // Jeśli formularz nadal nie przyjmuje danych, możesz użyć serwisu takiego jak getform.io lub formspree.io jako backendu.
-    
-    const googleFormUrl = formUrl.replace('/viewform', '/formResponse');
-    
-    const body = new URLSearchParams();
-    body.append('entry.1000001', formData.company); // Zmień na właściwe ID dla "Nazwa firmy"
-    body.append('entry.1000002', formData.phone);   // Zmień na właściwe ID dla "Telefon"
-    body.append('entry.1000003', formData.city);    // Zmień na właściwe ID dla "Miasto"
-    body.append('entry.1000004', formData.category);// Zmień na właściwe ID dla "Kategoria"
-    body.append('entry.1000005', formData.equipment);// Zmień na właściwe ID dla "Sprzęt"
-    body.append('entry.1000006', formData.price);   // Zmień na właściwe ID dla "Cena od"
-    body.append('entry.1000007', formData.availability); // Zmień na właściwe ID dla "Dostępność"
-    body.append('entry.1000008', formData.description); // Zmień na właściwe ID dla "Opis"
+    const data = new FormData();
+    Object.keys(formData).forEach(key => {
+      data.append(key, formData[key]);
+    });
 
     try {
-      await fetch(googleFormUrl, {
+      const response = await fetch('/api/add-listing', {
         method: 'POST',
-        mode: 'no-cors',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: body.toString(),
+        body: data,
       });
-      // no-cors always returns opaque response, assume success
+
+      if (!response.ok) throw new Error('Failed to submit');
+      
       setStatus('success');
       trackEvent('submit_listing', { equipment: formData.equipment, category: formData.category, city: formData.city });
-      setFormData({ company: '', phone: '', city: '', category: 'Koparki', equipment: '', price: '', availability: 'Dostępne od zaraz', description: '' });
+      setFormData({ 
+        company: '', 
+        phone: '', 
+        city: '', 
+        category: 'Koparki', 
+        equipment: '', 
+        price: '', 
+        availability: 'Dostępne od zaraz', 
+        description: '',
+        wantsPromotion: false,
+        image: null
+      });
     } catch (err) {
+      console.error(err);
       setStatus('error');
     }
   };
 
   return (
-    <div className="main-container" style={{ display: 'block', maxWidth: '800px', padding: '2rem 1rem' }}>
-      <div style={{ marginBottom: '2rem' }}>
-        <Link href="/" className="btn-secondary" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-          ← Powrót do ogłoszeń
-        </Link>
-      </div>
+    <div className="bg-gray-50 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto">
+        <div className="mb-8">
+          <Link href="/" className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors">
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+            Powrót do ogłoszeń
+          </Link>
+        </div>
 
-      <div className="responsive-article-pad" style={{ backgroundColor: 'white', borderRadius: '16px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '0.5rem' }}>Dodaj swoje ogłoszenie</h1>
-        <p style={{ color: 'var(--muted)', marginBottom: '2.5rem', lineHeight: 1.6 }}>
-          Wypełnij poniższy formularz, aby dodać swój sprzęt do naszej bazy. Pojawi się on na stronie głównej i będzie widoczny dla tysięcy użytkowników.
-        </p>
-
-        {status === 'success' ? (
-          <div style={{ padding: '2rem', backgroundColor: '#ecfdf5', color: '#065f46', borderRadius: '8px', textAlign: 'center' }}>
-            <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Ogłoszenie zostało wysłane!</h3>
-            <p>Pojawi się na stronie po automatycznej synchronizacji z bazą danych.</p>
-            <button onClick={() => setStatus('idle')} className="btn-primary" style={{ marginTop: '1.5rem' }}>Dodaj kolejne</button>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            
-            <div className="responsive-grid-2">
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Nazwa Firmy / Osoby</label>
-                <input required type="text" name="company" value={formData.company} onChange={handleChange} 
-                       style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border)' }} />
-              </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Telefon kontaktowy</label>
-                <input required type="tel" name="phone" value={formData.phone} onChange={handleChange} 
-                       style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border)' }} />
-              </div>
+        <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+          <div className="p-8 md:p-12">
+            <div className="mb-10 text-center">
+              <h1 className="text-3xl font-extrabold text-gray-900 mb-4">Dodaj swoje ogłoszenie</h1>
+              <p className="text-gray-500 max-w-lg mx-auto">
+                Wypełnij formularz, aby dodać swój sprzęt. Twoje ogłoszenie zostanie wyświetlone po zatwierdzeniu przez administratora.
+              </p>
             </div>
 
-            <div className="responsive-grid-2">
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Miasto</label>
-                <input required type="text" name="city" value={formData.city} onChange={handleChange} 
-                       style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border)' }} />
+            {status === 'success' ? (
+              <div className="bg-green-50 rounded-2xl p-8 text-center border border-green-100">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-green-600">
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                </div>
+                <h3 className="text-xl font-bold text-green-900 mb-2">Ogłoszenie zostało wysłane!</h3>
+                <p className="text-green-700 mb-6">Zostanie ono zweryfikowane przez naszą obsługę. Po akceptacji pojawi się na liście.</p>
+                <button 
+                  onClick={() => setStatus('idle')} 
+                  className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-md"
+                >
+                  Dodaj kolejne
+                </button>
               </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Kategoria</label>
-                <select name="category" value={formData.category} onChange={handleChange} 
-                        style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'white' }}>
-                  <option value="Koparki">Koparki</option>
-                  <option value="Ładowarki">Ładowarki</option>
-                  <option value="Podnośniki">Podnośniki</option>
-                  <option value="Narzędzia">Narzędzia i sprzęt</option>
-                  <option value="Ogród">Ogród</option>
-                  <option value="Inne">Inne</option>
-                </select>
-              </div>
-            </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-6">
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Nazwa Firmy / Imię</label>
+                    <input required type="text" name="company" value={formData.company} onChange={handleChange} 
+                           className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Telefon kontaktowy</label>
+                    <input required type="tel" name="phone" value={formData.phone} onChange={handleChange} 
+                           className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all" />
+                  </div>
+                </div>
 
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Nazwa Sprzętu</label>
-              <input required type="text" name="equipment" value={formData.equipment} onChange={handleChange} placeholder="np. Minikoparka Kubota U17-3a"
-                     style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border)' }} />
-            </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Miasto</label>
+                    <input required type="text" name="city" value={formData.city} onChange={handleChange} 
+                           className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Kategoria</label>
+                    <select name="category" value={formData.category} onChange={handleChange} 
+                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all appearance-none bg-no-repeat bg-[right_1rem_center] cursor-pointer">
+                      <option value="Budowlane">Budowlane</option>
+                      <option value="Ciężki sprzęt">Ciężki sprzęt</option>
+                      <option value="Narzędzia">Narzędzia</option>
+                      <option value="Ogrodnicze">Ogrodnicze</option>
+                      <option value="Inne">Inne</option>
+                    </select>
+                  </div>
+                </div>
 
-            <div className="responsive-grid-2">
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Cena za dobę (PLN)</label>
-                <input required type="number" name="price" value={formData.price} onChange={handleChange} 
-                       style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border)' }} />
-              </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Dostępność</label>
-                <select name="availability" value={formData.availability} onChange={handleChange} 
-                        style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'white' }}>
-                  <option value="Dostępne od zaraz">Dostępne od zaraz</option>
-                  <option value="Wkrótce">Wkrótce</option>
-                  <option value="Brak danych">Brak danych</option>
-                </select>
-              </div>
-            </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Nazwa Sprzętu</label>
+                    <input required type="text" name="equipment" value={formData.equipment} onChange={handleChange} placeholder="np. Minikoparka Kubota U17-3a"
+                           className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Cena (PLN)</label>
+                    <div className="flex gap-2">
+                      <input required type="number" name="price" value={formData.price} onChange={handleChange} 
+                             className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all" />
+                      <select name="time" value={formData.time || 'doba'} onChange={handleChange} 
+                              className="w-32 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all appearance-none cursor-pointer">
+                        <option value="doba">/ doba</option>
+                        <option value="godzina">/ godzina</option>
+                        <option value="miesiąc">/ miesiąc</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
 
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Opis sprzętu (Opcjonalnie)</label>
-              <textarea name="description" value={formData.description} onChange={handleChange} rows="4"
-                        placeholder="Szczegóły, dane techniczne, zasady wynajmu..."
-                        style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border)', resize: 'vertical' }}></textarea>
-            </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Dostępność</label>
+                    <select name="availability" value={formData.availability} onChange={handleChange} 
+                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all appearance-none cursor-pointer">
+                      <option value="od ręki">od ręki</option>
+                      <option value="na telefon">na telefon</option>
+                    </select>
+                  </div>
+                </div>
 
-            {status === 'error' && (
-              <div style={{ color: '#dc2626', fontSize: '0.875rem' }}>Wystąpił błąd podczas wysyłania formularza. Spróbuj ponownie później.</div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">Opis sprzętu (Opcjonalnie)</label>
+
+                  <textarea name="description" value={formData.description} onChange={handleChange} rows="4"
+                            placeholder="Szczegóły, dane techniczne, zasady wynajmu..."
+                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all resize-none"></textarea>
+                </div>
+
+                <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100">
+                  <div className="flex items-start gap-3">
+                    <input 
+                      id="wantsPromotion"
+                      type="checkbox" 
+                      name="wantsPromotion" 
+                      checked={formData.wantsPromotion} 
+                      onChange={handleChange}
+                      className="mt-1.5 w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 accent-blue-600 cursor-pointer" 
+                    />
+                    <label htmlFor="wantsPromotion" className="text-sm font-medium text-blue-900 cursor-pointer select-none">
+                      <span className="font-bold block mb-1">Chcę wyróżnić ogłoszenie (w przyszłości płatne)</span>
+                      <p className="text-blue-700/80">Wybierz tę opcję, aby Twoja oferta znalazła się wyżej na liście wyników wyszukiwania.</p>
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">Zdjęcie sprzętu</label>
+                  <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-2xl hover:border-blue-400 transition-colors cursor-pointer relative group bg-gray-50">
+                    <div className="space-y-1 text-center">
+                      <svg className="mx-auto h-12 w-12 text-gray-400 group-hover:text-blue-500 transition-colors" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                      <div className="flex text-sm text-gray-600">
+                        <span className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
+                          Wgraj plik
+                        </span>
+                        <p className="pl-1">lub przeciągnij i upuść</p>
+                      </div>
+                      <p className="text-xs text-gray-500">PNG, JPG, GIF do 10MB</p>
+                    </div>
+                    <input 
+                      type="file" 
+                      name="image" 
+                      onChange={handleChange} 
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                    />
+                  </div>
+                  {formData.image && (
+                    <p className="mt-2 text-sm text-blue-600 font-medium flex items-center">
+                      <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path></svg>
+                      Wybrano: {formData.image.name}
+                    </p>
+                  )}
+                </div>
+
+                {status === 'error' && (
+                  <div className="p-4 bg-red-50 text-red-600 text-sm font-medium rounded-xl border border-red-100 flex items-center">
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    Wystąpił błąd podczas wysyłania formularza. Spróbuj ponownie.
+                  </div>
+                )}
+
+                <button 
+                  type="submit" 
+                  disabled={status === 'submitting'} 
+                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-bold py-4 px-8 rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-[0.98] flex items-center justify-center gap-2"
+                >
+                  {status === 'submitting' ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Wysyłanie...
+                    </>
+                  ) : 'Dodaj ogłoszenie'}
+                </button>
+              </form>
             )}
-
-            <button type="submit" disabled={status === 'submitting'} className="btn-primary" style={{ padding: '1rem', fontSize: '1.125rem', marginTop: '1rem' }}>
-              {status === 'submitting' ? 'Wysyłanie...' : 'Dodaj ogłoszenie'}
-            </button>
-          </form>
-        )}
+          </div>
+        </div>
       </div>
     </div>
   );

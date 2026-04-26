@@ -5,3 +5,5 @@ node_modules
 out
 dist
 *.log
+public/uploads
+baza_wynajem_ulepszona.xlsx
