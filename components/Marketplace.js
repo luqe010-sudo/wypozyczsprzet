@@ -1,9 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from 'react';
-import Filters from './Filters';
-import { trackEvent } from '../lib/gtag';
+import Hero from './Hero';
+import TrustBar from './TrustBar';
+import FiltersSidebar from './FiltersSidebar';
 import ListingGrid from './ListingGrid';
+import CTASection from './CTASection';
+import StatsSection from './StatsSection';
+import { trackEvent } from '../lib/gtag';
 
 export default function Marketplace({ initialData }) {
   const { listings, filters } = initialData;
@@ -21,7 +25,7 @@ export default function Marketplace({ initialData }) {
 
   const filteredListings = useMemo(() => {
     return listings.filter((item) => {
-      const equipmentName = String(item['Sprz\u0119t'] || '');
+      const equipmentName = String(item['Sprzęt'] || '');
       const categoryName = String(item.Kategoria || '');
       const searchValue = searchTerm.toLowerCase();
 
@@ -38,112 +42,91 @@ export default function Marketplace({ initialData }) {
   }, [listings, searchTerm, selectedCity, selectedCategory]);
 
   return (
-    <>
-      <section className="hero">
-        <div className="hero-content">
-          <h2>{'Wynajmij sprz\u0119t w swojej okolicy'}</h2>
-          <p>
-            {'Szybko znajd\u017a koparki, narz\u0119dzia i sprz\u0119t budowlany blisko Ciebie'}
-          </p>
-          <div className="hero-search">
-            <input
-              type="text"
-              placeholder="Czego szukasz? (np. koparka, wiertarka...)"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <button className="btn-primary">{'Znajdź sprzęt'}</button>
-          </div>
-        </div>
-      </section>
+    <div className="bg-gray-50 min-h-screen">
+      {/* Hero Section */}
+      <Hero searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
-      <div className="main-container">
-        <aside className="sidebar">
-          <Filters
-            availableCities={filters.cities}
-            availableCategories={filters.categories}
-            selectedCity={selectedCity}
-            setSelectedCity={setSelectedCity}
-            selectedCategory={selectedCategory}
-            setSelectedCategory={setSelectedCategory}
-          />
+      {/* Trust & Benefits Bar */}
+      <TrustBar />
 
-          <div className="filter-card" style={{ marginTop: '2.5rem', padding: '1.5rem', backgroundColor: 'var(--primary-light)', borderRadius: '16px' }}>
-            <h4 style={{ fontSize: '0.9rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--primary)', marginBottom: '1.5rem', letterSpacing: '0.05em' }}>
-              {'Dlaczego warto?'}
-            </h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                <span style={{ fontSize: '1.25rem' }}>{'🆓'}</span>
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{'Darmowe og\u0142oszenia'}</div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--muted)', marginTop: '0.1rem' }}>{'Dodawaj oferty bez op\u0142at.'}</div>
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                <span style={{ fontSize: '1.25rem' }}>{'⚡'}</span>
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{'Szybki kontakt'}</div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--muted)', marginTop: '0.1rem' }}>{'Bezpo\u015bredni nr telefonu.'}</div>
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                <span style={{ fontSize: '1.25rem' }}>{'📍'}</span>
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{'Lokalni wykonawcy'}</div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--muted)', marginTop: '0.1rem' }}>{'Sprz\u0119t w Twojej okolicy.'}</div>
-                </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12">
+        <div className="flex flex-col lg:flex-row gap-8">
+          
+          {/* Sidebar */}
+          <aside className="w-full lg:w-80 flex-shrink-0">
+            <div className="sticky top-24">
+              <FiltersSidebar
+                availableCities={filters.cities}
+                availableCategories={filters.categories}
+                selectedCity={selectedCity}
+                setSelectedCity={setSelectedCity}
+                selectedCategory={selectedCategory}
+                setSelectedCategory={setSelectedCategory}
+              />
+              
+              {/* CTA for adding listing inside sidebar on desktop */}
+              <div className="hidden lg:block">
+                <CTASection />
               </div>
             </div>
-          </div>
-        </aside>
+          </aside>
 
-        <section className="content">
-          <div className="ux-info-banner">
-            <div>
-              <p>{'Chcesz doda\u0107 og\u0142oszenie?'}</p>
-              <span style={{ fontSize: '0.9rem', opacity: 0.9 }}>{'Wype\u0142nij prosty formularz \u2013 bez logowania.'}</span>
+          {/* Main Content */}
+          <main className="flex-1 min-w-0">
+            
+            {/* CTA for mobile (shown before listings) */}
+            <div className="block lg:hidden mb-8">
+               <CTASection />
             </div>
-            <a href="/dodaj-ogloszenie" className="btn-secondary"
-              onClick={() => trackEvent('click_add_listing', { source: 'marketplace_banner' })}>
-              {'Dodaj og\u0142oszenie teraz'}
-            </a>
-          </div>
 
-          {isLoading ? (
-            <div className="loading-state">
-              <h3>{'Trwa wyszukiwanie...'}</h3>
+            {/* Listings Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+              <h2 className="text-2xl font-bold text-gray-900">
+                Najnowsze ogłoszenia
+              </h2>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-gray-500">Sortuj</span>
+                <select className="bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-sm font-medium text-gray-700 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 appearance-none pr-8 relative cursor-pointer">
+                  <option>Najnowsze</option>
+                  <option>Od najtańszych</option>
+                  <option>Od najdroższych</option>
+                </select>
+              </div>
             </div>
-          ) : filteredListings.length > 0 ? (
-            <ListingGrid listings={filteredListings} />
-          ) : (
-            <div className="empty-state">
-              <h3>{'Nie znaleziono sprz\u0119tu'}</h3>
-              <p>{'Spr\u00f3buj zmieni\u0107 kryteria wyszukiwania lub filtry.'}</p>
-              <button
-                className="btn-primary"
-                style={{ marginTop: '1.5rem' }}
-                onClick={() => {
-                  setSearchTerm('');
-                  setSelectedCity('');
-                  setSelectedCategory('');
-                }}
-              >
-                {'Wyczy\u015b\u0107 filtry'}
-              </button>
-            </div>
-          )}
-        </section>
-      </div>
 
+            {isLoading ? (
+              <div className="py-20 text-center">
+                <div className="inline-block w-8 h-8 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+                <h3 className="text-lg font-medium text-gray-600">Trwa wyszukiwanie...</h3>
+              </div>
+            ) : filteredListings.length > 0 ? (
+              <ListingGrid listings={filteredListings} />
+            ) : (
+              <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center shadow-sm">
+                <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Nie znaleziono sprzętu</h3>
+                <p className="text-gray-500 mb-6 max-w-md mx-auto">Spróbuj zmienić kryteria wyszukiwania, lokalizację lub kategorię, aby znaleźć inne oferty.</p>
+                <button
+                  className="bg-blue-50 text-blue-700 hover:bg-blue-100 font-bold py-2.5 px-6 rounded-xl transition-colors duration-200"
+                  onClick={() => {
+                    setSearchTerm('');
+                    setSelectedCity('');
+                    setSelectedCategory('');
+                  }}
+                >
+                  Wyczyść filtry
+                </button>
+              </div>
+            )}
+            
+            {/* Stats Section */}
+            <StatsSection />
 
-      <div style={{ padding: '4rem 2rem', color: 'var(--muted)', fontSize: '0.9375rem', textAlign: 'center', backgroundColor: 'var(--primary-light)' }}>
-        <div className="navbar-container">
-          <p style={{ fontStyle: 'italic', maxWidth: '800px', margin: '0 auto', lineHeight: 1.8 }}>
-            👉 {'Wynajem koparek Wroc\u0142aw, minikoparki, sprz\u0119t budowlany, \u0142adowarki teleskopowe, podno\u015bniki koszowe, wynajem zag\u0119szczarek i sprz\u0119tu ogrodniczego. Znajd\u017a najlepsze oferty od lokalnych firm w Twojej okolicy.'}
-          </p>
+          </main>
         </div>
       </div>
-    </>
+    </div>
   );
 }

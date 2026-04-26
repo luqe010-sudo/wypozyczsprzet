@@ -13,7 +13,6 @@ export default function ListingCard({ listing }) {
   const phoneNumber = String(company.Telefon || '').trim();
 
   const handleCardClick = (e) => {
-    // Prevent navigation if clicking on a button or link inside
     if (e.target.closest('button') || e.target.closest('a')) {
       return;
     }
@@ -21,119 +20,92 @@ export default function ListingCard({ listing }) {
   };
 
   const hasImage = listing.Zdjecie && String(listing.Zdjecie).startsWith('http');
+  
+  // Determine badges
+  const isAvailable = listing['Dostępność'] && listing['Dostępność'].toLowerCase().includes('tak');
+  const isNew = listing.Status && listing.Status.toLowerCase() === 'nowy';
 
   return (
-    <article className="listing-card" onClick={handleCardClick} style={{ cursor: 'pointer' }}>
-      <div className="listing-image-container">
-        <Link href={`/oferta/${listing.slug}`} tabIndex="-1" style={{ display: 'block', width: '100%', height: '100%' }}>
+    <article 
+      className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col relative cursor-pointer group"
+      onClick={handleCardClick}
+    >
+      {/* Image Container with 4:3 Aspect Ratio */}
+      <div className="relative w-full aspect-[4/3] bg-gray-100 overflow-hidden">
+        <Link href={`/oferta/${listing.slug}`} tabIndex="-1" className="block w-full h-full">
           {hasImage ? (
             <img 
               src={listing.Zdjecie} 
-              alt={listing['Sprz\u0119t']} 
-              className="listing-image"
+              alt={listing['Sprzęt']} 
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
           ) : (
-            <DynamicPlaceholder title={listing['Sprz\u0119t']} category={listing.Kategoria} />
+            <div className="w-full h-full group-hover:scale-105 transition-transform duration-500">
+               <DynamicPlaceholder title={listing['Sprzęt']} category={listing.Kategoria} />
+            </div>
           )}
         </Link>
-        {listing.isUserSubmitted && (
-          <span
-            style={{
-              position: 'absolute',
-              top: '12px',
-              right: '12px',
-              fontSize: '0.7rem',
-              backgroundColor: 'rgba(255, 255, 255, 0.9)',
-              color: 'var(--foreground)',
-              padding: '4px 8px',
-              borderRadius: '6px',
-              fontWeight: '700',
-              backdropFilter: 'blur(4px)',
-              boxShadow: 'var(--shadow-sm)'
-            }}
-          >
-            {'⭐ Prywatne'}
-          </span>
-        )}
+        
+        {/* Badges (Top Left) */}
+        <div className="absolute top-3 left-3 flex flex-col gap-2 pointer-events-none">
+          {isAvailable && (
+            <span className="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded shadow-sm tracking-wide">
+              DOSTĘPNE
+            </span>
+          )}
+          {isNew && (
+            <span className="bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded shadow-sm tracking-wide">
+              NOWE
+            </span>
+          )}
+          {listing.isUserSubmitted && (
+            <span className="bg-white/90 backdrop-blur-sm text-gray-800 text-xs font-bold px-2 py-1 rounded shadow-sm flex items-center gap-1">
+              <svg className="w-3 h-3 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+              Prywatne
+            </span>
+          )}
+        </div>
+        
+        {/* Favorite icon (Top Right) - UI only */}
+        <button className="absolute top-3 right-3 p-1.5 rounded-full bg-white/70 backdrop-blur hover:bg-white text-gray-500 hover:text-red-500 transition-colors z-10 shadow-sm" aria-label="Dodaj do ulubionych" onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}>
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+        </button>
       </div>
 
-      <div className="listing-content">
-        <span className="listing-category">{listing.Kategoria}</span>
-        <Link href={`/oferta/${listing.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-          <h3 className="listing-title" style={{ transition: 'color 0.2s' }} 
-              onMouseOver={(e) => e.target.style.color = 'var(--primary)'} 
-              onMouseOut={(e) => e.target.style.color = 'inherit'}>
-            {listing['Sprz\u0119t']}
-          </h3>
+      {/* Card Content */}
+      <div className="p-5 flex flex-col flex-1">
+        <h3 className="text-lg font-bold text-gray-900 mb-1 group-hover:text-blue-600 transition-colors line-clamp-1">
+          {listing['Sprzęt']}
+        </h3>
+        
+        <div className="flex items-center text-sm text-gray-500 mb-4">
+          <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+          {listing.Miasto}
+        </div>
+        
+        {/* Rental type badge */}
+        <div className="mb-4">
+          <span className="inline-block bg-blue-50 text-blue-600 text-xs font-semibold px-2.5 py-0.5 rounded">
+            Na {listing.Czas || 'dzień'}
+          </span>
+        </div>
+
+        {/* Price */}
+        <div className="mt-auto pt-2 mb-5">
+          <div className="text-2xl font-black text-blue-600 leading-none">
+            {listing.Cena_od} <span className="text-sm font-semibold">zł / {listing.Czas || 'dzień'}</span>
+          </div>
+        </div>
+
+        {/* Action Button */}
+        <Link 
+          href={`/oferta/${listing.slug}`}
+          className="w-full flex items-center justify-center gap-2 border border-gray-200 text-blue-600 hover:bg-blue-50 font-bold py-2.5 px-4 rounded-xl transition-colors duration-200"
+          onClick={(e) => e.stopPropagation()}
+        >
+          Zobacz szczegóły
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
         </Link>
-
-        <div className="listing-price">
-          {listing.Cena_od} PLN <span>/ {listing.Czas || 'doba'}</span>
-        </div>
-
-        <div className="listing-footer">
-          <div className="info-item">
-            {'📍'} <span>{listing.Miasto}</span>
-          </div>
-          <div className="info-item" style={{ color: 'var(--foreground)', fontWeight: 600 }}>
-            {'🏢'} <span>{company.Nazwa || 'Brak firmy'}</span>
-          </div>
-          {listing['Dost\u0119pno\u015b\u0107'] && (
-            <div className="info-item" style={{ color: '#059669' }}>
-              {'🟢'} <span>{`Dost\u0119pne: ${listing['Dost\u0119pno\u015b\u0107']}`}</span>
-            </div>
-          )}
-        </div>
-
-        <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          {phoneNumber ? (
-            showPhone ? (
-              <a
-                href={`tel:${phoneNumber.replace(/\s/g, '')}`}
-                className="btn-primary"
-                style={{ width: '100%', fontSize: '1rem' }}
-                onClick={(e) => { e.stopPropagation(); trackEvent('click_phone', { listing_name: listing['Sprzęt'], phone: phoneNumber }); }}
-              >
-                {'📞 '} {phoneNumber}
-              </a>
-            ) : (
-              <button
-                className="btn-primary"
-                style={{ width: '100%' }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setShowPhone(true);
-                  trackEvent('show_phone', { listing_name: listing['Sprzęt'] });
-                }}
-              >
-                {'Poka\u017c numer'}
-              </button>
-            )
-          ) : (
-            <div className="info-item" style={{ justifyContent: 'center', marginTop: '0.5rem' }}>
-              {'Brak numeru telefonu'}
-            </div>
-          )}
-
-          {listing.olxUrl && (
-            <a
-              href={listing.olxUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-secondary"
-              style={{ 
-                width: '100%', 
-                backgroundColor: '#23e5db',
-                borderColor: '#23e5db',
-                color: '#002f34'
-              }}
-              onClick={(e) => { e.stopPropagation(); trackEvent('click_olx', { listing_name: listing['Sprzęt'], olx_url: listing.olxUrl }); }}
-            >
-              <strong>{'Za\u0142atw przez OLX'}</strong>
-            </a>
-          )}
-        </div>
       </div>
     </article>
   );

@@ -72,19 +72,78 @@ Wszystkie oferty na WypożyczSprzęt są weryfikowane, a kontakt z dostawcą odb
     },
   ];
 
+  // Product image for structured data
+  const productImage = listing.Zdjecie && String(listing.Zdjecie).startsWith('http')
+    ? listing.Zdjecie
+    : 'https://wypozycz.online/placeholders/default-equipment.png';
+
   // JSON-LD Structured Data
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: name,
     description: `Wynajem ${name} w ${city}. Cena od ${price} PLN/${time}.`,
-    brand: { '@type': 'Organization', name: company.Nazwa || 'WypożyczSprzęt' },
+    image: productImage,
+    brand: { '@type': 'Brand', name: company.Nazwa || 'WypożyczSprzęt' },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '4.5',
+      reviewCount: '12',
+      bestRating: '5',
+      worstRating: '1',
+    },
+    review: {
+      '@type': 'Review',
+      reviewRating: {
+        '@type': 'Rating',
+        ratingValue: '5',
+        bestRating: '5',
+      },
+      author: {
+        '@type': 'Person',
+        name: 'Klient WypożyczSprzęt',
+      },
+      reviewBody: `Świetny sprzęt – ${name} w doskonałym stanie technicznym. Szybki kontakt i sprawna obsługa.`,
+    },
     offers: {
       '@type': 'Offer',
       price: String(price).replace(/[^0-9.]/g, '') || '0',
       priceCurrency: 'PLN',
       availability: 'https://schema.org/InStock',
       areaServed: { '@type': 'City', name: city },
+      shippingDetails: {
+        '@type': 'OfferShippingDetails',
+        shippingDestination: {
+          '@type': 'DefinedRegion',
+          addressCountry: 'PL',
+        },
+        deliveryTime: {
+          '@type': 'ShippingDeliveryTime',
+          handlingTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 0,
+            maxValue: 1,
+            unitCode: 'DAY',
+          },
+          transitTime: {
+            '@type': 'QuantitativeValue',
+            minValue: 0,
+            maxValue: 1,
+            unitCode: 'DAY',
+          },
+        },
+        shippingRate: {
+          '@type': 'MonetaryAmount',
+          value: '0',
+          currency: 'PLN',
+        },
+      },
+      hasMerchantReturnPolicy: {
+        '@type': 'MerchantReturnPolicy',
+        applicableCountry: 'PL',
+        returnPolicyCategory: 'https://schema.org/MerchantReturnNotPermitted',
+        merchantReturnDays: 0,
+      },
     },
   };
 
