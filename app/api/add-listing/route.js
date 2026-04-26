@@ -19,31 +19,18 @@ export async function POST(request) {
     const wantsPromotion = formData.get('wantsPromotion') === 'true';
     const imageFile = formData.get('image');
 
-    let imagePath = '';
+    let imageContent = '';
+    let imageName = '';
+    let imageType = '';
+
     if (imageFile && imageFile.size > 0) {
       try {
         const bytes = await imageFile.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-        
-        const fileName = `${Date.now()}-${imageFile.name.replace(/\s+/g, '-')}`;
-
-        // Check if we are on Vercel (read-only filesystem)
-        if (process.env.VERCEL) {
-          console.log('Detected Vercel environment. Local file upload is disabled.');
-          // Use a placeholder or cloud storage
-          imagePath = 'https://placehold.co/600x400?text=Zdjęcie+w+trakcie+weryfikacji';
-        } else {
-          const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-          if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-          }
-          const fullPath = path.join(uploadDir, fileName);
-          fs.writeFileSync(fullPath, buffer);
-          imagePath = `/uploads/${fileName}`;
-        }
+        imageContent = Buffer.from(bytes).toString('base64');
+        imageName = imageFile.name;
+        imageType = imageFile.type;
       } catch (uploadError) {
-        console.error('Upload error:', uploadError);
-        imagePath = ''; // Proceed without image if upload fails
+        console.error('Error preparing image for Google Drive:', uploadError);
       }
     }
 
@@ -65,7 +52,9 @@ export async function POST(request) {
           company: company,
           phone: phone,
           description: description,
-          image: imagePath, // Path or full URL
+          imageContent: imageContent, // Base64 content
+          imageName: imageName,
+          imageType: imageType,
           Status: 'NOWE',
           Promowanie: wantsPromotion ? 'Mozliwe' : 'Nie',
           priority: 1
