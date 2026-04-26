@@ -21,19 +21,30 @@ export async function POST(request) {
 
     let imagePath = '';
     if (imageFile && imageFile.size > 0) {
-      const bytes = await imageFile.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      
-      const fileName = `${Date.now()}-${imageFile.name.replace(/\s+/g, '-')}`;
-      const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-      
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
+      try {
+        const bytes = await imageFile.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        
+        const fileName = `${Date.now()}-${imageFile.name.replace(/\s+/g, '-')}`;
+
+        // Check if we are on Vercel (read-only filesystem)
+        if (process.env.VERCEL) {
+          console.log('Detected Vercel environment. Local file upload is disabled.');
+          // Use a placeholder or cloud storage
+          imagePath = 'https://placehold.co/600x400?text=Zdjęcie+w+trakcie+weryfikacji';
+        } else {
+          const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+          if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+          }
+          const fullPath = path.join(uploadDir, fileName);
+          fs.writeFileSync(fullPath, buffer);
+          imagePath = `/uploads/${fileName}`;
+        }
+      } catch (uploadError) {
+        console.error('Upload error:', uploadError);
+        imagePath = ''; // Proceed without image if upload fails
       }
-      
-      const fullPath = path.join(uploadDir, fileName);
-      fs.writeFileSync(fullPath, buffer);
-      imagePath = `/uploads/${fileName}`;
     }
 
     const scriptUrl = process.env.GOOGLE_SCRIPT_URL;
