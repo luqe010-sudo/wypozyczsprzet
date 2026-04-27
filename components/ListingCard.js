@@ -109,22 +109,22 @@ export default function ListingCard({ listing }) {
         </div>
 
         {/* Action Button */}
-        {isIncomplete ? (
+        <Link 
+          href={`/oferta/${listing.slug}`}
+          className="w-full flex items-center justify-center gap-2 border border-gray-200 text-blue-600 hover:bg-blue-50 font-bold py-2.5 px-4 rounded-xl transition-colors duration-200"
+          onClick={(e) => e.stopPropagation()}
+        >
+          Zobacz szczegóły
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+        </Link>
+
+        {isIncomplete && (
           <Link 
             href={`/oferta/${listing.slug}`}
-            className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-4 rounded-xl transition-colors duration-200 shadow-md"
+            className="mt-3 text-[10px] text-center text-gray-400 hover:text-red-500 transition-colors uppercase tracking-wider font-bold"
             onClick={(e) => e.stopPropagation()}
           >
-            Jesteś właścicielem? - Uzupełnij dane.
-          </Link>
-        ) : (
-          <Link 
-            href={`/oferta/${listing.slug}`}
-            className="w-full flex items-center justify-center gap-2 border border-gray-200 text-blue-600 hover:bg-blue-50 font-bold py-2.5 px-4 rounded-xl transition-colors duration-200"
-            onClick={(e) => e.stopPropagation()}
-          >
-            Zobacz szczegóły
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+            Jesteś właścicielem? Uzupełnij dane
           </Link>
         )}
       </div>
