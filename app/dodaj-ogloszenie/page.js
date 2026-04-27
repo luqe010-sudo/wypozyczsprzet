@@ -1,11 +1,14 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { trackEvent } from '../../lib/gtag';
 import PrivacyModal from '../../components/PrivacyModal';
 
-export default function AddListingPage() {
+function AddListingForm() {
+  const searchParams = useSearchParams();
+  const editId = searchParams.get('edit');
   const [status, setStatus] = useState('idle'); // idle, submitting, success, error
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -42,6 +45,10 @@ export default function AddListingPage() {
     Object.keys(formData).forEach(key => {
       data.append(key, formData[key]);
     });
+
+    if (editId) {
+      data.append('editId', editId);
+    }
 
     try {
       const response = await fetch('/api/add-listing', {
@@ -277,5 +284,13 @@ export default function AddListingPage() {
       </div>
       <PrivacyModal isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} />
     </div>
+  );
+}
+
+export default function AddListingPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Ładowanie...</div>}>
+      <AddListingForm />
+    </Suspense>
   );
 }

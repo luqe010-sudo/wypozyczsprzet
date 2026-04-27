@@ -65,7 +65,7 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
             {listing.Cena_od} <span style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--muted)' }}>PLN / {listing.Czas || 'doba'}</span>
           </div>
           <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {phoneNumber ? (
+            {phoneNumber && (
               showPhone ? (
                 <a href={`tel:${phoneNumber.replace(/\s/g, '')}`} className="btn-primary" style={{ fontSize: '1.125rem', padding: '0.875rem 2rem' }}
                   onClick={() => trackEvent('click_phone', { listing_name: name, phone: phoneNumber })}>
@@ -73,14 +73,24 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
                 </a>
               ) : (
                 <button 
-                  className={isIncomplete ? "btn-primary bg-red-600 hover:bg-red-700" : "btn-primary"} 
-                  style={{ fontSize: '1.125rem', padding: '0.875rem 2rem', backgroundColor: isIncomplete ? '#dc2626' : undefined }} 
+                  className="btn-primary" 
+                  style={{ fontSize: '1.125rem', padding: '0.875rem 2rem' }} 
                   onClick={() => { setShowPhone(true); trackEvent('show_phone', { listing_name: name }); }}
                 >
-                  {isIncomplete ? 'Jesteś właścicielem? - Uzupełnij dane.' : 'Pokaż numer'}
+                  {'Pokaż numer'}
                 </button>
               )
-            ) : null}
+            )}
+            
+            {isIncomplete && (
+              <Link 
+                href={`/dodaj-ogloszenie?edit=${listing.ID_sprzetu}`}
+                className="btn-primary"
+                style={{ fontSize: '1.125rem', padding: '0.875rem 2rem', backgroundColor: '#dc2626', color: 'white', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}
+              >
+                {'Jesteś właścicielem? - Uzupełnij dane.'}
+              </Link>
+            )}
             {listing.olxUrl && (
               <a href={listing.olxUrl} target="_blank" rel="noopener noreferrer" className="btn-secondary"
                 style={{ backgroundColor: '#23e5db', borderColor: '#23e5db', color: '#002f34' }}

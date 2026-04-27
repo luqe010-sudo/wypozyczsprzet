@@ -16,6 +16,7 @@ export async function POST(request) {
     const description = formData.get('description');
     const wantsPromotion = formData.get('wantsPromotion') === 'true';
     const imageFile = formData.get('image');
+    const editId = formData.get('editId');
 
     let imageUrl = '';
 
@@ -48,7 +49,8 @@ export async function POST(request) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ID_sprzetu: Math.random().toString(36).substring(2, 11),
+          ID_sprzetu: editId || Math.random().toString(36).substring(2, 11),
+          isEdit: !!editId,
           Kategoria: category,
           equipment: equipment,
           price: price,
