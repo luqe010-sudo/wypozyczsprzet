@@ -1,5 +1,6 @@
 import './globals.css';
 import Navbar from '../components/Navbar';
+import CookieConsent from '../components/CookieConsent';
 import Script from 'next/script';
 
 const publicFormUrl = process.env.NEXT_PUBLIC_FORM_URL || process.env.FORM_URL || '';
@@ -33,19 +34,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="pl">
       <body>
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-02JHGY66TQ"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-
-            gtag('config', 'G-02JHGY66TQ');
-          `}
-        </Script>
+        <CookieConsent />
         <Navbar actionUrl={actionUrl} actionLabel={actionLabel} />
         <main>{children}</main>
         <footer className="footer">

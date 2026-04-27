@@ -3,9 +3,11 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { trackEvent } from '../../lib/gtag';
+import PrivacyModal from '../../components/PrivacyModal';
 
 export default function AddListingPage() {
   const [status, setStatus] = useState('idle'); // idle, submitting, success, error
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [formData, setFormData] = useState({
     company: '',
     phone: '',
@@ -210,6 +212,13 @@ export default function AddListingPage() {
                       Akceptuję <Link href="/regulamin" className="text-blue-600 hover:underline" target="_blank">regulamin serwisu</Link> oraz politykę RODO *
                     </label>
                   </div>
+                  <button 
+                    type="button"
+                    onClick={() => setIsPrivacyOpen(true)}
+                    className="mt-2 text-xs text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-1 ml-8"
+                  >
+                    👉 Pokaż politykę RODO
+                  </button>
                 </div>
 
                 <div>
@@ -266,6 +275,7 @@ export default function AddListingPage() {
           </div>
         </div>
       </div>
+      <PrivacyModal isOpen={isPrivacyOpen} onClose={() => setIsPrivacyOpen(false)} />
     </div>
   );
 }
