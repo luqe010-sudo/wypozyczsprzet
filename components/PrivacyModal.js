@@ -1,8 +1,19 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect } from 'react';
 
 export default function PrivacyModal({ isOpen, onClose }) {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
@@ -87,33 +98,35 @@ export default function PrivacyModal({ isOpen, onClose }) {
           border-radius: 24px;
           width: 100%;
           max-width: 800px;
-          max-height: 90vh;
-          overflow: hidden;
+          max-height: 85vh;
+          display: flex;
+          flex-direction: column;
           position: relative;
           box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
           animation: modalSlideIn 0.3s ease-out;
         }
         .close-button {
           position: absolute;
-          top: 20px;
-          right: 20px;
-          background: #f3f4f6;
-          border: none;
-          width: 40px;
-          height: 40px;
-          border-radius: 20px;
-          font-size: 24px;
+          top: 15px;
+          right: 15px;
+          background: white;
+          border: 1px solid #e5e7eb;
+          width: 32px;
+          height: 32px;
+          border-radius: 10px;
+          font-size: 20px;
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: background 0.2s;
+          transition: all 0.2s;
+          z-index: 10;
         }
-        .close-button:hover { background: #e5e7eb; }
+        .close-button:hover { background: #f3f4f6; transform: rotate(90deg); }
         .privacy-content {
           padding: 40px;
-          height: 100%;
           overflow-y: auto;
+          flex: 1;
         }
         .privacy-text h2 { margin-top: 0; margin-bottom: 24px; }
         .privacy-text h3 { margin-top: 24px; margin-bottom: 12px; font-size: 1.1rem; }
