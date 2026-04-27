@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
-import * as XLSX from 'xlsx';
+import cloudinary from '../../../lib/cloudinary';
 
 export async function POST(request) {
   try {
@@ -19,18 +17,26 @@ export async function POST(request) {
     const wantsPromotion = formData.get('wantsPromotion') === 'true';
     const imageFile = formData.get('image');
 
-    let imageContent = '';
-    let imageName = '';
-    let imageType = '';
+    let imageUrl = '';
 
     if (imageFile && imageFile.size > 0) {
       try {
         const bytes = await imageFile.arrayBuffer();
-        imageContent = Buffer.from(bytes).toString('base64');
-        imageName = imageFile.name;
-        imageType = imageFile.type;
+        const buffer = Buffer.from(bytes);
+        
+        // Upload to Cloudinary
+        const uploadResponse = await new Promise((resolve, reject) => {
+          cloudinary.uploader.upload_stream({
+            folder: 'listings',
+          }, (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }).end(buffer);
+        });
+        
+        imageUrl = uploadResponse.secure_url;
       } catch (uploadError) {
-        console.error('Error preparing image for Google Drive:', uploadError);
+        console.error('Error uploading to Cloudinary:', uploadError);
       }
     }
 
@@ -52,9 +58,7 @@ export async function POST(request) {
           company: company,
           phone: phone,
           description: description,
-          imageContent: imageContent, // Base64 content
-          imageName: imageName,
-          imageType: imageType,
+          imageContent: imageUrl, // Now sending URL instead of base64
           Status: 'NOWE',
           Promowanie: wantsPromotion ? 'Mozliwe' : 'Nie',
           priority: 1
