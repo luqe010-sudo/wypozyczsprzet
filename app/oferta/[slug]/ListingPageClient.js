@@ -14,6 +14,7 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
   const phoneNumber = String(company.Telefon || '').trim();
 
   const hasHeroImage = listing.Zdjecie && String(listing.Zdjecie).startsWith('http');
+  const isIncomplete = listing.Status && listing.Status.toLowerCase().includes('niekompletne');
 
   useEffect(() => {
     trackEvent('view_listing', {
@@ -52,6 +53,11 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
             {listing['Dostępność'] && listing['Dostępność'] !== 'brak danych' && (
               <span style={{ color: '#059669' }}>{'🟢'} {listing['Dostępność']}</span>
             )}
+            {isIncomplete && (
+              <span style={{ backgroundColor: '#ef4444', color: 'white', padding: '2px 8px', borderRadius: '4px', fontWeight: 'bold', fontSize: '0.75rem' }}>
+                PROFIL NIEKOMPLETNY (40%)
+              </span>
+            )}
           </div>
         </div>
         <div style={{ textAlign: 'right', minWidth: '200px' }}>
@@ -66,8 +72,12 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
                   {'📞 '}{phoneNumber}
                 </a>
               ) : (
-                <button className="btn-primary" style={{ fontSize: '1.125rem', padding: '0.875rem 2rem' }} onClick={() => { setShowPhone(true); trackEvent('show_phone', { listing_name: name }); }}>
-                  {'Pokaż numer'}
+                <button 
+                  className={isIncomplete ? "btn-primary bg-red-600 hover:bg-red-700" : "btn-primary"} 
+                  style={{ fontSize: '1.125rem', padding: '0.875rem 2rem', backgroundColor: isIncomplete ? '#dc2626' : undefined }} 
+                  onClick={() => { setShowPhone(true); trackEvent('show_phone', { listing_name: name }); }}
+                >
+                  {isIncomplete ? 'Jesteś właścicielem? - Uzupełnij dane.' : 'Pokaż numer'}
                 </button>
               )
             ) : null}

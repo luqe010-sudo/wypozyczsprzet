@@ -24,6 +24,7 @@ export default function ListingCard({ listing }) {
   // Determine badges
   const isAvailable = listing['Dostępność'] && listing['Dostępność'].toLowerCase().includes('tak');
   const isNew = listing.Status && listing.Status.toLowerCase() === 'nowy';
+  const isIncomplete = listing.Status && listing.Status.toLowerCase().includes('niekompletne');
 
   return (
     <article 
@@ -53,9 +54,14 @@ export default function ListingCard({ listing }) {
               DOSTĘPNE
             </span>
           )}
-          {isNew && (
+           {isNew && (
             <span className="bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded shadow-sm tracking-wide">
               NOWE
+            </span>
+          )}
+          {isIncomplete && (
+            <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded shadow-sm tracking-wide">
+              PROFIL NIEKOMPLETNY (40%)
             </span>
           )}
           {listing.isUserSubmitted && (
@@ -78,7 +84,12 @@ export default function ListingCard({ listing }) {
           {listing['Sprzęt']}
         </h3>
         
-        <div className="flex items-center text-sm text-gray-500 mb-4">
+        {/* Company Name */}
+        <div className="text-xs font-medium text-gray-400 mb-2">
+          {company.Nazwa}
+        </div>
+        
+        <div className="flex items-center text-sm text-gray-500 mb-3">
           <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
           {listing.Miasto}
         </div>
@@ -98,14 +109,24 @@ export default function ListingCard({ listing }) {
         </div>
 
         {/* Action Button */}
-        <Link 
-          href={`/oferta/${listing.slug}`}
-          className="w-full flex items-center justify-center gap-2 border border-gray-200 text-blue-600 hover:bg-blue-50 font-bold py-2.5 px-4 rounded-xl transition-colors duration-200"
-          onClick={(e) => e.stopPropagation()}
-        >
-          Zobacz szczegóły
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-        </Link>
+        {isIncomplete ? (
+          <Link 
+            href={`/oferta/${listing.slug}`}
+            className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-4 rounded-xl transition-colors duration-200 shadow-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            Jesteś właścicielem? - Uzupełnij dane.
+          </Link>
+        ) : (
+          <Link 
+            href={`/oferta/${listing.slug}`}
+            className="w-full flex items-center justify-center gap-2 border border-gray-200 text-blue-600 hover:bg-blue-50 font-bold py-2.5 px-4 rounded-xl transition-colors duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            Zobacz szczegóły
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+          </Link>
+        )}
       </div>
     </article>
   );
