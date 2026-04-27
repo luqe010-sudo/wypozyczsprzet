@@ -98,6 +98,14 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
                 <strong>{'Załatw przez OLX'}</strong>
               </a>
             )}
+            {company.WWW && (
+              <a href={company.WWW.startsWith('http') ? company.WWW : `https://${company.WWW}`} 
+                target="_blank" rel="noopener noreferrer" className="btn-secondary"
+                style={{ backgroundColor: '#fff', borderColor: '#e5e7eb', color: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                onClick={() => trackEvent('click_www', { listing_name: name, www: company.WWW })}>
+                <span>{'🌐'}</span> <strong>{'Przejdź do strony'}</strong>
+              </a>
+            )}
           </div>
         </div>
       </div>
