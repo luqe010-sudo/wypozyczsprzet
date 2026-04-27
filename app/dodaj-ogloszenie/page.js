@@ -17,7 +17,8 @@ export default function AddListingPage() {
     description: '',
     time: 'doba',
     wantsPromotion: false,
-    image: null
+    image: null,
+    acceptTerms: false
   });
 
   const handleChange = (e) => {
@@ -60,7 +61,8 @@ export default function AddListingPage() {
         availability: 'Dostępne od zaraz', 
         description: '',
         wantsPromotion: false,
-        image: null
+        image: null,
+        acceptTerms: false
       });
     } catch (err) {
       console.error(err);
@@ -189,6 +191,23 @@ export default function AddListingPage() {
                     <label htmlFor="wantsPromotion" className="text-sm font-medium text-blue-900 cursor-pointer select-none">
                       <span className="font-bold block mb-1">Chcę wyróżnić ogłoszenie (w przyszłości płatne)</span>
                       <p className="text-blue-700/80">Wybierz tę opcję, aby Twoja oferta znalazła się wyżej na liście wyników wyszukiwania.</p>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200">
+                  <div className="flex items-start gap-3">
+                    <input 
+                      id="acceptTerms"
+                      type="checkbox" 
+                      name="acceptTerms" 
+                      checked={formData.acceptTerms} 
+                      onChange={handleChange}
+                      required
+                      className="mt-1 w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 accent-blue-600 cursor-pointer" 
+                    />
+                    <label htmlFor="acceptTerms" className="text-sm font-medium text-gray-700 cursor-pointer select-none">
+                      Akceptuję <Link href="/regulamin" className="text-blue-600 hover:underline" target="_blank">regulamin serwisu</Link> oraz politykę RODO *
                     </label>
                   </div>
                 </div>

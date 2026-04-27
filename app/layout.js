@@ -52,6 +52,8 @@ export default function RootLayout({ children }) {
           <div className="navbar-container">
             <p>
               &copy; {new Date().getFullYear()} {'Wypo\u017cyczSprz\u0119t Marketplace. Wszystkie prawa zastrze\u017cone.'}
+              {' | '}
+              <a href="/regulamin" className="hover:underline" style={{ color: 'inherit' }}>Regulamin</a>
             </p>
           </div>
         </footer>

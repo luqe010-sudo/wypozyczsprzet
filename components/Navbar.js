@@ -35,6 +35,7 @@ export default function Navbar({ actionUrl, actionLabel }) {
         <div className={`nav-links ${isOpen ? 'active' : ''}`}>
           <Link href="/" onClick={() => setIsOpen(false)}>{'Strona główna'}</Link>
           <Link href="/blog" onClick={() => setIsOpen(false)}>{'Poradniki'}</Link>
+          <Link href="/regulamin" onClick={() => setIsOpen(false)}>{'Regulamin'}</Link>
           <Link href="/kontakt" onClick={() => setIsOpen(false)}>{'Kontakt'}</Link>
           {actionUrl ? (
             <Link
