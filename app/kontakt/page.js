@@ -32,7 +32,7 @@ export default function ContactPage() {
         <div style={{ backgroundColor: 'var(--primary-light)', padding: '1.5rem', borderRadius: 'var(--radius)', borderLeft: '4px solid var(--primary)' }}>
           <h3 style={{ marginBottom: '1rem' }}>Napisz do nas:</h3>
           <p style={{ fontSize: '1.2rem', fontWeight: '600', marginBottom: '0.5rem' }}>
-            📧 kontakt@twojadomena.pl
+            📧 lukasz.szyp@gmail.com
           </p>
           <p style={{ color: 'var(--muted)', fontSize: '0.9rem' }}>
             Odpowiadamy zazwyczaj w ciągu 24 godzin.
@@ -45,7 +45,7 @@ export default function ContactPage() {
         <p style={{ marginBottom: '1.5rem' }}>
           Stale rozwijamy naszą platformę. Jeśli masz pomysł na nową funkcjonalność lub zauważyłeś błąd, daj nam znać!
         </p>
-        <a href="mailto:kontakt@twojadomena.pl" className="btn-primary" style={{ textDecoration: 'none', display: 'inline-block' }}>
+        <a href="mailto:lukasz.szyp@gmail.com" className="btn-primary" style={{ textDecoration: 'none', display: 'inline-block' }}>
           Wyślij wiadomość
         </a>
       </div>
