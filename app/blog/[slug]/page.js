@@ -12,6 +12,14 @@ export async function generateMetadata({ params }) {
     openGraph: {
       title: article.title,
       description: article.description,
+      images: [
+        {
+          url: 'https://wypozycz.online/header.png',
+          width: 1200,
+          height: 630,
+          alt: article.title,
+        },
+      ],
       type: 'article',
       publishedTime: article.date,
     },

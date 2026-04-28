@@ -13,6 +13,10 @@ export async function generateMetadata({ params }) {
   const price = listing.Cena_od || '';
   const company = listing.companyDetails?.Nazwa || '';
 
+  const productImage = listing.Zdjecie && String(listing.Zdjecie).startsWith('http')
+    ? listing.Zdjecie
+    : 'https://wypozycz.online/placeholders/default-equipment.png';
+
   return {
     title: `${name} – wynajem ${city} | od ${price} PLN | WypożyczSprzęt`,
     description: `Wynajmij ${name} w ${city}. Cena od ${price} PLN za ${listing.Czas || 'dobę'}. ${company}. Szybki kontakt, bez pośredników. Sprawdź dostępność na WypożyczSprzęt.`,
@@ -20,6 +24,14 @@ export async function generateMetadata({ params }) {
     openGraph: {
       title: `${name} – wynajem ${city}`,
       description: `Wynajmij ${name} w ${city} od ${price} PLN/${listing.Czas || 'doba'}`,
+      images: [
+        {
+          url: productImage,
+          width: 800,
+          height: 600,
+          alt: name,
+        },
+      ],
       type: 'website',
     },
   };

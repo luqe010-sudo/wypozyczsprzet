@@ -4,6 +4,19 @@ import { articles } from '../../lib/articles';
 export const metadata = {
   title: 'Poradniki i Blog - WypożyczSprzęt',
   description: 'Baza wiedzy o wynajmie sprzętu budowlanego. Poradniki, zestawienia cen i wskazówki dla budowlańców oraz majsterkowiczów.',
+  openGraph: {
+    title: 'Poradniki i Blog - WypożyczSprzęt',
+    description: 'Baza wiedzy o wynajmie sprzętu budowlanego. Poradniki, zestawienia cen i wskazówki.',
+    images: [
+      {
+        url: 'https://wypozycz.online/header.png',
+        width: 1200,
+        height: 630,
+        alt: 'Blog WypożyczSprzęt',
+      },
+    ],
+    type: 'website',
+  },
 };
 
 export default function BlogIndexPage() {
