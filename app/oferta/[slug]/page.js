@@ -15,7 +15,7 @@ export async function generateMetadata({ params }) {
 
   const productImage = listing.Zdjecie && String(listing.Zdjecie).startsWith('http')
     ? listing.Zdjecie
-    : 'https://wypozycz.online/placeholders/default-equipment.png';
+    : 'https://wypozycz.online/header.png';
 
   return {
     title: `${name} – wynajem ${city} | od ${price} PLN | WypożyczSprzęt`,
