@@ -27,9 +27,13 @@ export default function Hero({
           Wynajmij sprzęt w swojej okolicy
         </h1>
 
-        <p className="text-lg md:text-xl text-gray-200 mb-10 max-w-2xl drop-shadow">
+        <p className="text-lg md:text-xl text-gray-200 mb-6 max-w-2xl drop-shadow">
           Szybko znajdź koparki, narzędzia i sprzęt budowlany blisko Ciebie. Bez pośredników, bez prowizji.
         </p>
+
+        <div className="text-xs md:text-sm text-gray-400 mb-10 max-w-2xl font-medium tracking-wide">
+          Wynajem koparki Wrocław cena • Minikoparka z operatorem Legnica • Usługi koparką Wałbrzych • Wynajem maszyn budowlanych Lubin
+        </div>
 
         {/* Search Bar */}
         <div className="w-full max-w-4xl bg-white p-2 md:p-3 rounded-2xl md:rounded-full shadow-2xl flex flex-col md:flex-row items-center gap-3 md:gap-0">

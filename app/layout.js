@@ -12,7 +12,7 @@ export const metadata = {
   metadataBase: new URL('https://wypozycz.online'),
   title: 'Wynajem sprzętu budowlanego w jednym miejscu',
   description: 'Znajdź koparki, minikoparki i sprzęt budowlany lokalnie. Porównaj oferty bez dzwonienia po firmach.',
-  keywords: 'wynajem, sprzęt budowlany, koparki, ładowarki, wypożyczalnia, wrocław, dolny śląsk',
+  keywords: 'wynajem, sprzęt budowlany, koparki, ładowarki, wypożyczalnia, wrocław, dolny śląsk, z operatorem, cena, usługi koparką',
   alternates: {
     canonical: '/',
   },

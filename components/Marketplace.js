@@ -7,6 +7,7 @@ import FiltersSidebar from './FiltersSidebar';
 import ListingGrid from './ListingGrid';
 import CTASection from './CTASection';
 import StatsSection from './StatsSection';
+import SeoFAQ from './SeoFAQ';
 import { trackEvent } from '../lib/gtag';
 
 export default function Marketplace({ initialData }) {
@@ -214,6 +215,9 @@ export default function Marketplace({ initialData }) {
             
             {/* Stats Section */}
             <StatsSection />
+
+            {/* SEO Content Section */}
+            <SeoFAQ />
 
           </main>
         </div>
