@@ -43,12 +43,13 @@ export default function Marketplace({ initialData }) {
 
       const matchCity = selectedCity ? item.Miasto === selectedCity : true;
       const matchCategory = selectedCategory ? item.Kategoria === selectedCategory : true;
-      const priceVal = parseFloat(item.Cena_od);
+      const rawPrice = String(item.Cena_od || '').replace(/[^\d.,]/g, '').replace(',', '.');
+      const priceVal = parseFloat(rawPrice);
       const matchPrice = !isNaN(priceVal) ? priceVal <= maxPrice : true;
 
       return matchSearch && matchCity && matchCategory && matchPrice;
     });
-  }, [listings, searchTerm, selectedCity, selectedCategory]);
+  }, [listings, searchTerm, selectedCity, selectedCategory, maxPrice]);
 
   const totalItems = filteredListings.length;
   const totalPages = itemsPerPage === 'all' ? 1 : Math.ceil(totalItems / parseInt(itemsPerPage, 10));
