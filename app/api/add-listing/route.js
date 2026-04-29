@@ -14,6 +14,7 @@ export async function POST(request) {
     const time = formData.get('time') || 'doba';
     const availability = formData.get('availability');
     const description = formData.get('description');
+    const lokalizacja = formData.get('lokalizacja');
     const wantsPromotion = formData.get('wantsPromotion') === 'true';
     const imageFile = formData.get('image');
     const editId = formData.get('editId');
@@ -56,6 +57,7 @@ export async function POST(request) {
           price: price,
           time: time,
           city: city,
+          lokalizacja: lokalizacja,
           availability: availability,
           company: company,
           phone: phone,

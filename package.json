@@ -10,10 +10,12 @@
   },
   "dependencies": {
     "cloudinary": "^2.10.0",
+    "maplibre-gl": "^5.24.0",
     "next": "14.2.3",
     "papaparse": "^5.4.1",
     "react": "^18",
     "react-dom": "^18",
+    "react-map-gl": "^8.1.1",
     "use-debounce": "^10.0.0",
     "xlsx": "^0.18.5"
   },

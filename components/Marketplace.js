@@ -9,6 +9,7 @@ import CTASection from './CTASection';
 import StatsSection from './StatsSection';
 import SeoFAQ from './SeoFAQ';
 import { trackEvent } from '../lib/gtag';
+import MapComponent from './MapComponent';
 
 export default function Marketplace({ initialData }) {
   const { listings, filters } = initialData;
@@ -17,7 +18,29 @@ export default function Marketplace({ initialData }) {
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [maxPrice, setMaxPrice] = useState(2000);
+  const [radius, setRadius] = useState(50); // km
+  const [searchCenter, setSearchCenter] = useState(null);
+  const [geoCache, setGeoCache] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+
+  // Load cache from localStorage on mount
+  useEffect(() => {
+    const savedCache = localStorage.getItem('geoCache');
+    if (savedCache) {
+      try {
+        setGeoCache(JSON.parse(savedCache));
+      } catch (e) {
+        console.error('Failed to parse geoCache from localStorage', e);
+      }
+    }
+  }, []);
+
+  // Save cache to localStorage whenever it updates
+  useEffect(() => {
+    if (Object.keys(geoCache).length > 0) {
+      localStorage.setItem('geoCache', JSON.stringify(geoCache));
+    }
+  }, [geoCache]);
   
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -28,7 +51,17 @@ export default function Marketplace({ initialData }) {
     setCurrentPage(1); // Reset page on filter change
     const timer = setTimeout(() => setIsLoading(false), 300);
     return () => clearTimeout(timer);
-  }, [searchTerm, selectedCity, selectedCategory, maxPrice]);
+  }, [searchTerm, selectedCity, selectedCategory, maxPrice, radius, searchCenter]);
+
+  const getDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+              Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  };
 
   const filteredListings = useMemo(() => {
     return listings.filter((item) => {
@@ -47,9 +80,99 @@ export default function Marketplace({ initialData }) {
       const priceVal = parseFloat(rawPrice);
       const matchPrice = !isNaN(priceVal) ? priceVal <= maxPrice : true;
 
-      return matchSearch && matchCity && matchCategory && matchPrice;
+      // Distance filter
+      let matchDistance = true;
+      if (searchCenter && radius > 0) {
+        const loc = item.Lokalizacja || '';
+        const city = item.Miasto || '';
+        const addr = loc && !loc.toLowerCase().includes(city.toLowerCase()) ? `${loc} ${city}`.trim() : (loc || city).trim();
+        
+        // Try full address first, then fallback to city
+        const coords = geoCache[addr] || geoCache[city];
+        
+        if (coords) {
+          const dist = getDistance(searchCenter.lat, searchCenter.lng, coords.lat, coords.lng);
+          matchDistance = dist <= radius;
+        } else {
+          matchDistance = true;
+        }
+      }
+
+      return matchSearch && matchCity && matchCategory && matchPrice && matchDistance;
     });
-  }, [listings, searchTerm, selectedCity, selectedCategory, maxPrice]);
+  }, [listings, searchTerm, selectedCity, selectedCategory, maxPrice, radius, searchCenter, geoCache]);
+
+  // Geocode all listings (caching results)
+  useEffect(() => {
+    const geocodeListings = async () => {
+      // 1. Always prioritize geocoding unique cities
+      const cities = [...new Set(listings.map(l => l.Miasto).filter(Boolean))];
+      const uniqueCities = cities.filter(c => !geoCache[c]);
+
+      if (uniqueCities.length > 0) {
+        for (const city of uniqueCities) {
+          try {
+            const response = await fetch(`/api/geocode?q=${encodeURIComponent(city)}`);
+            if (response.ok) {
+              const data = await response.json();
+              if (data && data.length > 0) {
+                const coords = { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+                setGeoCache(prev => ({ ...prev, [city]: coords }));
+              }
+            }
+            await new Promise(r => setTimeout(r, 1200));
+          } catch (e) { console.error(e); }
+        }
+      }
+
+      // 2. Geocode full addresses ONLY for items that are currently filtered/visible
+      const filteredAddresses = [...new Set(filteredListings.map(l => {
+        const city = l.Miasto || '';
+        const loc = l.Lokalizacja || '';
+        if (!loc) return null;
+        if (loc.toLowerCase().includes(city.toLowerCase())) return loc.trim();
+        return `${loc} ${city}`.trim();
+      }).filter(Boolean))];
+      
+      const uniqueFilteredAddresses = filteredAddresses.filter(addr => !geoCache[addr]).slice(0, 5);
+
+      if (uniqueFilteredAddresses.length > 0) {
+        for (const addr of uniqueFilteredAddresses) {
+          try {
+            const response = await fetch(`/api/geocode?q=${encodeURIComponent(addr)}`);
+            if (response.ok) {
+              const data = await response.json();
+              if (data && data.length > 0) {
+                const coords = { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+                setGeoCache(prev => ({ ...prev, [addr]: coords }));
+              }
+            }
+            await new Promise(r => setTimeout(r, 1200));
+          } catch (e) { console.error(e); }
+        }
+      }
+    };
+    geocodeListings();
+  }, [listings, filteredListings]);
+  
+  // Geocode selected city to set search center
+  useEffect(() => {
+    if (!selectedCity) {
+      setSearchCenter(null);
+      return;
+    }
+
+    const geocodeCity = async () => {
+      try {
+        const response = await fetch(`/api/geocode?q=${encodeURIComponent(selectedCity)}`);
+        const data = await response.json();
+        if (data && data.length > 0) {
+          setSearchCenter({ lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) });
+        }
+      } catch (e) { console.error(e); }
+    };
+    geocodeCity();
+  }, [selectedCity]);
 
   const totalItems = filteredListings.length;
   const totalPages = itemsPerPage === 'all' ? 1 : Math.ceil(totalItems / parseInt(itemsPerPage, 10));
@@ -93,6 +216,9 @@ export default function Marketplace({ initialData }) {
                 setSelectedCategory={setSelectedCategory}
                 maxPrice={maxPrice}
                 setMaxPrice={setMaxPrice}
+                radius={radius}
+                setRadius={setRadius}
+                hasSearchCenter={!!searchCenter}
               />
               
               {/* CTA for adding listing inside sidebar on desktop */}
@@ -105,10 +231,18 @@ export default function Marketplace({ initialData }) {
           {/* Main Content */}
           <main className="flex-1 min-w-0">
             
-            {/* CTA for mobile (shown before listings) */}
             <div className="block lg:hidden mb-8">
                <CTASection />
             </div>
+
+            {/* Map Section */}
+            <MapComponent 
+              listings={filteredListings} 
+              geoCache={geoCache} 
+              searchCenter={searchCenter} 
+              radius={radius}
+              onLocationShared={(coords) => setSearchCenter(coords)}
+            />
 
             {/* Listings Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">

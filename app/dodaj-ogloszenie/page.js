@@ -15,6 +15,7 @@ function AddListingForm() {
     company: '',
     phone: '',
     city: '',
+    lokalizacja: '',
     category: 'Budowlane',
     equipment: '',
     price: '',
@@ -64,6 +65,7 @@ function AddListingForm() {
         company: '', 
         phone: '', 
         city: '', 
+        lokalizacja: '',
         category: 'Koparki', 
         equipment: '', 
         price: '', 
@@ -130,8 +132,13 @@ function AddListingForm() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">Miasto</label>
-                    <input required type="text" name="city" value={formData.city} onChange={handleChange} 
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Kod pocztowy i Miasto</label>
+                    <input required type="text" name="city" value={formData.city} onChange={handleChange} placeholder="np. 50-001 Wrocław"
+                           className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Lokalizacja (Opcjonalnie)</label>
+                    <input type="text" name="lokalizacja" value={formData.lokalizacja} onChange={handleChange} placeholder="np. ul. Polna 10 lub link do pinezki"
                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all" />
                   </div>
                   <div>

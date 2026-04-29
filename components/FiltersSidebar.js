@@ -9,6 +9,9 @@ export default function FiltersSidebar({
   setSelectedCategory,
   maxPrice,
   setMaxPrice,
+  radius,
+  setRadius,
+  hasSearchCenter,
 }) {
   return (
     <div className="w-full">
@@ -100,6 +103,26 @@ export default function FiltersSidebar({
               </div>
             </div>
           </div>
+
+          {/* Search Radius */}
+          {hasSearchCenter && (
+            <div className="flex flex-col gap-2 p-4 bg-blue-50 rounded-2xl border border-blue-100">
+              <div className="flex justify-between items-center">
+                <label className="text-sm font-bold text-blue-900">Promień wyszukiwania</label>
+                <span className="text-sm font-bold text-blue-600">{radius} km</span>
+              </div>
+              <input 
+                type="range" 
+                min="5" 
+                max="200" 
+                step="5"
+                value={radius}
+                onChange={(e) => setRadius(Number(e.target.value))}
+                className="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-blue-600" 
+              />
+              <p className="text-[10px] text-blue-700 font-medium mt-1">Pokazuje sprzęty w promieniu {radius} km od wybranej lokalizacji.</p>
+            </div>
+          )}
 
           {/* Rental Type (Visual Only) */}
           <div className="flex flex-col gap-3">

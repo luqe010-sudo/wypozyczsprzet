@@ -49,6 +49,9 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
           <h1 style={{ fontSize: '2rem', fontWeight: 800, lineHeight: 1.2, marginBottom: '1rem' }}>{name}</h1>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', color: 'var(--muted)', fontSize: '0.9375rem' }}>
             <span>{'📍'} {listing.Miasto}</span>
+            {listing.Lokalizacja && (
+              <span>{'🗺️'} {listing.Lokalizacja}</span>
+            )}
             <span>{'🏢'} {company.Nazwa || 'Brak firmy'}</span>
             {listing['Dostępność'] && listing['Dostępność'] !== 'brak danych' && (
               <span style={{ color: '#059669' }}>{'🟢'} {listing['Dostępność']}</span>
