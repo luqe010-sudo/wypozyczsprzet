@@ -8,15 +8,15 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#2563EB',
-        'primary-hover': '#1d4ed8',
-        'primary-light': '#eff6ff',
-        background: '#F9FAFB',
-        foreground: '#111827',
-        muted: '#64748b',
-        'muted-foreground': '#94a3b8',
-        card: '#FFFFFF',
-        border: '#e2e8f0',
+        primary: 'var(--primary)',
+        'primary-hover': 'var(--primary-hover)',
+        'primary-light': 'var(--primary-light)',
+        background: 'var(--background)',
+        foreground: 'var(--foreground)',
+        muted: 'var(--muted)',
+        'muted-foreground': 'var(--muted-foreground)',
+        card: 'var(--card)',
+        border: 'var(--border)',
       },
       borderRadius: {
         '2xl': '1rem',

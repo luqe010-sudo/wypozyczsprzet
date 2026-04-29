@@ -180,14 +180,14 @@ Wszystkie oferty na WypożyczSprzęt są weryfikowane, a kontakt z dostawcą odb
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
 
-      <div className="main-container" style={{ display: 'block', maxWidth: '960px' }}>
+      <div className="max-w-[960px] mx-auto px-4 py-8">
         {/* Breadcrumbs */}
-        <nav style={{ marginBottom: '2rem', fontSize: '0.875rem', color: 'var(--muted)' }}>
-          <Link href="/" style={{ color: 'var(--primary)', textDecoration: 'none' }}>Strona główna</Link>
-          {' / '}
-          <span>{category}</span>
-          {' / '}
-          <span style={{ color: 'var(--foreground)' }}>{name}</span>
+        <nav className="flex items-center gap-2 mb-8 text-sm text-gray-500 dark:text-gray-400 overflow-hidden">
+          <Link href="/" className="text-blue-600 dark:text-blue-400 hover:underline flex-shrink-0">Strona główna</Link>
+          <span>/</span>
+          <span className="truncate">{category}</span>
+          <span>/</span>
+          <span className="text-gray-900 dark:text-white font-medium truncate">{name}</span>
         </nav>
 
         {/* Main content */}

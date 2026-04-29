@@ -36,9 +36,9 @@ export const metadata = {
     google: 'UTKre7BkIREzsP437M9akUdcQ5ER_plKUPDc6TUYD5g',
   },
   icons: {
-    icon: '/icon.png',
+    icon: '/favicon.png',
     shortcut: '/favicon.png',
-    apple: '/icon.png',
+    apple: '/favicon.png',
   },
 };
 

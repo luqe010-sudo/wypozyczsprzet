@@ -27,15 +27,15 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
   return (
     <>
       {/* Hero Image */}
-      <div style={{ borderRadius: '16px', overflow: 'hidden', marginBottom: '2rem', position: 'relative', paddingTop: hasHeroImage ? '50%' : '0', backgroundColor: 'var(--primary-light)', minHeight: hasHeroImage ? '0' : '400px' }}>
+      <div className="rounded-3xl overflow-hidden mb-12 relative aspect-video md:aspect-[21/9] bg-blue-50 dark:bg-slate-800 shadow-lg border border-gray-100 dark:border-slate-700">
         {hasHeroImage ? (
           <img
             src={listing.Zdjecie}
             alt={name}
-            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+            className="absolute inset-0 w-full h-full object-cover"
           />
         ) : (
-          <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
+          <div className="absolute inset-0 w-full h-full">
             <DynamicPlaceholder title={name} category={listing.Kategoria} />
           </div>
         )}
@@ -43,44 +43,59 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
 
 
       {/* Title + Price + Contact */}
-      <div className="responsive-listing-header">
-        <div>
-          <span className="listing-category">{listing.Kategoria}</span>
-          <h1 style={{ fontSize: '2rem', fontWeight: 800, lineHeight: 1.2, marginBottom: '1rem' }}>{name}</h1>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', color: 'var(--muted)', fontSize: '0.9375rem' }}>
-            <span>{'📍'} {listing.Miasto}</span>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+        <div className="lg:col-span-2">
+          <span className="inline-block bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
+            {listing.Kategoria}
+          </span>
+          <h1 className="text-3xl md:text-5xl font-black text-gray-900 dark:text-white leading-tight mb-6">{name}</h1>
+          
+          <div className="flex flex-wrap gap-4 text-gray-600 dark:text-gray-400 text-sm md:text-base">
+            <div className="flex items-center gap-1 bg-gray-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-gray-200 dark:border-slate-700">
+              <span>📍</span> {listing.Miasto}
+            </div>
             {listing.Lokalizacja && (
-              <span>{'🗺️'} {listing.Lokalizacja}</span>
+              <div className="flex items-center gap-1 bg-gray-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-gray-200 dark:border-slate-700">
+                <span>🗺️</span> {listing.Lokalizacja}
+              </div>
             )}
-            <span>{'🏢'} {company.Nazwa || 'Brak firmy'}</span>
+            <div className="flex items-center gap-1 bg-gray-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-gray-200 dark:border-slate-700">
+              <span>🏢</span> {company.Nazwa || 'Brak firmy'}
+            </div>
             {listing['Dostępność'] && listing['Dostępność'] !== 'brak danych' && (
-              <span style={{ color: '#059669' }}>{'🟢'} {listing['Dostępność']}</span>
+              <div className="flex items-center gap-1 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 px-3 py-1.5 rounded-xl border border-green-100 dark:border-green-900/30 font-bold">
+                <span>🟢</span> {listing['Dostępność']}
+              </div>
             )}
             {isIncomplete && (
-              <span style={{ backgroundColor: '#ef4444', color: 'white', padding: '2px 8px', borderRadius: '4px', fontWeight: 'bold', fontSize: '0.75rem' }}>
+              <div className="bg-red-600 text-white px-3 py-1.5 rounded-xl font-black text-xs uppercase tracking-tighter animate-pulse">
                 PROFIL NIEKOMPLETNY (40%)
-              </span>
+              </div>
             )}
           </div>
         </div>
-        <div style={{ textAlign: 'right', minWidth: '200px' }}>
-          <div style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--primary)' }}>
-            {listing.Cena_od} <span style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--muted)' }}>PLN / {listing.Czas || 'doba'}</span>
+
+        <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-xl border border-gray-100 dark:border-slate-700 flex flex-col justify-between h-full">
+          <div className="mb-6">
+            <div className="text-4xl font-black text-blue-600 dark:text-blue-400">
+              {listing.Cena_od} <span className="text-lg font-medium text-gray-500 dark:text-gray-400">PLN / {listing.Czas || 'doba'}</span>
+            </div>
           </div>
-          <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          
+          <div className="space-y-3">
             {phoneNumber && (
               showPhone ? (
-                <a href={`tel:${phoneNumber.replace(/\s/g, '')}`} className="btn-primary" style={{ fontSize: '1.125rem', padding: '0.875rem 2rem' }}
-                  onClick={() => trackEvent('click_phone', { listing_name: name, phone: phoneNumber })}>
-                  {'📞 '}{phoneNumber}
+                <a href={`tel:${phoneNumber.replace(/\s/g, '')}`} 
+                   className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 px-6 rounded-2xl transition-all shadow-lg hover:shadow-blue-500/30 flex items-center justify-center gap-2 text-lg"
+                   onClick={() => trackEvent('click_phone', { listing_name: name, phone: phoneNumber })}>
+                  📞 {phoneNumber}
                 </a>
               ) : (
                 <button 
-                  className="btn-primary" 
-                  style={{ fontSize: '1.125rem', padding: '0.875rem 2rem' }} 
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 px-6 rounded-2xl transition-all shadow-lg hover:shadow-blue-500/30 text-lg active:scale-[0.98]" 
                   onClick={() => { setShowPhone(true); trackEvent('show_phone', { listing_name: name }); }}
                 >
-                  {'Pokaż numer'}
+                  Pokaż numer
                 </button>
               )
             )}
@@ -88,25 +103,24 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
             {isIncomplete && (
               <Link 
                 href={`/dodaj-ogloszenie?edit=${listing.ID_sprzetu}`}
-                className="btn-primary"
-                style={{ fontSize: '1.125rem', padding: '0.875rem 2rem', backgroundColor: '#dc2626', color: 'white', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}
+                className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-6 rounded-2xl transition-all text-center block text-sm"
               >
-                {'Jesteś właścicielem? - Uzupełnij dane.'}
+                Jesteś właścicielem? Uzupełnij dane.
               </Link>
             )}
             {listing.olxUrl && (
-              <a href={listing.olxUrl} target="_blank" rel="noopener noreferrer" className="btn-secondary"
-                style={{ backgroundColor: '#23e5db', borderColor: '#23e5db', color: '#002f34' }}
-                onClick={() => trackEvent('click_olx', { listing_name: name, olx_url: listing.olxUrl })}>
-                <strong>{'Załatw przez OLX'}</strong>
+              <a href={listing.olxUrl} target="_blank" rel="noopener noreferrer" 
+                 className="w-full bg-[#002f34] text-[#23e5db] font-black py-4 px-6 rounded-2xl transition-all text-center block text-lg"
+                 onClick={() => trackEvent('click_olx', { listing_name: name, olx_url: listing.olxUrl })}>
+                Załatw przez OLX
               </a>
             )}
             {company.WWW && (
               <a href={company.WWW.startsWith('http') ? company.WWW : `https://${company.WWW}`} 
-                target="_blank" rel="noopener noreferrer" className="btn-secondary"
-                style={{ backgroundColor: '#fff', borderColor: '#e5e7eb', color: '#374151', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                target="_blank" rel="noopener noreferrer" 
+                className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 text-gray-700 dark:text-gray-300 font-bold py-4 px-6 rounded-2xl transition-all text-center flex items-center justify-center gap-2"
                 onClick={() => trackEvent('click_www', { listing_name: name, www: company.WWW })}>
-                <span>{'🌐'}</span> <strong>{'Przejdź do strony'}</strong>
+                🌐 Przejdź do strony
               </a>
             )}
           </div>
@@ -114,33 +128,42 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
       </div>
 
       {/* Description */}
-      <section style={{ marginBottom: '3rem', backgroundColor: 'white', padding: '2rem', borderRadius: '16px', border: '1px solid var(--border)' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.5rem' }}>{'O sprzęcie'}</h2>
-        {seoDescription.split('\n\n').map((paragraph, i) => (
-          <p key={i} style={{ marginBottom: '1rem', lineHeight: 1.8, color: 'var(--muted)' }}>{paragraph}</p>
-        ))}
+      <section className="mb-12 bg-white dark:bg-slate-800 p-8 md:p-12 rounded-3xl border border-gray-100 dark:border-slate-700 shadow-sm">
+        <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-8 border-b-4 border-blue-600 pb-2 inline-block">
+          O sprzęcie
+        </h2>
+        <div className="prose dark:prose-invert max-w-none">
+          {seoDescription.split('\n\n').map((paragraph, i) => (
+            <p key={i} className="text-gray-600 dark:text-gray-400 leading-relaxed text-lg mb-6">{paragraph}</p>
+          ))}
+        </div>
       </section>
 
       {/* FAQ */}
-      <section style={{ marginBottom: '3rem', backgroundColor: 'white', padding: '2rem', borderRadius: '16px', border: '1px solid var(--border)' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.5rem' }}>{'Najczęściej zadawane pytania'}</h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+      <section className="mb-12 bg-white dark:bg-slate-800 p-8 md:p-12 rounded-3xl border border-gray-100 dark:border-slate-700 shadow-sm">
+        <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-8 border-b-4 border-blue-600 pb-2 inline-block">
+          Najczęściej zadawane pytania
+        </h2>
+        <div className="space-y-4">
           {faqItems.map((item, i) => (
-            <div key={i} style={{ borderBottom: i < faqItems.length - 1 ? '1px solid var(--border)' : 'none' }}>
+            <div key={i} className="border-b border-gray-100 dark:border-slate-700 last:border-0">
               <button
                 onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                style={{
-                  width: '100%', textAlign: 'left', background: 'none', border: 'none',
-                  padding: '1.25rem 0', cursor: 'pointer', fontSize: '1rem', fontWeight: 600,
-                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  fontFamily: 'inherit', color: 'var(--foreground)',
-                }}
+                className="w-full text-left bg-transparent border-none py-6 cursor-pointer flex justify-between items-center group transition-colors"
               >
-                {item.question}
-                <span style={{ fontSize: '1.25rem', transition: 'transform 0.2s', transform: openFaq === i ? 'rotate(180deg)' : 'none' }}>{'▼'}</span>
+                <span className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  {item.question}
+                </span>
+                <span className={`text-xl transition-transform duration-300 ${openFaq === i ? 'rotate-180 text-blue-600' : 'text-gray-400'}`}>
+                  ▼
+                </span>
               </button>
               {openFaq === i && (
-                <p style={{ padding: '0 0 1.25rem', lineHeight: 1.7, color: 'var(--muted)' }}>{item.answer}</p>
+                <div className="pb-6 animate-fadeIn">
+                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed text-lg">
+                    {item.answer}
+                  </p>
+                </div>
               )}
             </div>
           ))}
@@ -149,24 +172,34 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
 
       {/* Related */}
       {related.length > 0 && (
-        <section style={{ marginBottom: '3rem' }}>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.5rem' }}>{'Inne oferty w tej kategorii'}</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
+        <section className="mb-12">
+          <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-8 border-b-4 border-blue-600 pb-2 inline-block">
+            Inne oferty w tej kategorii
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {related.map((item) => (
-              <Link key={item.slug} href={`/oferta/${item.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                <div className="listing-card">
-                  <div className="listing-image-container">
+              <Link key={item.slug} href={`/oferta/${item.slug}`} className="group no-underline">
+                <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-slate-700 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                  <div className="aspect-video relative overflow-hidden">
                     {item.Zdjecie && String(item.Zdjecie).startsWith('http') ? (
-                      <img src={item.Zdjecie} alt={item['Sprzęt']} className="listing-image" />
+                      <img src={item.Zdjecie} alt={item['Sprzęt']} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     ) : (
                       <DynamicPlaceholder title={item['Sprzęt']} category={item.Kategoria} />
                     )}
+                    <div className="absolute top-4 left-4">
+                      <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                        {item.Kategoria}
+                      </span>
+                    </div>
                   </div>
-                  <div className="listing-content">
-                    <span className="listing-category">{item.Kategoria}</span>
-                    <h3 className="listing-title">{item['Sprzęt']}</h3>
-                    <div className="listing-price">{item.Cena_od} PLN <span>/ {item.Czas || 'doba'}</span></div>
-                    <div className="info-item">{'📍'} {item.Miasto}</div>
+                  <div className="p-6">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-1">{item['Sprzęt']}</h3>
+                    <div className="text-blue-600 dark:text-blue-400 font-black text-xl mb-4">
+                      {item.Cena_od} <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-tighter">/ {item.Czas || 'doba'}</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+                      <span>📍</span> {item.Miasto}
+                    </div>
                   </div>
                 </div>
               </Link>
@@ -176,9 +209,10 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
       )}
 
       {/* Back */}
-      <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-        <Link href="/" className="btn-secondary" style={{ textDecoration: 'none' }}>
-          {'← Powrót do wszystkich ofert'}
+      <div className="text-center mt-12 mb-8">
+        <Link href="/" className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 font-bold transition-colors">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+          Powrót do wszystkich ofert
         </Link>
       </div>
     </>

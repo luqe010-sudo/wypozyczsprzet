@@ -26,8 +26,10 @@ export default function Navbar({ actionUrl, actionLabel }) {
   return (
     <nav className="navbar dark:bg-slate-900/90 transition-colors">
       <div className="navbar-container">
-        <Link href="/" className="logo dark:text-white">
-          {'Wypo\u017cycz'}<span>{'Sprz\u0119t'}</span>
+        <Link href="/" className="flex items-center group">
+          <span className="text-xl font-black tracking-tight text-gray-900 dark:text-white">
+            Wypożycz<span className="text-blue-600">Sprzęt</span>
+          </span>
         </Link>
 
         <div className="flex items-center gap-4">
