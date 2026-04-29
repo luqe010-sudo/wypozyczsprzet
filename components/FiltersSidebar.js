@@ -15,66 +15,66 @@ export default function FiltersSidebar({
 }) {
   return (
     <div className="w-full">
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl font-bold text-gray-900">Filtry</h3>
+      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 p-3 md:p-4 transition-colors">
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="text-base font-bold text-gray-900 dark:text-white uppercase tracking-tight">Filtry</h3>
           <button 
             onClick={() => {
               setSelectedCity('');
               setSelectedCategory('');
               setMaxPrice(2000);
             }}
-            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            className="text-[10px] text-blue-600 dark:text-blue-400 hover:text-blue-800 font-bold uppercase"
           >
             Wyczyść
           </button>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-3">
           {/* Location */}
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold text-gray-900">Lokalizacja</label>
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Lokalizacja</label>
             <div className="relative">
               <select 
                 value={selectedCity}
                 onChange={(e) => setSelectedCity(e.target.value)}
-                className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-gray-700 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 appearance-none font-medium"
+                className="w-full bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg px-2 py-1.5 text-xs text-gray-700 dark:text-gray-200 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 appearance-none font-medium transition-colors"
               >
                 <option value="">Wszystkie miasta</option>
                 {availableCities.map((city) => (
                   <option key={city} value={city}>{city}</option>
                 ))}
               </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
               </div>
             </div>
           </div>
 
           {/* Category */}
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-semibold text-gray-900">Kategoria</label>
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kategoria</label>
             <div className="relative">
               <select 
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-gray-700 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 appearance-none font-medium"
+                className="w-full bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg px-2 py-1.5 text-xs text-gray-700 dark:text-gray-200 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 appearance-none font-medium transition-colors"
               >
                 <option value="">Wszystkie kategorie</option>
                 {availableCategories.map((cat) => (
                   <option key={cat} value={cat}>{cat}</option>
                 ))}
               </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
               </div>
             </div>
           </div>
 
           {/* Price Slider & Input */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1">
             <div className="flex justify-between items-center">
-              <label className="text-sm font-semibold text-gray-900">Max. cena za dzień</label>
+              <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Max. cena</label>
               <div className="flex items-center gap-1">
                 <input 
                   type="number" 
@@ -82,12 +82,12 @@ export default function FiltersSidebar({
                   max="10000" 
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(Number(e.target.value))}
-                  className="w-20 px-2 py-1 text-right text-sm border border-gray-300 rounded-lg outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-bold text-blue-700 bg-blue-50"
+                  className="w-14 px-1 py-0.5 text-right text-[10px] border border-gray-300 dark:border-slate-600 rounded-md outline-none focus:border-blue-500 font-bold text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20"
                 />
-                <span className="text-sm font-medium text-gray-500">zł</span>
+                <span className="text-[9px] font-bold text-gray-500">zł</span>
               </div>
             </div>
-            <div className="mt-2">
+            <div className="mt-0.5">
               <input 
                 type="range" 
                 min="0" 
@@ -95,9 +95,9 @@ export default function FiltersSidebar({
                 step="50"
                 value={maxPrice > 2000 ? 2000 : maxPrice}
                 onChange={(e) => setMaxPrice(Number(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" 
+                className="w-full h-1 bg-gray-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-600" 
               />
-              <div className="flex justify-between text-xs text-gray-500 mt-2 font-medium">
+              <div className="flex justify-between text-[9px] text-gray-500 mt-1 font-medium">
                 <span>0 zł</span>
                 <span>2000+ zł</span>
               </div>
@@ -106,10 +106,10 @@ export default function FiltersSidebar({
 
           {/* Search Radius */}
           {hasSearchCenter && (
-            <div className="flex flex-col gap-2 p-4 bg-blue-50 rounded-2xl border border-blue-100">
+            <div className="flex flex-col gap-1 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-900/30 transition-colors">
               <div className="flex justify-between items-center">
-                <label className="text-sm font-bold text-blue-900">Promień wyszukiwania</label>
-                <span className="text-sm font-bold text-blue-600">{radius} km</span>
+                <label className="text-[10px] font-bold text-blue-900 dark:text-blue-300 uppercase">Promień</label>
+                <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400">{radius} km</span>
               </div>
               <input 
                 type="range" 
@@ -118,33 +118,27 @@ export default function FiltersSidebar({
                 step="5"
                 value={radius}
                 onChange={(e) => setRadius(Number(e.target.value))}
-                className="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-blue-600" 
+                className="w-full h-1 bg-blue-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-600" 
               />
-              <p className="text-[10px] text-blue-700 font-medium mt-1">Pokazuje sprzęty w promieniu {radius} km od wybranej lokalizacji.</p>
             </div>
           )}
 
           {/* Rental Type (Visual Only) */}
-          <div className="flex flex-col gap-3">
-            <label className="text-sm font-semibold text-gray-900">Typ wynajmu</label>
-            <div className="space-y-2">
-              <label className="flex items-center gap-3 cursor-pointer group">
-                <input type="checkbox" className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 accent-blue-600" defaultChecked />
-                <span className="text-gray-700 group-hover:text-gray-900">Na dzień</span>
+          <div className="flex flex-col gap-1.5 pt-0.5">
+            <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Typ wynajmu</label>
+            <div className="space-y-1">
+              <label className="flex items-center gap-2 cursor-pointer group text-xs">
+                <input type="checkbox" className="w-3.5 h-3.5 rounded border-gray-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500 accent-blue-600" defaultChecked />
+                <span className="text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">Na dzień</span>
               </label>
-              <label className="flex items-center gap-3 cursor-pointer group">
-                <input type="checkbox" className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 accent-blue-600" />
-                <span className="text-gray-700 group-hover:text-gray-900">Na tydzień</span>
-              </label>
-              <label className="flex items-center gap-3 cursor-pointer group">
-                <input type="checkbox" className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 accent-blue-600" />
-                <span className="text-gray-700 group-hover:text-gray-900">Na miesiąc</span>
+              <label className="flex items-center gap-2 cursor-pointer group text-xs">
+                <input type="checkbox" className="w-3.5 h-3.5 rounded border-gray-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500 accent-blue-600" />
+                <span className="text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">Na tydzień</span>
               </label>
             </div>
           </div>
 
-          {/* Apply filters button */}
-          <button className="w-full bg-blue-50 text-blue-700 hover:bg-blue-100 font-bold py-3 px-4 rounded-xl transition-colors duration-200">
+          <button className="w-full bg-blue-600 text-white hover:bg-blue-700 font-bold py-2 px-4 rounded-xl transition-all duration-200 shadow-sm mt-1 text-xs">
             Pokaż wyniki
           </button>
         </div>

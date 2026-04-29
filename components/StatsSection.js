@@ -33,15 +33,15 @@ const stats = [
 
 export default function StatsSection() {
   return (
-    <div className="w-full bg-white border border-gray-100 rounded-2xl shadow-sm my-12 overflow-hidden">
-      <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 divide-gray-100 md:divide-x">
+    <div className="w-full bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-2xl shadow-sm my-12 overflow-hidden transition-colors">
+      <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 divide-gray-100 dark:divide-slate-700 md:divide-x">
         {stats.map((stat, idx) => (
-          <div key={idx} className="flex flex-col items-center justify-center p-8 text-center">
-            <div className="mb-4">
+          <div key={idx} className="flex flex-col items-center justify-center p-6 md:p-8 text-center">
+            <div className="mb-3">
               {stat.icon}
             </div>
-            <div className="text-3xl font-extrabold text-gray-900 mb-2">{stat.value}</div>
-            <div className="text-sm font-medium text-gray-500">{stat.label}</div>
+            <div className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-white mb-1">{stat.value}</div>
+            <div className="text-[10px] md:text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{stat.label}</div>
           </div>
         ))}
       </div>

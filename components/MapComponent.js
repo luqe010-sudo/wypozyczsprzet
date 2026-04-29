@@ -42,7 +42,7 @@ function createCircle(center, radiusInKm) {
   };
 }
 
-export default function MapComponent({ listings, geoCache, searchCenter, radius, onLocationShared }) {
+export default function MapComponent({ listings, geoCache, searchCenter, radius, onLocationShared, isCompact = false }) {
   const [viewport, setViewport] = useState(DEFAULT_VIEWPORT);
   const [popupInfo, setPopupInfo] = useState(null);
 
@@ -87,7 +87,7 @@ export default function MapComponent({ listings, geoCache, searchCenter, radius,
   }, [searchCenter, radius]);
 
   return (
-    <div className="relative w-full h-[500px] rounded-3xl overflow-hidden shadow-lg border border-gray-200 bg-gray-50 mb-10">
+    <div className={`relative w-full ${isCompact ? 'h-full' : 'h-[400px] md:h-[500px] mb-10'} rounded-2xl md:rounded-3xl overflow-hidden shadow-lg border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 transition-all`}>
       <Map
         mapLib={maplibregl}
         {...viewport}
@@ -159,7 +159,7 @@ export default function MapComponent({ listings, geoCache, searchCenter, radius,
             }}
           >
             <div className="cursor-pointer group">
-              <div className="bg-blue-600 text-white p-2 rounded-full shadow-lg group-hover:scale-110 transition-transform border-2 border-white">
+              <div className="bg-blue-600 text-white p-2 rounded-full shadow-lg group-hover:scale-110 transition-transform border-2 border-white dark:border-slate-800">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -178,13 +178,13 @@ export default function MapComponent({ listings, geoCache, searchCenter, radius,
             closeButton={false}
             className="z-50"
           >
-            <div className="p-3 max-w-[200px]">
+            <div className="p-3 max-w-[200px] dark:bg-slate-800 rounded-lg">
               {popupInfo.Zdjecie && (
                 <img src={popupInfo.Zdjecie} alt={popupInfo['Sprzęt']} className="w-full h-24 object-cover rounded-lg mb-2" />
               )}
-              <h3 className="font-bold text-sm text-gray-900 leading-tight mb-1">{popupInfo['Sprzęt']}</h3>
-              <p className="text-blue-600 font-bold text-sm mb-1">{popupInfo.Cena_od} PLN / {popupInfo.Czas}</p>
-              <p className="text-gray-500 text-xs flex items-center gap-1">
+              <h3 className="font-bold text-sm text-gray-900 dark:text-white leading-tight mb-1">{popupInfo['Sprzęt']}</h3>
+              <p className="text-blue-600 dark:text-blue-400 font-bold text-sm mb-1">{popupInfo.Cena_od} PLN / {popupInfo.Czas}</p>
+              <p className="text-gray-500 dark:text-gray-400 text-xs flex items-center gap-1">
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                 {popupInfo.Miasto}
               </p>
@@ -199,8 +199,8 @@ export default function MapComponent({ listings, geoCache, searchCenter, radius,
         )}
       </Map>
 
-      <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur px-3 py-1.5 rounded-full text-xs font-bold text-gray-700 shadow-md border border-gray-200 z-10">
-        Znaleziono {markers.length} lokalizacji
+      <div className="absolute bottom-4 left-4 bg-white/90 dark:bg-slate-800/90 backdrop-blur px-3 py-1.5 rounded-full text-[10px] font-bold text-gray-700 dark:text-gray-300 shadow-md border border-gray-200 dark:border-slate-700 z-10">
+        Oferty: {markers.length}
       </div>
     </div>
   );

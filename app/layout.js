@@ -45,16 +45,27 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="pl">
+      <head>
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+              document.documentElement.classList.add('dark')
+            } else {
+              document.documentElement.classList.remove('dark')
+            }
+          `
+        }} />
+      </head>
       <body>
         <CookieConsent />
         <Navbar actionUrl={actionUrl} actionLabel={actionLabel} />
         <main>{children}</main>
-        <footer className="footer">
+        <footer className="footer dark:bg-slate-900/90 dark:text-gray-400 dark:border-t dark:border-slate-800 transition-colors">
           <div className="navbar-container">
             <p>
               &copy; {new Date().getFullYear()} {'Wypo\u017cyczSprz\u0119t Marketplace. Wszystkie prawa zastrze\u017cone.'}
               {' | '}
-              <a href="/regulamin" className="hover:underline" style={{ color: 'inherit' }}>Regulamin</a>
+              <a href="/regulamin" className="hover:underline">Regulamin</a>
             </p>
           </div>
         </footer>

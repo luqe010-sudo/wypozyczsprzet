@@ -22,6 +22,16 @@
   --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.dark {
+  --background: #0f172a;
+  --foreground: #f8fafc;
+  --muted: #94a3b8;
+  --muted-foreground: #64748b;
+  --card: #1e293b;
+  --border: #334155;
+  --primary-light: #1e293b;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -34,7 +44,8 @@ body {
   color: var(--foreground);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden; /* Prevent horizontal scroll */
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Layout */
@@ -49,13 +60,13 @@ body {
 
 /* Navbar */
 .navbar {
-  background-color: rgba(255, 255, 255, 0.95);
+  background-color: var(--card);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
   z-index: 1000;
-  height: 72px;
+  height: 64px;
   display: flex;
   align-items: center;
 }
@@ -433,8 +444,7 @@ body {
     top: 100%;
     left: 0;
     right: 0;
-    width: 100%; /* Ensure full width */
-    background: white;
+    background: var(--card);
     padding: 1rem;
     border-bottom: 1px solid var(--border);
     box-shadow: var(--shadow-lg);
@@ -450,8 +460,9 @@ body {
     width: 100%;
     padding: 1rem;
     border-bottom: 1px solid var(--border);
-    font-size: 1.1rem;
+    font-size: 1rem;
     display: block;
+    color: var(--foreground);
   }
 
   .nav-links a:last-child {
