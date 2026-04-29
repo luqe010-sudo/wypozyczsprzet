@@ -185,7 +185,7 @@ export default function Marketplace({ initialData }) {
   }, [filteredListings, currentPage, itemsPerPage]);
 
   return (
-    <div className="bg-gray-50 dark:bg-slate-900 min-h-screen transition-colors">
+    <div className="min-h-screen transition-colors">
       {/* Hero Section */}
       <Hero 
         searchTerm={searchTerm} 

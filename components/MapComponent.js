@@ -43,6 +43,24 @@ function createCircle(center, radiusInKm) {
 }
 
 export default function MapComponent({ listings, geoCache, searchCenter, radius, onLocationShared, isCompact = false }) {
+  const [isDark, setIsDark] = useState(false);
+
+  // Detect theme changes
+  useEffect(() => {
+    setIsDark(document.documentElement.classList.contains('dark'));
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class') {
+          setIsDark(document.documentElement.classList.contains('dark'));
+        }
+      });
+    });
+
+    observer.observe(document.documentElement, { attributes: true });
+    return () => observer.disconnect();
+  }, []);
+
   const [viewport, setViewport] = useState(DEFAULT_VIEWPORT);
   const [popupInfo, setPopupInfo] = useState(null);
 
@@ -86,6 +104,67 @@ export default function MapComponent({ listings, geoCache, searchCenter, radius,
     return createCircle(searchCenter, radius);
   }, [searchCenter, radius]);
 
+
+  const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_KEY;
+
+  const mapStyle = useMemo(() => {
+    if (isDark) {
+      if (MAPTILER_KEY) {
+        return `https://api.maptiler.com/maps/darkmatter/style.json?key=${MAPTILER_KEY}`;
+      }
+      return {
+        version: 8,
+        sources: {
+          'carto-dark': {
+            type: 'raster',
+            tiles: [
+              'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+              'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+              'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+              'https://d.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'
+            ],
+            tileSize: 256,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+          },
+        },
+        layers: [
+          {
+            id: 'carto-dark-layer',
+            type: 'raster',
+            source: 'carto-dark',
+          },
+        ],
+      };
+    } else {
+      if (MAPTILER_KEY) {
+        return `https://api.maptiler.com/maps/streets-v2/style.json?key=${MAPTILER_KEY}`;
+      }
+      return {
+        version: 8,
+        sources: {
+          'carto-voyager': {
+            type: 'raster',
+            tiles: [
+              'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+              'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+              'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+              'https://d.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png'
+            ],
+            tileSize: 256,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+          },
+        },
+        layers: [
+          {
+            id: 'carto-voyager-layer',
+            type: 'raster',
+            source: 'carto-voyager',
+          },
+        ],
+      };
+    }
+  }, [isDark, MAPTILER_KEY]);
+
   return (
     <div className={`relative w-full ${isCompact ? 'h-full' : 'h-[400px] md:h-[500px] mb-10'} rounded-2xl md:rounded-3xl overflow-hidden shadow-lg border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 transition-all`}>
       <Map
@@ -93,24 +172,7 @@ export default function MapComponent({ listings, geoCache, searchCenter, radius,
         {...viewport}
         onMove={evt => setViewport(evt.viewState)}
         style={{ width: '100%', height: '100%' }}
-        mapStyle={{
-          version: 8,
-          sources: {
-            'osm-raster': {
-              type: 'raster',
-              tiles: ['https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'],
-              tileSize: 256,
-              attribution: '&copy; OpenStreetMap Contributors',
-            },
-          },
-          layers: [
-            {
-              id: 'osm-raster-layer',
-              type: 'raster',
-              source: 'osm-raster',
-            },
-          ],
-        }}
+        mapStyle={mapStyle}
       >
         <NavigationControl position="top-right" />
         <FullscreenControl position="top-right" />

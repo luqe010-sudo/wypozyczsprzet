@@ -44,7 +44,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="pl">
+    <html lang="pl" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{
           __html: `
@@ -59,8 +59,8 @@ export default function RootLayout({ children }) {
       <body>
         <CookieConsent />
         <Navbar actionUrl={actionUrl} actionLabel={actionLabel} />
-        <main>{children}</main>
-        <footer className="footer dark:bg-slate-900/90 dark:text-gray-400 dark:border-t dark:border-slate-800 transition-colors">
+        <main className="bg-gray-50 dark:bg-slate-900 min-h-screen transition-colors">{children}</main>
+        <footer className="footer bg-white dark:bg-slate-900 dark:text-gray-400 dark:border-t dark:border-slate-800 transition-colors">
           <div className="navbar-container">
             <p>
               &copy; {new Date().getFullYear()} {'Wypo\u017cyczSprz\u0119t Marketplace. Wszystkie prawa zastrze\u017cone.'}

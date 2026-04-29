@@ -24,7 +24,7 @@ export default function Navbar({ actionUrl, actionLabel }) {
   };
 
   return (
-    <nav className="navbar dark:bg-slate-900/90 transition-colors">
+    <nav className="navbar dark:bg-slate-900 transition-colors">
       <div className="navbar-container">
         <Link href="/" className="flex items-center group">
           <span className="text-xl font-black tracking-tight text-gray-900 dark:text-white">
