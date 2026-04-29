@@ -100,39 +100,40 @@ export default function ArticlePage({ params }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="main-container" style={{ display: 'block', maxWidth: '800px', margin: '0 auto', padding: '2rem 1rem' }}>
-        <nav style={{ marginBottom: '2rem', fontSize: '0.875rem', color: 'var(--muted)' }}>
-          <Link href="/" style={{ color: 'var(--primary)', textDecoration: 'none' }}>Strona główna</Link>
-          {' / '}
-          <Link href="/blog" style={{ color: 'var(--primary)', textDecoration: 'none' }}>Blog</Link>
-          {' / '}
-          <span style={{ color: 'var(--foreground)' }}>{article.title}</span>
+      <div className="max-w-[800px] mx-auto px-4 py-12">
+        <nav className="flex items-center gap-2 mb-8 text-sm text-gray-500 dark:text-gray-400">
+          <Link href="/" className="text-blue-600 dark:text-blue-400 hover:underline">Strona główna</Link>
+          <span>/</span>
+          <Link href="/blog" className="text-blue-600 dark:text-blue-400 hover:underline">Blog</Link>
+          <span>/</span>
+          <span className="text-gray-900 dark:text-white line-clamp-1">{article.title}</span>
         </nav>
 
-        <article className="responsive-article-pad" style={{ backgroundColor: 'white', borderRadius: '16px', border: '1px solid var(--border)' }}>
-          <header style={{ marginBottom: '3rem', borderBottom: '1px solid var(--border)', paddingBottom: '2rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-              <span style={{ backgroundColor: 'var(--primary-light)', color: 'var(--primary)', padding: '0.25rem 0.75rem', borderRadius: '99px', fontWeight: 600 }}>
+        <article className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 overflow-hidden shadow-sm">
+          <header className="p-8 md:p-12 border-b border-gray-100 dark:border-slate-700 bg-gray-50/50 dark:bg-slate-800/50">
+            <div className="flex items-center gap-3 mb-6">
+              <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
                 {article.category}
               </span>
-              <span style={{ color: 'var(--muted)' }}>{article.date}</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">{article.date}</span>
             </div>
-            <h1 className="responsive-title" style={{ fontWeight: 800, lineHeight: 1.2, color: 'var(--foreground)', marginBottom: '1.5rem' }}>
+            <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white leading-tight mb-6">
               {article.title}
             </h1>
-            <p style={{ fontSize: '1.25rem', color: 'var(--muted)', lineHeight: 1.6 }}>
+            <p className="text-xl text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
               {article.description}
             </p>
           </header>
 
-          <div className="article-content" style={{ fontSize: '1.05rem' }}>
+          <div className="p-8 md:p-12 prose dark:prose-invert max-w-none">
             {renderContent(article.content)}
           </div>
         </article>
 
-        <div style={{ marginTop: '4rem', textAlign: 'center' }}>
-          <Link href="/blog" className="btn-secondary" style={{ textDecoration: 'none' }}>
-            ← Powrót do artykułów
+        <div className="mt-12 text-center">
+          <Link href="/blog" className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 font-bold transition-colors">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+            Powrót do artykułów
           </Link>
         </div>
       </div>

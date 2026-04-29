@@ -7,52 +7,67 @@ export const metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="main-container" style={{ display: 'block', maxWidth: '800px' }}>
-      <header style={{ textAlign: 'center', marginBottom: '3rem' }}>
-        <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>Kontakt i <span style={{ color: 'var(--primary)' }}>Współpraca</span></h1>
-        <p style={{ color: 'var(--muted)', fontSize: '1.1rem' }}>
+    <div className="max-w-[800px] mx-auto px-4 py-12">
+      <header className="text-center mb-12">
+        <h1 className="text-4xl font-black text-gray-900 dark:text-white mb-4">
+          Kontakt i <span className="text-blue-600">Współpraca</span>
+        </h1>
+        <p className="text-lg text-gray-600 dark:text-gray-400">
           Jesteś właścicielem wypożyczalni? Chcesz dotrzeć do nowych klientów? Zapraszamy do kontaktu!
         </p>
       </header>
 
-      <div style={{ padding: '2rem', marginBottom: '2rem', backgroundColor: 'white', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
-        <h2 style={{ marginBottom: '1.5rem', borderBottom: '2px solid var(--primary)', paddingBottom: '0.5rem', display: 'inline-block' }}>
+      <div className="bg-white dark:bg-slate-800 rounded-3xl border border-gray-200 dark:border-slate-700 p-8 mb-8 shadow-sm">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 border-b-4 border-blue-600 pb-2 inline-block">
           Dla Firm i Partnerów
         </h2>
-        <p style={{ marginBottom: '1.5rem' }}>
+        <p className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
           Nasz marketplace to idealne miejsce na promocję Twojego sprzętu budowlanego. Oferujemy:
         </p>
-        <ul style={{ marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', listStyle: 'none', padding: 0 }}>
-          <li>✅ <strong>Zwiększenie zasięgów</strong> Twojej lokalnej firmy</li>
-          <li>✅ <strong>Bezpośredni kontakt</strong> od zainteresowanych klientów</li>
-          <li>✅ <strong>Prosty panel</strong> dodawania ogłoszeń bez zbędnych formalności</li>
-          <li>✅ <strong>Możliwość integracji</strong> z Twoimi aktualnymi ofertami</li>
+        <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 list-none p-0">
+          <li className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+            <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+            <span>Zwiększenie zasięgów</span>
+          </li>
+          <li className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+            <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+            <span>Bezpośredni kontakt</span>
+          </li>
+          <li className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+            <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+            <span>Prosty panel ogłoszeń</span>
+          </li>
+          <li className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+            <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+            <span>Brak ukrytych opłat</span>
+          </li>
         </ul>
 
-        <div style={{ backgroundColor: 'var(--primary-light)', padding: '1.5rem', borderRadius: 'var(--radius)', borderLeft: '4px solid var(--primary)' }}>
-          <h3 style={{ marginBottom: '1rem' }}>Napisz do nas:</h3>
-          <p style={{ fontSize: '1.2rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+        <div className="bg-blue-50 dark:bg-slate-900/50 p-6 rounded-2xl border border-blue-100 dark:border-slate-700 border-l-4 border-l-blue-600">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">Napisz do nas:</h3>
+          <p className="text-xl font-black text-blue-600 dark:text-blue-400 mb-1">
             📧 lukasz.szyp@gmail.com
           </p>
-          <p style={{ color: 'var(--muted)', fontSize: '0.9rem' }}>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Odpowiadamy zazwyczaj w ciągu 24 godzin.
           </p>
         </div>
       </div>
 
-      <div style={{ padding: '2rem', backgroundColor: 'white', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
-        <h2 style={{ marginBottom: '1.5rem' }}>Zgłoś błąd lub sugestię</h2>
-        <p style={{ marginBottom: '1.5rem' }}>
+      <div className="bg-white dark:bg-slate-800 rounded-3xl border border-gray-200 dark:border-slate-700 p-8 shadow-sm">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Zgłoś błąd lub sugestię</h2>
+        <p className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
           Stale rozwijamy naszą platformę. Jeśli masz pomysł na nową funkcjonalność lub zauważyłeś błąd, daj nam znać!
         </p>
-        <a href="mailto:lukasz.szyp@gmail.com" className="btn-primary" style={{ textDecoration: 'none', display: 'inline-block' }}>
+        <a href="mailto:lukasz.szyp@gmail.com" className="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-md">
           Wyślij wiadomość
         </a>
       </div>
 
-      <div style={{ marginTop: '3rem', textAlign: 'center' }}>
-        <a href="/" className="btn-secondary" style={{ textDecoration: 'none' }}>
-          ← Powrót do ogłoszeń
+      <div className="mt-12 text-center">
+        <a href="/" className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 font-bold transition-colors">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+          Powrót do ogłoszeń
         </a>
       </div>
     </div>

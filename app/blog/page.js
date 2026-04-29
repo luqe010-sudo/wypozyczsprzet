@@ -21,45 +21,36 @@ export const metadata = {
 
 export default function BlogIndexPage() {
   return (
-    <div className="main-container" style={{ display: 'block', maxWidth: '1000px' }}>
-      <header style={{ textAlign: 'center', marginBottom: '4rem', marginTop: '2rem' }}>
-        <h1 style={{ fontSize: '3rem', fontWeight: 800, marginBottom: '1rem', color: 'var(--foreground)' }}>
-          Poradniki i <span style={{ color: 'var(--primary)' }}>Wiedza</span>
+    <div className="max-w-[1000px] mx-auto px-4 py-8">
+      <header className="text-center mb-12 mt-8">
+        <h1 className="text-4xl md:text-5xl font-extrabold mb-4 text-gray-900 dark:text-white">
+          Poradniki i <span className="text-blue-600">Wiedza</span>
         </h1>
-        <p style={{ fontSize: '1.125rem', color: 'var(--muted)', maxWidth: '600px', margin: '0 auto' }}>
+        <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
           Praktyczne porady, zestawienia cenowe i wskazówki, które pomogą Ci wybrać najlepszy sprzęt do Twojego projektu budowlanego.
         </p>
       </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '2rem' }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
         {articles.map((article) => (
-          <Link key={article.slug} href={`/blog/${article.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+          <Link key={article.slug} href={`/blog/${article.slug}`} className="group no-underline color-inherit">
             <article 
-              className="blog-card"
-              style={{
-                backgroundColor: 'white',
-                borderRadius: '16px',
-                border: '1px solid var(--border)',
-                overflow: 'hidden',
-                cursor: 'pointer',
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column'
-              }}
+              className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 overflow-hidden cursor-pointer h-full flex flex-col hover:shadow-xl hover:border-blue-500/30 transition-all duration-300"
             >
-              <div style={{ padding: '2rem', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', fontSize: '0.875rem' }}>
-                  <span style={{ color: 'var(--primary)', fontWeight: 600 }}>{article.category}</span>
-                  <span style={{ color: 'var(--muted)' }}>{article.date}</span>
+              <div className="p-8 flex-grow flex flex-col">
+                <div className="flex justify-between items-center mb-4 text-sm">
+                  <span className="text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider">{article.category}</span>
+                  <span className="text-gray-500 dark:text-gray-400">{article.date}</span>
                 </div>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1rem', lineHeight: 1.4 }}>
+                <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-snug">
                   {article.title}
                 </h2>
-                <p style={{ color: 'var(--muted)', lineHeight: 1.6, flexGrow: 1 }}>
+                <p className="text-gray-600 dark:text-gray-400 leading-relaxed flex-grow">
                   {article.description}
                 </p>
-                <div style={{ marginTop: '1.5rem', color: 'var(--primary)', fontWeight: 600, fontSize: '0.9rem' }}>
-                  Czytaj dalej →
+                <div className="mt-6 text-blue-600 dark:text-blue-400 font-bold text-sm flex items-center gap-1">
+                  Czytaj dalej 
+                  <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                 </div>
               </div>
             </article>
@@ -67,9 +58,10 @@ export default function BlogIndexPage() {
         ))}
       </div>
 
-      <div style={{ marginTop: '4rem', textAlign: 'center' }}>
-        <Link href="/" className="btn-secondary" style={{ textDecoration: 'none' }}>
-          ← Wróć na stronę główną
+      <div className="mt-16 text-center">
+        <Link href="/" className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 font-bold transition-colors">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+          Wróć na stronę główną
         </Link>
       </div>
     </div>
