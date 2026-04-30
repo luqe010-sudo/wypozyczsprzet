@@ -149,6 +149,7 @@ function AddListingForm() {
                   <input type="text" name="lokalizacja" value={formData.lokalizacja} onChange={handleChange} placeholder="np. ul. Polna 10"
                          className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all placeholder-gray-400 dark:placeholder-gray-600" />
                 </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Kategoria</label>
                     <select name="category" value={formData.category} onChange={handleChange} 
