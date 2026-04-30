@@ -13,6 +13,7 @@ const DEFAULT_VIEWPORT = {
 };
 
 import { Source, Layer } from 'react-map-gl/maplibre';
+import { FIORD_STYLE } from '../lib/mapStyleConfig';
 
 // Helper to create a circle GeoJSON
 function createCircle(center, radiusInKm) {
@@ -109,8 +110,18 @@ export default function MapComponent({ listings, geoCache, searchCenter, radius,
 
   const mapStyle = useMemo(() => {
     if (MAPTILER_KEY) {
-      // Always use Fiord Color style as requested
-      return `https://api.maptiler.com/maps/fiord/style.json?key=${MAPTILER_KEY}`;
+      // Use the exact Fiord Color style from the repository
+      const style = JSON.parse(JSON.stringify(FIORD_STYLE));
+      
+      // Inject the MapTiler key into the sources and glyphs
+      if (style.sources && style.sources.openmaptiles) {
+        style.sources.openmaptiles.url = style.sources.openmaptiles.url.replace('{key}', MAPTILER_KEY);
+      }
+      if (style.glyphs) {
+        style.glyphs = style.glyphs.replace('{key}', MAPTILER_KEY);
+      }
+      
+      return style;
     }
 
     // Fallback to Dark Matter raster tiles (closest to Fiord) if no key
