@@ -206,7 +206,7 @@ export default function Marketplace({ initialData }) {
           
           {/* Left Sidebar: Filters, Map, CTA */}
           <aside className="w-full lg:w-64 xl:w-72 flex-shrink-0">
-            <div className="sticky top-20 space-y-6">
+            <div className="space-y-6">
               <FiltersSidebar
                 availableCities={filters.cities}
                 availableCategories={filters.categories}
