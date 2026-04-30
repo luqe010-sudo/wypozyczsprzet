@@ -41,6 +41,14 @@ export default function Marketplace({ initialData }) {
       localStorage.setItem('geoCache', JSON.stringify(geoCache));
     }
   }, [geoCache]);
+
+  const clearGeoCache = () => {
+    if (window.confirm('Czy na pewno chcesz odświeżyć wszystkie lokalizacje na mapie? Może to zająć chwilę.')) {
+      localStorage.removeItem('geoCache');
+      setGeoCache({});
+      window.location.reload();
+    }
+  };
   
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -226,7 +234,7 @@ export default function Marketplace({ initialData }) {
                   <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A2 2 0 013 15.382V5.618a2 2 0 011.106-1.789L9 1.118l5.447 2.724A2 2 0 0115 5.618v9.764a2 2 0 01-1.106 1.789L9 20z" /></svg>
                   <h3 className="text-[10px] font-bold text-gray-900 dark:text-white uppercase tracking-wider">Mapa ofert</h3>
                 </div>
-                <div className="h-[450px]">
+                <div className="h-[450px] relative">
                   <MapComponent 
                     listings={filteredListings} 
                     geoCache={geoCache} 
@@ -235,6 +243,15 @@ export default function Marketplace({ initialData }) {
                     onLocationShared={(coords) => setSearchCenter(coords)}
                     isCompact={true}
                   />
+                  <button 
+                    onClick={clearGeoCache}
+                    className="absolute top-2 left-2 bg-white/90 dark:bg-slate-800/90 hover:bg-white dark:hover:bg-slate-700 p-1.5 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 transition-colors z-10 group"
+                    title="Odśwież lokalizacje"
+                  >
+                    <svg className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                  </button>
                 </div>
               </div>
               
@@ -248,13 +265,24 @@ export default function Marketplace({ initialData }) {
           <main className="flex-1 min-w-0">
             {/* Mobile Map/CTA View */}
             <div className="lg:hidden space-y-6 mb-8">
-              <MapComponent 
-                listings={filteredListings} 
-                geoCache={geoCache} 
-                searchCenter={searchCenter} 
-                radius={radius}
-                onLocationShared={(coords) => setSearchCenter(coords)}
-              />
+              <div className="relative">
+                <MapComponent 
+                  listings={filteredListings} 
+                  geoCache={geoCache} 
+                  searchCenter={searchCenter} 
+                  radius={radius}
+                  onLocationShared={(coords) => setSearchCenter(coords)}
+                />
+                <button 
+                  onClick={clearGeoCache}
+                  className="absolute top-2 left-2 bg-white/90 dark:bg-slate-800/90 hover:bg-white dark:hover:bg-slate-700 p-1.5 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 transition-colors z-10 group"
+                  title="Odśwież lokalizacje"
+                >
+                  <svg className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                </button>
+              </div>
               <CTASection />
             </div>
 
