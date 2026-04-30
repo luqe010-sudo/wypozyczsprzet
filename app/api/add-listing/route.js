@@ -7,6 +7,7 @@ export async function POST(request) {
     
     const company = formData.get('company');
     const phone = formData.get('phone');
+    const zipCode = formData.get('zipCode');
     const city = formData.get('city');
     const category = formData.get('category');
     const equipment = formData.get('equipment');
@@ -56,6 +57,7 @@ export async function POST(request) {
           equipment: equipment,
           price: price,
           time: time,
+          zipCode: zipCode,
           city: city,
           lokalizacja: lokalizacja,
           availability: availability,
