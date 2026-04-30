@@ -10,6 +10,7 @@ import StatsSection from './StatsSection';
 import SeoFAQ from './SeoFAQ';
 import { trackEvent } from '../lib/gtag';
 import MapComponent from './MapComponent';
+import { sanitizeAddress } from '../lib/utils';
 
 export default function Marketplace({ initialData }) {
   const { listings, filters } = initialData;
@@ -110,58 +111,59 @@ export default function Marketplace({ initialData }) {
     });
   }, [listings, searchTerm, selectedCity, selectedCategory, maxPrice, radius, searchCenter, geoCache]);
 
+  const [isGeocoding, setIsGeocoding] = useState(false);
+  const [pendingGeocodes, setPendingGeocodes] = useState(0);
+
   // Geocode all listings (caching results)
   useEffect(() => {
     const geocodeListings = async () => {
-      // 1. Always prioritize geocoding unique cities
-      const cities = [...new Set(listings.map(l => l.Miasto).filter(Boolean))];
-      const uniqueCities = cities.filter(c => !geoCache[c]);
+      // 1. Unique cities
+      const rawCities = [...new Set(listings.map(l => l.Miasto).filter(Boolean))];
+      const citiesToGeocode = rawCities.filter(c => {
+        const clean = sanitizeAddress('', c);
+        return !geoCache[clean];
+      });
 
-      if (uniqueCities.length > 0) {
-        for (const city of uniqueCities) {
-          try {
-            const response = await fetch(`/api/geocode?q=${encodeURIComponent(city)}`);
-            if (response.ok) {
-              const data = await response.json();
-              if (data && data.length > 0) {
-                const coords = { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
-                setGeoCache(prev => ({ ...prev, [city]: coords }));
-              }
-            }
-            await new Promise(r => setTimeout(r, 1200));
-          } catch (e) { console.error(e); }
-        }
+      // 2. Filtered addresses
+      const addressesToGeocode = [...new Set(filteredListings.map(l => {
+        const addr = sanitizeAddress(l.Lokalizacja, l.Miasto);
+        return addr;
+      }).filter(Boolean))].filter(addr => !geoCache[addr]);
+
+      const allPending = [...new Set([...citiesToGeocode.map(c => sanitizeAddress('', c)), ...addressesToGeocode])];
+      
+      if (allPending.length === 0) {
+        setIsGeocoding(false);
+        setPendingGeocodes(0);
+        return;
       }
 
-      // 2. Geocode full addresses ONLY for items that are currently filtered/visible
-      const filteredAddresses = [...new Set(filteredListings.map(l => {
-        const city = l.Miasto || '';
-        const loc = l.Lokalizacja || '';
-        if (!loc) return null;
-        if (loc.toLowerCase().includes(city.toLowerCase())) return loc.trim();
-        return `${loc} ${city}`.trim();
-      }).filter(Boolean))];
-      
-      const uniqueFilteredAddresses = filteredAddresses.filter(addr => !geoCache[addr]).slice(0, 5);
+      setIsGeocoding(true);
+      setPendingGeocodes(allPending.length);
 
-      if (uniqueFilteredAddresses.length > 0) {
-        for (const addr of uniqueFilteredAddresses) {
-          try {
-            const response = await fetch(`/api/geocode?q=${encodeURIComponent(addr)}`);
-            if (response.ok) {
-              const data = await response.json();
-              if (data && data.length > 0) {
-                const coords = { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
-                setGeoCache(prev => ({ ...prev, [addr]: coords }));
-              }
+      // Process a small batch
+      const batch = allPending.slice(0, 8);
+      for (const q of batch) {
+        try {
+          const response = await fetch(`/api/geocode?q=${encodeURIComponent(q)}`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data && data.length > 0) {
+              const coords = { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+              setGeoCache(prev => ({ ...prev, [q]: coords }));
+            } else {
+              // Mark as failed to avoid retrying
+              setGeoCache(prev => ({ ...prev, [q]: 'failed' }));
             }
-            await new Promise(r => setTimeout(r, 1200));
-          } catch (e) { console.error(e); }
+          }
+          await new Promise(r => setTimeout(r, 1200));
+        } catch (e) { 
+          console.error('Geocoding error for:', q, e);
         }
       }
     };
     geocodeListings();
-  }, [listings, filteredListings]);
+  }, [listings, filteredListings, geoCache]);
   
   // Geocode selected city to set search center
   useEffect(() => {
@@ -245,12 +247,17 @@ export default function Marketplace({ initialData }) {
                   />
                   <button 
                     onClick={clearGeoCache}
-                    className="absolute top-2 left-2 bg-white/90 dark:bg-slate-800/90 hover:bg-white dark:hover:bg-slate-700 p-1.5 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 transition-colors z-10 group"
+                    className={`absolute top-2 left-2 bg-white/90 dark:bg-slate-800/90 hover:bg-white dark:hover:bg-slate-700 p-1.5 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 transition-all z-10 group flex items-center gap-1.5`}
                     title="Odśwież lokalizacje"
                   >
-                    <svg className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className={`w-3.5 h-3.5 ${isGeocoding ? 'text-blue-600 animate-spin' : 'text-gray-500 dark:text-gray-400 group-hover:text-blue-600'} transition-colors`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
+                    {isGeocoding && (
+                      <span className="text-[9px] font-bold text-blue-600 animate-pulse">
+                        {pendingGeocodes}...
+                      </span>
+                    )}
                   </button>
                 </div>
               </div>
@@ -275,12 +282,17 @@ export default function Marketplace({ initialData }) {
                 />
                 <button 
                   onClick={clearGeoCache}
-                  className="absolute top-2 left-2 bg-white/90 dark:bg-slate-800/90 hover:bg-white dark:hover:bg-slate-700 p-1.5 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 transition-colors z-10 group"
+                  className={`absolute top-2 left-2 bg-white/90 dark:bg-slate-800/90 hover:bg-white dark:hover:bg-slate-700 p-1.5 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 transition-all z-10 group flex items-center gap-1.5`}
                   title="Odśwież lokalizacje"
                 >
-                  <svg className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className={`w-3.5 h-3.5 ${isGeocoding ? 'text-blue-600 animate-spin' : 'text-gray-500 dark:text-gray-400 group-hover:text-blue-600'} transition-colors`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
+                  {isGeocoding && (
+                    <span className="text-[9px] font-bold text-blue-600 animate-pulse">
+                      {pendingGeocodes}...
+                    </span>
+                  )}
                 </button>
               </div>
               <CTASection />

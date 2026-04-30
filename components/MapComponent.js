@@ -14,6 +14,7 @@ const DEFAULT_VIEWPORT = {
 
 import { Source, Layer } from 'react-map-gl/maplibre';
 import { FIORD_STYLE } from '../lib/mapStyleConfig';
+import { sanitizeAddress } from '../lib/utils';
 
 // Helper to create a circle GeoJSON
 function createCircle(center, radiusInKm) {
@@ -80,14 +81,13 @@ export default function MapComponent({ listings, geoCache, searchCenter, radius,
 
   const markers = useMemo(() => {
     return listings.map((item, index) => {
-      const city = item.Miasto || '';
-      const loc = item.Lokalizacja || '';
-      const addr = loc && !loc.toLowerCase().includes(city.toLowerCase()) ? `${loc} ${city}`.trim() : (loc || city).trim();
+      const addr = sanitizeAddress(item.Lokalizacja, item.Miasto);
+      const cityClean = sanitizeAddress('', item.Miasto);
       
-      const coords = geoCache[addr] || geoCache[city];
-      if (coords) {
+      const coords = geoCache[addr] || geoCache[cityClean];
+      if (coords && coords !== 'failed') {
         // Use smaller jitter for specific address, larger for city fallback
-        const isExact = !!geoCache[addr];
+        const isExact = geoCache[addr] && geoCache[addr] !== 'failed';
         const jitter = isExact ? 0.001 : 0.01;
         return {
           ...item,
