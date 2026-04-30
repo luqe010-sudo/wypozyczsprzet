@@ -86,14 +86,21 @@ export default function MapComponent({ listings, geoCache, searchCenter, radius,
       
       const coords = geoCache[addr] || geoCache[cityClean];
       if (coords && coords !== 'failed') {
-        // Use smaller jitter for specific address, larger for city fallback
+        // Use deterministic jitter based on ID to prevent "dancing" pins
+        const id = item.ID_sprzetu || index;
+        const hash = String(id).split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a; }, 0);
+        
         const isExact = geoCache[addr] && geoCache[addr] !== 'failed';
-        const jitter = isExact ? 0.001 : 0.01;
+        const jitterScale = isExact ? 0.0006 : 0.008; // Slightly smaller for exact, larger for city
+        
+        const latOffset = ((hash & 0xFF) / 255 - 0.5) * jitterScale;
+        const lngOffset = (((hash >> 8) & 0xFF) / 255 - 0.5) * jitterScale;
+
         return {
           ...item,
-          id: item.ID_sprzetu || index,
-          latitude: coords.lat + (Math.random() - 0.5) * jitter,
-          longitude: coords.lng + (Math.random() - 0.5) * jitter
+          id,
+          latitude: coords.lat + latOffset,
+          longitude: coords.lng + lngOffset
         };
       }
       return null;
