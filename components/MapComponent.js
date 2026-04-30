@@ -151,7 +151,7 @@ export default function MapComponent({ listings, geoCache, searchCenter, radius,
   }, [MAPTILER_KEY]);
 
   return (
-    <div className={`relative w-full ${isCompact ? 'h-full' : 'h-[400px] md:h-[500px] mb-10'} rounded-2xl md:rounded-3xl overflow-hidden shadow-lg border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 transition-all`}>
+    <div className={`relative w-full ${isCompact ? 'h-full' : 'h-[500px] md:h-[700px] mb-10'} rounded-2xl md:rounded-3xl overflow-hidden shadow-lg border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 transition-all`}>
       <Map
         mapLib={maplibregl}
         {...viewport}
