@@ -36,7 +36,10 @@ export const metadata = {
     google: 'UTKre7BkIREzsP437M9akUdcQ5ER_plKUPDc6TUYD5g',
   },
   icons: {
-    icon: '/favicon.png',
+    icon: [
+      { url: '/favicon.png' },
+      { url: '/favicon.png', sizes: '32x32', type: 'image/png' },
+    ],
     shortcut: '/favicon.png',
     apple: '/favicon.png',
   },
@@ -46,6 +49,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="pl" suppressHydrationWarning>
       <head>
+        <link rel="icon" href="/favicon.png" />
         <script dangerouslySetInnerHTML={{
           __html: `
             if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
