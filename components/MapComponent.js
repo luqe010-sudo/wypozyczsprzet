@@ -108,62 +108,36 @@ export default function MapComponent({ listings, geoCache, searchCenter, radius,
   const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_KEY;
 
   const mapStyle = useMemo(() => {
-    if (isDark) {
-      if (MAPTILER_KEY) {
-        return `https://api.maptiler.com/maps/darkmatter/style.json?key=${MAPTILER_KEY}`;
-      }
-      return {
-        version: 8,
-        sources: {
-          'carto-dark': {
-            type: 'raster',
-            tiles: [
-              'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-              'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-              'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-              'https://d.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'
-            ],
-            tileSize: 256,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-          },
-        },
-        layers: [
-          {
-            id: 'carto-dark-layer',
-            type: 'raster',
-            source: 'carto-dark',
-          },
-        ],
-      };
-    } else {
-      if (MAPTILER_KEY) {
-        return `https://api.maptiler.com/maps/streets-v2/style.json?key=${MAPTILER_KEY}`;
-      }
-      return {
-        version: 8,
-        sources: {
-          'carto-voyager': {
-            type: 'raster',
-            tiles: [
-              'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
-              'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
-              'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
-              'https://d.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png'
-            ],
-            tileSize: 256,
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-          },
-        },
-        layers: [
-          {
-            id: 'carto-voyager-layer',
-            type: 'raster',
-            source: 'carto-voyager',
-          },
-        ],
-      };
+    if (MAPTILER_KEY) {
+      // Always use Fiord Color style as requested
+      return `https://api.maptiler.com/maps/fiord/style.json?key=${MAPTILER_KEY}`;
     }
-  }, [isDark, MAPTILER_KEY]);
+
+    // Fallback to Dark Matter raster tiles (closest to Fiord) if no key
+    return {
+      version: 8,
+      sources: {
+        'carto-dark': {
+          type: 'raster',
+          tiles: [
+            'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+            'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+            'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+            'https://d.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'
+          ],
+          tileSize: 256,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        },
+      },
+      layers: [
+        {
+          id: 'carto-dark-layer',
+          type: 'raster',
+          source: 'carto-dark',
+        },
+      ],
+    };
+  }, [MAPTILER_KEY]);
 
   return (
     <div className={`relative w-full ${isCompact ? 'h-full' : 'h-[400px] md:h-[500px] mb-10'} rounded-2xl md:rounded-3xl overflow-hidden shadow-lg border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 transition-all`}>
