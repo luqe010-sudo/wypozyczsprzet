@@ -226,7 +226,7 @@ export default function Marketplace({ initialData }) {
                   <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A2 2 0 013 15.382V5.618a2 2 0 011.106-1.789L9 1.118l5.447 2.724A2 2 0 0115 5.618v9.764a2 2 0 01-1.106 1.789L9 20z" /></svg>
                   <h3 className="text-[10px] font-bold text-gray-900 dark:text-white uppercase tracking-wider">Mapa ofert</h3>
                 </div>
-                <div className="h-[220px]">
+                <div className="h-[450px]">
                   <MapComponent 
                     listings={filteredListings} 
                     geoCache={geoCache} 
