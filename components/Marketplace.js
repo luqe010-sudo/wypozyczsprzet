@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Hero from './Hero';
 import TrustBar from './TrustBar';
 import FiltersSidebar from './FiltersSidebar';
@@ -114,6 +114,9 @@ export default function Marketplace({ initialData }) {
   const [isGeocoding, setIsGeocoding] = useState(false);
   const [pendingGeocodes, setPendingGeocodes] = useState(0);
 
+  // Track queued geocoding requests to prevent infinite loop
+  const geocodeQueuedRef = useRef(new Set());
+
   // Geocode all listings (caching results)
   useEffect(() => {
     const geocodeListings = async () => {
@@ -121,14 +124,14 @@ export default function Marketplace({ initialData }) {
       const rawCities = [...new Set(listings.map(l => l.Miasto).filter(Boolean))];
       const citiesToGeocode = rawCities.filter(c => {
         const clean = sanitizeAddress('', c);
-        return !geoCache[clean];
+        return !geoCache[clean] && !geocodeQueuedRef.current.has(clean);
       });
 
       // 2. Filtered addresses
       const addressesToGeocode = [...new Set(filteredListings.map(l => {
         const addr = sanitizeAddress(l.Lokalizacja, l.Miasto);
         return addr;
-      }).filter(Boolean))].filter(addr => !geoCache[addr]);
+      }).filter(Boolean))].filter(addr => !geoCache[addr] && !geocodeQueuedRef.current.has(addr));
 
       const allPending = [...new Set([...citiesToGeocode.map(c => sanitizeAddress('', c)), ...addressesToGeocode])];
       
@@ -137,6 +140,9 @@ export default function Marketplace({ initialData }) {
         setPendingGeocodes(0);
         return;
       }
+
+      // Mark all as queued immediately to prevent re-runs
+      allPending.forEach(q => geocodeQueuedRef.current.add(q));
 
       setIsGeocoding(true);
       setPendingGeocodes(allPending.length);
@@ -161,9 +167,12 @@ export default function Marketplace({ initialData }) {
           console.error('Geocoding error for:', q, e);
         }
       }
+
+      setIsGeocoding(false);
+      setPendingGeocodes(0);
     };
     geocodeListings();
-  }, [listings, filteredListings, geoCache]);
+  }, [listings, filteredListings]);
   
   // Geocode selected city to set search center
   useEffect(() => {

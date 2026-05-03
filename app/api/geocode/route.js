@@ -28,10 +28,8 @@ const geocodeCache = new Map([
 ]);
 
 export async function GET(request) {
-  console.log('Geocode request received:', request.url);
   const { searchParams } = new URL(request.url);
   const q = searchParams.get('q');
-  console.log('Query parameter:', q);
 
   if (!q) {
     return NextResponse.json({ error: 'Missing query' }, { status: 400 });

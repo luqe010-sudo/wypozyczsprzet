@@ -105,6 +105,10 @@ export default function PrivacyModal({ isOpen, onClose }) {
           box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
           animation: modalSlideIn 0.3s ease-out;
         }
+        :global(.dark) .privacy-modal {
+          background: #1e293b;
+          color: #f1f5f9;
+        }
         .close-button {
           position: absolute;
           top: 15px;
@@ -131,6 +135,7 @@ export default function PrivacyModal({ isOpen, onClose }) {
         .privacy-text h2 { margin-top: 0; margin-bottom: 24px; }
         .privacy-text h3 { margin-top: 24px; margin-bottom: 12px; font-size: 1.1rem; }
         .privacy-text p, .privacy-text li { font-size: 0.95rem; color: #4b5563; line-height: 1.6; }
+        :global(.dark) .privacy-text p, :global(.dark) .privacy-text li { color: #94a3b8; }
         .privacy-text ul { padding-left: 20px; margin-bottom: 16px; }
 
         @keyframes modalSlideIn {

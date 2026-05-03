@@ -18,7 +18,7 @@ export default function DynamicPlaceholder({ title, category }) {
   return (
     <img 
       src={imageSrc} 
-      alt={`Placeholder for ${category || title}`}
+      alt={`${category || title || 'Sprzęt budowlany'}`}
       className="listing-image"
       style={{
         width: '100%',

@@ -121,6 +121,10 @@ export default function CookieConsent() {
           z-index: 9999;
           animation: slideUp 0.5s ease-out;
         }
+        :global(.dark) .cookie-banner {
+          background: rgba(30, 41, 59, 0.9);
+          border-color: rgba(71, 85, 105, 0.5);
+        }
         .cookie-container {
           max-width: 1200px;
           margin: 0 auto;
@@ -141,11 +145,17 @@ export default function CookieConsent() {
           font-size: 1.1rem;
           color: #1a1a1a;
         }
+        :global(.dark) .cookie-content h3 {
+          color: #f1f5f9;
+        }
         .cookie-content p {
           margin: 0;
           font-size: 0.9rem;
           color: #666;
           line-height: 1.5;
+        }
+        :global(.dark) .cookie-content p {
+          color: #94a3b8;
         }
         .cookie-actions {
           display: flex;
@@ -198,6 +208,10 @@ export default function CookieConsent() {
           max-width: 500px;
           box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
           animation: fadeIn 0.3s ease-out;
+        }
+        :global(.dark) .cookie-modal {
+          background: #1e293b;
+          color: #f1f5f9;
         }
         .cookie-modal h2 { margin-top: 0; font-size: 1.5rem; }
         .cookie-setting-item {

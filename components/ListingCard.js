@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import DynamicPlaceholder from './DynamicPlaceholder';
@@ -35,6 +34,7 @@ export default function ListingCard({ listing }) {
             <img 
               src={listing.Zdjecie} 
               alt={listing['Sprzęt']} 
+              loading="lazy"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
           ) : (

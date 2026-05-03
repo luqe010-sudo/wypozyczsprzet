@@ -123,24 +123,6 @@ export default function FiltersSidebar({
             </div>
           )}
 
-          {/* Rental Type (Visual Only) */}
-          <div className="flex flex-col gap-1.5 pt-0.5">
-            <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Typ wynajmu</label>
-            <div className="space-y-1">
-              <label className="flex items-center gap-2 cursor-pointer group text-xs">
-                <input type="checkbox" className="w-3.5 h-3.5 rounded border-gray-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500 accent-blue-600" defaultChecked />
-                <span className="text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">Na dzień</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer group text-xs">
-                <input type="checkbox" className="w-3.5 h-3.5 rounded border-gray-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500 accent-blue-600" />
-                <span className="text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">Na tydzień</span>
-              </label>
-            </div>
-          </div>
-
-          <button className="w-full bg-blue-600 text-white hover:bg-blue-700 font-bold py-2 px-4 rounded-xl transition-all duration-200 shadow-sm mt-1 text-xs">
-            Pokaż wyniki
-          </button>
         </div>
       </div>
     </div>
