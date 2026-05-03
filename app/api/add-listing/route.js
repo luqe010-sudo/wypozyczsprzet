@@ -67,7 +67,7 @@ export async function POST(request) {
           imageContent: imageUrl, // Now sending URL instead of base64
           imageName: imageFile ? imageFile.name : '',
           imageType: imageFile ? imageFile.type : '',
-          Status: 'NOWE',
+          Status: 'AKTYWNE',
           Promowanie: wantsPromotion ? 'Mozliwe' : 'Nie',
           priority: 1
         })
