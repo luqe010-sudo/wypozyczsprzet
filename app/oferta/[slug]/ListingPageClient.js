@@ -134,7 +134,14 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
         </h2>
         <div className="prose dark:prose-invert max-w-none">
           {seoDescription.split('\n\n').map((paragraph, i) => (
-            <p key={i} className="text-gray-600 dark:text-gray-400 leading-relaxed text-lg mb-6">{paragraph}</p>
+            <p key={i} className="text-gray-600 dark:text-gray-400 leading-relaxed text-lg mb-6">
+              {paragraph.split('\n').map((line, j, arr) => (
+                <span key={j}>
+                  {line}
+                  {j < arr.length - 1 && <br />}
+                </span>
+              ))}
+            </p>
           ))}
         </div>
       </section>
