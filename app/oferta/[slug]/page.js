@@ -1,11 +1,14 @@
-import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { fetchListingBySlug, fetchAllSlugs } from '../../../lib/googleSheets';
+import { fetchListingBySlug, fetchAllSlugs, fetchRandomListings } from '../../../lib/googleSheets';
 import ListingPageClient from './ListingPageClient';
+import InactiveListingPage from './InactiveListingPage';
 
 export async function generateMetadata({ params }) {
   const data = await fetchListingBySlug(params.slug);
-  if (!data) return { title: 'Nie znaleziono oferty' };
+  if (!data) return {
+    title: 'Ogłoszenie nieaktywne | WypożyczSprzęt',
+    description: 'To ogłoszenie jest już nieaktywne. Sprawdź inne oferty wynajmu sprzętu budowlanego na WypożyczSprzęt.',
+  };
 
   const { listing } = data;
   const name = listing['Sprzęt'] || 'Sprzęt budowlany';
@@ -39,7 +42,12 @@ export async function generateMetadata({ params }) {
 
 export default async function ListingPage({ params }) {
   const data = await fetchListingBySlug(params.slug);
-  if (!data) notFound();
+
+  // Listing was removed from the database — show "inactive" page with suggestions
+  if (!data) {
+    const suggestions = await fetchRandomListings(6);
+    return <InactiveListingPage suggestions={suggestions} />;
+  }
 
   const { listing, related } = data;
 
