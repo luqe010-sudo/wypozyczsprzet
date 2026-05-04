@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import Map, { Marker, Popup, NavigationControl, FullscreenControl, GeolocateControl } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import maplibregl from 'maplibre-gl';
@@ -46,6 +46,8 @@ function createCircle(center, radiusInKm) {
 
 export default function MapComponent({ listings, geoCache, searchCenter, radius, onLocationShared, isCompact = false }) {
   const [isDark, setIsDark] = useState(false);
+  const mapRef = useRef(null);
+  const prevCenterRef = useRef(null);
 
   // Detect theme changes
   useEffect(() => {
@@ -63,19 +65,27 @@ export default function MapComponent({ listings, geoCache, searchCenter, radius,
     return () => observer.disconnect();
   }, []);
 
-  const [viewport, setViewport] = useState(DEFAULT_VIEWPORT);
   const [popupInfo, setPopupInfo] = useState(null);
 
-  // Auto-zoom to search center when it changes
+  // Fly to search center only when it actually changes (not on every render)
   useEffect(() => {
-    if (searchCenter) {
-      setViewport(prev => ({
-        ...prev,
-        latitude: searchCenter.lat,
-        longitude: searchCenter.lng,
+    if (!searchCenter) return;
+
+    // Skip if center hasn't actually moved
+    const prev = prevCenterRef.current;
+    if (prev && Math.abs(prev.lat - searchCenter.lat) < 0.0001 && Math.abs(prev.lng - searchCenter.lng) < 0.0001) {
+      return;
+    }
+    prevCenterRef.current = searchCenter;
+
+    const map = mapRef.current?.getMap?.();
+    if (map) {
+      map.flyTo({
+        center: [searchCenter.lng, searchCenter.lat],
         zoom: radius > 50 ? 8 : 10,
-        transitionDuration: 1000
-      }));
+        duration: 800,
+        essential: true,
+      });
     }
   }, [searchCenter, radius]);
 
@@ -160,9 +170,10 @@ export default function MapComponent({ listings, geoCache, searchCenter, radius,
   return (
     <div className={`relative w-full ${isCompact ? 'h-full' : 'h-[400px] md:h-[750px] mb-10'} rounded-2xl md:rounded-3xl overflow-hidden shadow-lg border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 transition-all`}>
       <Map
+        ref={mapRef}
         mapLib={maplibregl}
-        {...viewport}
-        onMove={evt => setViewport(evt.viewState)}
+        initialViewState={DEFAULT_VIEWPORT}
+        onMove={evt => {}}
         style={{ width: '100%', height: '100%' }}
         mapStyle={mapStyle}
       >
@@ -171,7 +182,7 @@ export default function MapComponent({ listings, geoCache, searchCenter, radius,
         <GeolocateControl 
           position="top-right" 
           positionOptions={{ enableHighAccuracy: true }}
-          trackUserLocation={true}
+          trackUserLocation={false}
           onGeolocate={(e) => {
             if (onLocationShared) {
               onLocationShared({ lat: e.coords.latitude, lng: e.coords.longitude });
