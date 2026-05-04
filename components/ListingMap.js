@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
-import Map, { Marker, NavigationControl } from 'react-map-gl/maplibre';
+import Map, { Marker, Popup, NavigationControl } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import maplibregl from 'maplibre-gl';
 import { FIORD_STYLE } from '../lib/mapStyleConfig';
@@ -11,6 +11,7 @@ export default function ListingMap({ listing }) {
   const [coords, setCoords] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
 
   const city = listing.Miasto || '';
   const location = listing.Lokalizacja || '';
@@ -140,6 +141,10 @@ export default function ListingMap({ listing }) {
               latitude={coords.lat}
               longitude={coords.lng}
               anchor="bottom"
+              onClick={(e) => {
+                e.originalEvent.stopPropagation();
+                setShowPopup(prev => !prev);
+              }}
             >
               <div className="relative group cursor-pointer">
                 {/* Pulsating ring behind the pin */}
@@ -153,16 +158,41 @@ export default function ListingMap({ listing }) {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                 </div>
-
-                {/* Tooltip */}
-                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white dark:bg-slate-800 text-gray-900 dark:text-white text-xs font-bold px-3 py-2 rounded-xl shadow-xl border border-gray-200 dark:border-slate-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-20">
-                  <div className="text-sm">{name}</div>
-                  <div className="text-blue-600 dark:text-blue-400 font-black">{price} PLN / {time}</div>
-                  {/* Arrow */}
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-white dark:border-t-slate-800" />
-                </div>
               </div>
             </Marker>
+          )}
+
+          {coords && showPopup && (
+            <Popup
+              latitude={coords.lat}
+              longitude={coords.lng}
+              anchor="bottom"
+              offset={[0, -45]}
+              closeButton={true}
+              closeOnClick={false}
+              onClose={() => setShowPopup(false)}
+              className="listing-map-popup"
+            >
+              <div className="p-3 min-w-[180px]">
+                <h3 className="font-bold text-sm text-gray-900 leading-tight mb-1">{name}</h3>
+                <p className="text-blue-600 font-black text-sm mb-1">{price} PLN / {time}</p>
+                <p className="text-gray-500 text-xs mb-3 flex items-center gap-1">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                  {location ? `${location}, ${city}` : city}
+                </p>
+                <a
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${coords.lat},${coords.lng}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2.5 px-4 rounded-lg transition-colors no-underline shadow-sm"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                  </svg>
+                  Nawiguj do tego miejsca
+                </a>
+              </div>
+            </Popup>
           )}
         </Map>
 
