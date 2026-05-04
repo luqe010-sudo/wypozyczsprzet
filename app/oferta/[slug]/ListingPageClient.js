@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import DynamicPlaceholder from '../../../components/DynamicPlaceholder';
+import ListingMap from '../../../components/ListingMap';
 import { trackEvent } from '../../../lib/gtag';
 
 export default function ListingPageClient({ listing, seoDescription, faqItems, related }) {
@@ -145,6 +146,11 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
           ))}
         </div>
       </section>
+
+      {/* Map */}
+      {(listing.Lokalizacja || listing.Miasto) && (
+        <ListingMap listing={listing} />
+      )}
 
       {/* FAQ */}
       <section className="mb-12 bg-white dark:bg-slate-800 p-8 md:p-12 rounded-3xl border border-gray-100 dark:border-slate-700 shadow-sm">
