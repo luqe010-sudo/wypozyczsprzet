@@ -23,6 +23,7 @@ function AddListingForm() {
     availability: 'od ręki',
     description: '',
     time: 'doba',
+    olxUrl: '',
     wantsPromotion: false,
     image: null,
     acceptTerms: false
@@ -73,6 +74,7 @@ function AddListingForm() {
         price: '', 
         availability: 'Dostępne od zaraz', 
         description: '',
+        olxUrl: '',
         wantsPromotion: false,
         image: null,
         acceptTerms: false
@@ -198,9 +200,15 @@ function AddListingForm() {
 
                 <div>
                   <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Opis sprzętu (Opcjonalnie)</label>
-                  <textarea name="description" value={formData.description} onChange={handleChange} rows="4"
+                  <textarea name="description" value={formData.description} onChange={handleChange} rows="6"
                             placeholder="Szczegóły, dane techniczne, zasady wynajmu..."
                             className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all resize-none placeholder-gray-400 dark:placeholder-gray-600"></textarea>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Link do ogłoszenia OLX (Opcjonalnie)</label>
+                  <input type="url" name="olxUrl" value={formData.olxUrl} onChange={handleChange} placeholder="https://www.olx.pl/oferta/..."
+                         className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all placeholder-gray-400 dark:placeholder-gray-600" />
                 </div>
 
                 <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-100 dark:border-blue-900/30">
