@@ -158,6 +158,7 @@ function AddListingForm() {
                             className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all appearance-none cursor-pointer">
                       <option value="Budowlane">Budowlane</option>
                       <option value="Ciężki sprzęt">Ciężki sprzęt</option>
+                      <option value="Koparki">Koparki</option>
                       <option value="Narzędzia">Narzędzia</option>
                       <option value="Ogrodnicze">Ogrodnicze</option>
                       <option value="Inne">Inne</option>
