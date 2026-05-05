@@ -70,6 +70,8 @@ export default function RootLayout({ children }) {
               &copy; {new Date().getFullYear()} {'Wypo\u017cyczSprz\u0119t Marketplace. Wszystkie prawa zastrze\u017cone.'}
               {' | '}
               <a href="/regulamin" className="hover:underline">Regulamin</a>
+              {' | '}
+              <a href="https://www.facebook.com/profile.php?id=61561285692729" target="_blank" rel="noopener noreferrer" className="hover:underline">Facebook</a>
             </p>
           </div>
         </footer>
