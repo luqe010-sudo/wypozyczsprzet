@@ -24,6 +24,8 @@ function AddListingForm() {
     description: '',
     time: 'doba',
     olxUrl: '',
+    email: '',
+    www: '',
     wantsPromotion: false,
     image: null,
     acceptTerms: false
@@ -75,6 +77,8 @@ function AddListingForm() {
         availability: 'Dostępne od zaraz', 
         description: '',
         olxUrl: '',
+        email: '',
+        www: '',
         wantsPromotion: false,
         image: null,
         acceptTerms: false
@@ -131,6 +135,19 @@ function AddListingForm() {
                     <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Telefon kontaktowy</label>
                     <input required type="tel" name="phone" value={formData.phone} onChange={handleChange} 
                            className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">E-mail (Opcjonalnie)</label>
+                    <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="np. kontakt@firma.pl"
+                           className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all placeholder-gray-400 dark:placeholder-gray-600" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Strona WWW firmy (Opcjonalnie)</label>
+                    <input type="url" name="www" value={formData.www} onChange={handleChange} placeholder="np. https://www.firma.pl"
+                           className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all placeholder-gray-400 dark:placeholder-gray-600" />
                   </div>
                 </div>
 

@@ -17,6 +17,8 @@ export async function POST(request) {
     const description = formData.get('description');
     const lokalizacja = formData.get('lokalizacja');
     const olxUrl = formData.get('olxUrl') || '';
+    const email = formData.get('email') || '';
+    const www = formData.get('www') || '';
     const wantsPromotion = formData.get('wantsPromotion') === 'true';
     const imageFile = formData.get('image');
     const editId = formData.get('editId');
@@ -66,6 +68,8 @@ export async function POST(request) {
           phone: phone,
           description: description,
           OLX: olxUrl,
+          email: email,
+          WWW: www,
           imageContent: imageUrl, // Now sending URL instead of base64
           imageName: imageFile ? imageFile.name : '',
           imageType: imageFile ? imageFile.type : '',
