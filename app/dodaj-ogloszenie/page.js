@@ -71,7 +71,7 @@ function AddListingForm() {
         zipCode: '',
         city: '', 
         lokalizacja: '',
-        category: 'Koparki', 
+        category: 'Budowlane', 
         equipment: '', 
         price: '', 
         availability: 'Dostępne od zaraz', 
@@ -178,6 +178,8 @@ function AddListingForm() {
                       <option value="Koparki">Koparki</option>
                       <option value="Narzędzia">Narzędzia</option>
                       <option value="Ogrodnicze">Ogrodnicze</option>
+                      <option value="Podnośniki">Podnośniki</option>
+                      <option value="Rusztowania">Rusztowania</option>
                       <option value="Inne">Inne</option>
                     </select>
                   </div>
