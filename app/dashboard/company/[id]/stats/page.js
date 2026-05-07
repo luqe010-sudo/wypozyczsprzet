@@ -15,22 +15,14 @@ export default async function CompanyStatsPage({ params }) {
   // Fetch company
   const { data: company, error: companyError } = await supabase
     .from('companies')
-    .select('id, name, nazwa')
+    .select('*')
     .eq('id', params.id)
     .eq('owner_user_id', user.id)
     .single();
 
   if (companyError || !company) {
-    return (
-      <div className="p-8 bg-red-50 text-red-700 rounded-2xl border border-red-200">
-        <h2 className="text-xl font-bold mb-2">Błąd ładowania firmy</h2>
-        <p>Nie znaleziono firmy o ID: {params.id}</p>
-        <pre className="mt-4 text-xs bg-white p-4 rounded border">
-          {JSON.stringify(companyError, null, 2)}
-        </pre>
-        <Link href="/dashboard" className="mt-4 inline-block underline">Wróć do dashboardu</Link>
-      </div>
-    );
+    console.error('Company fetch error:', companyError);
+    redirect('/dashboard');
   }
 
   // Fetch stats for all equipment in this company
