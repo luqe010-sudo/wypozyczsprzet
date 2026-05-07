@@ -42,6 +42,28 @@ export async function updateSession(request) {
     return NextResponse.redirect(url)
   }
 
+  // Ochrona ścieżek zaczynających się od /admin
+  if (request.nextUrl.pathname.startsWith('/admin')) {
+    if (!user) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      return NextResponse.redirect(url)
+    }
+
+    // Sprawdź rolę
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (profile?.role !== 'admin') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard'
+      return NextResponse.redirect(url)
+    }
+  }
+
   // Przekierowanie zalogowanych z /login do /dashboard
   if (request.nextUrl.pathname === '/login' && user) {
     const url = request.nextUrl.clone()
