@@ -127,8 +127,9 @@ export default function Marketplace({ initialData }) {
         return !geoCache[clean] && !geocodeQueuedRef.current.has(clean);
       });
 
-      // 2. Filtered addresses
+      // 2. Filtered addresses (only if coords are missing from DB)
       const addressesToGeocode = [...new Set(filteredListings.map(l => {
+        if (l.lat && l.lng) return null; // Skip if already has coordinates
         const addr = sanitizeAddress(l.Lokalizacja, l.Miasto);
         return addr;
       }).filter(Boolean))].filter(addr => !geoCache[addr] && !geocodeQueuedRef.current.has(addr));

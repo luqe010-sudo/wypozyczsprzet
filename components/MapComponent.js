@@ -91,16 +91,29 @@ export default function MapComponent({ listings, geoCache, searchCenter, radius,
 
   const markers = useMemo(() => {
     return listings.map((item, index) => {
-      const addr = sanitizeAddress(item.Lokalizacja, item.Miasto);
-      const cityClean = sanitizeAddress('', item.Miasto);
-      
-      const coords = geoCache[addr] || geoCache[cityClean];
-      if (coords && coords !== 'failed') {
+      // 1. Prioritize direct coordinates from database
+      let lat = item.lat;
+      let lng = item.lng;
+      let isExact = !!(lat && lng);
+
+      // 2. Fallback to geoCache if direct coords are missing
+      if (!isExact) {
+        const addr = sanitizeAddress(item.Lokalizacja, item.Miasto);
+        const cityClean = sanitizeAddress('', item.Miasto);
+        const coords = geoCache[addr] || geoCache[cityClean];
+        
+        if (coords && coords !== 'failed') {
+          lat = coords.lat;
+          lng = coords.lng;
+          isExact = !!geoCache[addr] && geoCache[addr] !== 'failed';
+        }
+      }
+
+      if (lat && lng) {
         // Use deterministic jitter based on ID to prevent "dancing" pins
         const id = item.ID_sprzetu || index;
         const hash = String(id).split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a; }, 0);
         
-        const isExact = geoCache[addr] && geoCache[addr] !== 'failed';
         const jitterScale = isExact ? 0.0006 : 0.008; // Slightly smaller for exact, larger for city
         
         const latOffset = ((hash & 0xFF) / 255 - 0.5) * jitterScale;
@@ -109,8 +122,8 @@ export default function MapComponent({ listings, geoCache, searchCenter, radius,
         return {
           ...item,
           id,
-          latitude: coords.lat + latOffset,
-          longitude: coords.lng + lngOffset
+          latitude: parseFloat(lat) + latOffset,
+          longitude: parseFloat(lng) + lngOffset
         };
       }
       return null;

@@ -17,12 +17,12 @@ function AddListingForm() {
     zipCode: '',
     city: '',
     lokalizacja: '',
-    category: 'construction_equipment',
+    category: 'tools',
     equipment: '',
     price: '',
-    availability: 'od ręki',
+    availability: 'immediately',
     description: '',
-    time: 'doba',
+    time: 'day',
     olxUrl: '',
     email: '',
     www: '',
@@ -173,15 +173,16 @@ function AddListingForm() {
                     <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Kategoria</label>
                     <select name="category" value={formData.category} onChange={handleChange} 
                             className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all appearance-none cursor-pointer">
-                      <option value="construction_equipment">Budowlane</option>
-                      <option value="heavy_equipment">Ciężki sprzęt</option>
-                      <option value="garden_equipment">Ogrodnicze</option>
-                      <option value="tools">Narzędzia</option>
-                      <option value="scaffolding">Rusztowania i szalunki</option>
-                      <option value="container">Kontenery</option>
-                      <option value="generators_and_power">Agregaty i zasilanie</option>
+                      <option value="tools">Narzędzia i elektronarzędzia</option>
+                      <option value="construction_equipment">Zagęszczarki i sprzęt budowlany</option>
+                      <option value="heavy_equipment">Koparki i sprzęt ciężki</option>
+                      <option value="garden_equipment">Maszyny ogrodowe</option>
                       <option value="lifts_and_platforms">Podnośniki i platformy</option>
-                      <option value="other">Inne</option>
+                      <option value="scaffolding">Rusztowania</option>
+                      <option value="generators_and_power">Agregaty i zasilanie</option>
+                      <option value="trailers_and_transport">Lawety i transport</option>
+                      <option value="cleaning_equipment">Myjki i sprzęt sprzątający</option>
+                      <option value="others">Inne</option>
                     </select>
                   </div>
                 </div>
@@ -197,12 +198,12 @@ function AddListingForm() {
                     <div className="flex gap-2 min-w-0">
                       <input required type="number" name="price" value={formData.price} onChange={handleChange} placeholder="0.00"
                              className="flex-1 min-w-0 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all" />
-                      <select name="time" value={formData.time || 'doba'} onChange={handleChange} 
+                      <select name="time" value={formData.time || 'day'} onChange={handleChange} 
                               className="w-24 sm:w-32 flex-shrink-0 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-2 sm:px-4 py-3 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all appearance-none cursor-pointer text-sm sm:text-base">
-                        <option value="godzina">/ godzina</option>
-                        <option value="doba">/ doba</option>
-                        <option value="tydzień">/ tydzień</option>
-                        <option value="miesiąc">/ miesiąc</option>
+                        <option value="hour">/ godzina</option>
+                        <option value="day">/ doba</option>
+                        <option value="week">/ tydzień</option>
+                        <option value="month">/ miesiąc</option>
                       </select>
                     </div>
                   </div>
@@ -213,8 +214,8 @@ function AddListingForm() {
                     <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Dostępność</label>
                     <select name="availability" value={formData.availability} onChange={handleChange} 
                             className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all appearance-none cursor-pointer">
-                      <option value="od ręki">od ręki</option>
-                      <option value="na telefon">na telefon</option>
+                      <option value="immediately">Dostępny od ręki</option>
+                      <option value="on_call">Na telefon</option>
                     </select>
                   </div>
                 </div>
