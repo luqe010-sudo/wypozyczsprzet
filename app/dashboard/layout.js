@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
-import { LogOut, Home, Building2 } from 'lucide-react'
+import { LogOut, Home, Building2, Settings } from 'lucide-react'
 import { signout } from '@/app/login/actions'
 
 export default async function DashboardLayout({ children }) {
@@ -24,9 +24,13 @@ export default async function DashboardLayout({ children }) {
                 </Link>
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                <Link href="/dashboard" className="border-blue-500 text-gray-900 dark:text-white inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                <Link href="/dashboard" className="text-gray-900 dark:text-white inline-flex items-center px-1 pt-1 text-sm font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                   <Home className="w-4 h-4 mr-2" />
                   Panel Główny
+                </Link>
+                <Link href="/dashboard/settings" className="text-gray-500 dark:text-gray-400 inline-flex items-center px-1 pt-1 text-sm font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                  <Settings className="w-4 h-4 mr-2" />
+                  Ustawienia
                 </Link>
               </div>
             </div>

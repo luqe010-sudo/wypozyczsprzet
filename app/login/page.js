@@ -3,13 +3,14 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { login, signup } from './actions'
+import { login, signup, forgotPassword } from './actions'
 import { createClient } from '@/utils/supabase/client'
 import { toast, Toaster } from 'react-hot-toast'
 
 export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
+  const [isForgotPassword, setIsForgotPassword] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
@@ -17,7 +18,9 @@ export default function LoginPage() {
     setIsLoading(true)
     let result
 
-    if (isLogin) {
+    if (isForgotPassword) {
+      result = await forgotPassword(formData)
+    } else if (isLogin) {
       result = await login(formData)
     } else {
       result = await signup(formData)
@@ -25,6 +28,9 @@ export default function LoginPage() {
 
     if (result?.error) {
       toast.error(result.error)
+    } else if (isForgotPassword) {
+      toast.success(result.success)
+      setIsForgotPassword(false)
     } else if (!isLogin) {
       toast.success('Sprawdź email, aby potwierdzić rejestrację (jeśli wymagane), lub zaloguj się.')
       setIsLogin(true)
@@ -54,7 +60,7 @@ export default function LoginPage() {
       
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-          {isLogin ? 'Zaloguj się do konta' : 'Utwórz nowe konto'}
+          {isForgotPassword ? 'Zresetuj hasło' : (isLogin ? 'Zaloguj się do konta' : 'Utwórz nowe konto')}
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
           Lub{' '}
@@ -67,20 +73,22 @@ export default function LoginPage() {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white dark:bg-slate-800 py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-200 dark:border-slate-700">
           
-          <div className="flex justify-center mb-6 border-b border-gray-200 dark:border-slate-700">
-            <button
-              onClick={() => setIsLogin(true)}
-              className={`pb-2 px-4 text-sm font-medium ${isLogin ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
-            >
-              Logowanie
-            </button>
-            <button
-              onClick={() => setIsLogin(false)}
-              className={`pb-2 px-4 text-sm font-medium ${!isLogin ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
-            >
-              Rejestracja
-            </button>
-          </div>
+          {!isForgotPassword && (
+            <div className="flex justify-center mb-6 border-b border-gray-200 dark:border-slate-700">
+              <button
+                onClick={() => setIsLogin(true)}
+                className={`pb-2 px-4 text-sm font-medium ${isLogin ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
+              >
+                Logowanie
+              </button>
+              <button
+                onClick={() => setIsLogin(false)}
+                className={`pb-2 px-4 text-sm font-medium ${!isLogin ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
+              >
+                Rejestracja
+              </button>
+            </div>
+          )}
 
           <form action={handleSubmit} className="space-y-6">
             <div>
@@ -98,20 +106,46 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Hasło
-              </label>
-              <div className="mt-1">
-                <input
-                  name="password"
-                  type="password"
-                  autoComplete={isLogin ? "current-password" : "new-password"}
-                  required
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
-                />
+            {!isForgotPassword && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Hasło
+                </label>
+                <div className="mt-1">
+                  <input
+                    name="password"
+                    type="password"
+                    autoComplete={isLogin ? "current-password" : "new-password"}
+                    required
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
+                  />
+                </div>
               </div>
-            </div>
+            )}
+
+            {isLogin && !isForgotPassword && (
+              <div className="flex items-center justify-end">
+                <button
+                  type="button"
+                  onClick={() => setIsForgotPassword(true)}
+                  className="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
+                >
+                  Zapomniałeś hasła?
+                </button>
+              </div>
+            )}
+
+            {isForgotPassword && (
+              <div className="flex items-center justify-end">
+                <button
+                  type="button"
+                  onClick={() => setIsForgotPassword(false)}
+                  className="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
+                >
+                  Wróć do logowania
+                </button>
+              </div>
+            )}
 
             <div>
               <button
@@ -119,7 +153,7 @@ export default function LoginPage() {
                 disabled={isLoading}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
               >
-                {isLoading ? 'Przetwarzanie...' : (isLogin ? 'Zaloguj się' : 'Zarejestruj się')}
+                {isLoading ? 'Przetwarzanie...' : (isForgotPassword ? 'Wyślij link do resetu' : (isLogin ? 'Zaloguj się' : 'Zarejestruj się'))}
               </button>
             </div>
           </form>
