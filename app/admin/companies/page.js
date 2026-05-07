@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import CompaniesTable from './CompaniesTable'
-import { Building2 } from 'lucide-react'
+import { Building2, Plus } from 'lucide-react'
+import Link from 'next/link'
 
 export default async function AdminCompaniesPage() {
   const supabase = createClient()
@@ -24,6 +25,13 @@ export default async function AdminCompaniesPage() {
           </h2>
           <p className="text-gray-500 dark:text-gray-400">Przeglądaj, edytuj i usuwaj wszystkie zarejestrowane firmy.</p>
         </div>
+        <Link 
+          href="/admin/companies/new"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-bold transition-colors flex items-center gap-2 shadow-lg shadow-blue-200 dark:shadow-none"
+        >
+          <Plus className="w-5 h-5" />
+          <span className="hidden sm:inline">Dodaj firmę</span>
+        </Link>
       </div>
 
       <CompaniesTable initialCompanies={companies || []} users={users || []} />

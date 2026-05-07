@@ -1,7 +1,8 @@
 import { createClient } from '@/utils/supabase/server'
 import EquipmentTable from './EquipmentTable'
-import { Package } from 'lucide-react'
+import { Package, Plus } from 'lucide-react'
 import { Suspense } from 'react'
+import Link from 'next/link'
 
 export default async function AdminEquipmentPage() {
   const supabase = createClient()
@@ -22,6 +23,13 @@ export default async function AdminEquipmentPage() {
           </h2>
           <p className="text-gray-500 dark:text-gray-400">Moderuj wszystkie ogłoszenia sprzętu na platformie.</p>
         </div>
+        <Link 
+          href="/admin/equipment/new"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-bold transition-colors flex items-center gap-2 shadow-lg shadow-blue-200 dark:shadow-none"
+        >
+          <Plus className="w-5 h-5" />
+          <span className="hidden sm:inline">Dodaj ogłoszenie</span>
+        </Link>
       </div>
 
       <Suspense fallback={<div className="p-8 text-center text-gray-500">Ładowanie tabeli...</div>}>
