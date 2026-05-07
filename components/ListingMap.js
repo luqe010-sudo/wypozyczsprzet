@@ -19,8 +19,18 @@ export default function ListingMap({ listing }) {
   const price = listing.Cena_od || '';
   const time = listing.Czas || 'doba';
 
-  // Geocode the listing address on mount
+  // Geocode the listing address on mount or use provided coordinates
   useEffect(() => {
+    // If coordinates are provided in the listing data, use them directly
+    if (listing.lat && listing.lng) {
+      setCoords({
+        lat: parseFloat(listing.lat),
+        lng: parseFloat(listing.lng),
+      });
+      setLoading(false);
+      return;
+    }
+
     const geocode = async () => {
       const addr = sanitizeAddress(location, city);
       const cityClean = sanitizeAddress('', city);
@@ -53,7 +63,7 @@ export default function ListingMap({ listing }) {
     };
 
     geocode();
-  }, [location, city]);
+  }, [location, city, listing.lat, listing.lng]);
 
   const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_KEY;
 

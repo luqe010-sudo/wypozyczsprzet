@@ -17,7 +17,7 @@ function AddListingForm() {
     zipCode: '',
     city: '',
     lokalizacja: '',
-    category: 'Budowlane',
+    category: 'construction_equipment',
     equipment: '',
     price: '',
     availability: 'od ręki',
@@ -173,14 +173,15 @@ function AddListingForm() {
                     <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Kategoria</label>
                     <select name="category" value={formData.category} onChange={handleChange} 
                             className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all appearance-none cursor-pointer">
-                      <option value="Budowlane">Budowlane</option>
-                      <option value="Ciężki sprzęt">Ciężki sprzęt</option>
-                      <option value="Koparki">Koparki</option>
-                      <option value="Narzędzia">Narzędzia</option>
-                      <option value="Ogrodnicze">Ogrodnicze</option>
-                      <option value="Podnośniki">Podnośniki</option>
-                      <option value="Rusztowania">Rusztowania</option>
-                      <option value="Inne">Inne</option>
+                      <option value="construction_equipment">Budowlane</option>
+                      <option value="heavy_equipment">Ciężki sprzęt</option>
+                      <option value="garden_equipment">Ogrodnicze</option>
+                      <option value="tools">Narzędzia</option>
+                      <option value="scaffolding">Rusztowania i szalunki</option>
+                      <option value="container">Kontenery</option>
+                      <option value="generators_and_power">Agregaty i zasilanie</option>
+                      <option value="lifts_and_platforms">Podnośniki i platformy</option>
+                      <option value="other">Inne</option>
                     </select>
                   </div>
                 </div>

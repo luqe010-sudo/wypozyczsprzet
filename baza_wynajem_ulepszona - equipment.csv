@@ -1,0 +1,396 @@
+id,company_id,category,name,price_from,rental_period,availability,priority,demand,status,promotion,description,image_url,external_olx_url,notes,created_at,updated_at
+1,1,garden_equipment,Glebogryzarka,140,day, immediately,1,niski,active,no,Maszyna do spulchniania i przygotowania gleby pod nasadzenia.,https://www.wroclaw-wypozyczalnia.pl/images/design/wynajem-glebogryzarki-1.webp,,,,
+2,1,garden_equipment,Kosiarka elektryczna,40,day, immediately,1,niski,active,no,Lekka kosiarka do podstawowych prac pielęgnacyjnych wokół domu i ogrodu.,https://www.wroclaw-wypozyczalnia.pl/images/design/wynajem-kosiarki-1.webp,,,,
+3,1,garden_equipment,Kosiarka spalinowa,60,day, immediately,1,niski,active,no,Spalinowa kosiarka do koszenia większych powierzchni i intensywniejszych prac ogrodowych.,https://www.wroclaw-wypozyczalnia.pl/images/design/wynajem-kosiarki-1.webp,,,,
+4,1,garden_equipment,Kosiarka spalinowa z napędem,80,day, immediately,1,niski,active,no,Kosiarka z napędem ułatwiająca pracę na większych działkach i nierównym terenie.,https://www.wroclaw-wypozyczalnia.pl/images/design/wynajem-kosiarki-1.webp,,,,
+5,2,heavy_equipment,Minikoparka,zapytaj,day, immediately,1,niski,incomplete,no,,,,,,
+manual_2_koparka,2,heavy_equipment,Koparka,zapytaj,day, immediately,1,niski,incomplete,no,Maszyna do robót ziemnych i wykopów przy większych realizacjach.,https://www.prkwroclaw.pl/wp-content/uploads/2020/01/koparki_dwudrogowe_09.jpg,,,,
+manual_2_ladowarka,2,heavy_equipment,Ładowarka,zapytaj,day, immediately,1,niski,incomplete,no,Maszyna do szybkiego przemieszczania urobku i materiałów na budowie.,https://www.prkwroclaw.pl/wp-content/uploads/2020/01/ladowarki_01.png,,,,
+manual_2_walec,2,heavy_equipment,Walec,zapytaj,day, immediately,1,niski,incomplete,no,Maszyna do zagęszczania większych powierzchni i podbudowy.,https://www.prkwroclaw.pl/wp-content/uploads/2020/01/walec_01.jpg,,,,
+manual_2_wozidlo,2,heavy_equipment,Wozidło,zapytaj,day, immediately,1,niski,incomplete,no,Pojazd do transportu materiałów i urobku na placu budowy.,https://www.prkwroclaw.pl/wp-content/uploads/2023/11/wozidla_02.jpg,,,,
+manual_3_koparkoladowarka,3,heavy_equipment,Koparko-ładowarka,zapytaj,day, immediately,1,niski,active,no,"Uniwersalna maszyna do wykopów, załadunku i prac ziemnych.",https://www.pakop.pl/images/galeria/galeria10.jpg,,,,
+manual_3_minikoparka,3,heavy_equipment,Minikoparka,zapytaj,day, immediately,1,niski,active,no,Kompaktowa koparka do prac ziemnych i wykopów na małych działkach.,https://www.pakop.pl/images/galeria/galeria9.jpg,,,,
+manual_3_mlot,3,heavy_equipment,Młot wyburzeniowy,zapytaj,day, immediately,1,niski,active,no,"Narzędzie do kucia, skuwania i lekkich prac rozbiórkowych.",https://www.pakop.pl/images/galeria/galeria1.jpg,,,,
+manual_4_koparka,4,heavy_equipment,Koparka,zapytaj,day, immediately,1,niski,active,no,Maszyna do robót ziemnych i wykopów przy większych realizacjach.,https://xraven.pl/wp-content/uploads/2025/11/480798163_623883640385148_3823634672311953749_n.jpg.webp,,,,
+manual_4_minikoparka,4,heavy_equipment,Minikoparka,zapytaj,day, immediately,1,niski,inactive,no,Kompaktowa koparka do prac ziemnych i wykopów na małych działkach.,,,,,
+manual_4_zageszczarka,4,construction_equipment,Zagęszczarka,zapytaj,day, immediately,1,niski,inactive,no,"Sprzęt do zagęszczania gruntu, podsypki i kostki brukowej.",,,,,
+manual_5_koparka,5,heavy_equipment,Koparka łańcuchowa,zapytaj,day, immediately,1,niski,active,no,Specjalistyczna koparka do długich wykopów liniowych przy instalacjach.,https://www.minikoparkawroclaw.pl/wp-content/uploads/2016/03/koparka-lancuchowa-wroclaw-wynajem-2-150x150.jpg,,,,
+manual_5_koparkoladowarka,5,heavy_equipment,Koparko-Ładowarka JCB 3CX CONTRACTOR,450,day, immediately,1,niski,active,no,"Uniwersalna maszyna do wykopów, załadunku i prac ziemnych.",https://www.minikoparkawroclaw.pl/wp-content/uploads/2023/01/20210818_083044-150x150.jpg,,,,
+manual_5_minikoparka,5,heavy_equipment,Minikoparki JCB 8016 oraz JCB 8014,250,day, immediately,1,niski,active,no,Minikoparka do prac w ciasnej zabudowie i przy przyłączach.,https://www.minikoparkawroclaw.pl/wp-content/uploads/2016/03/minikoparka-jcb-wynajem-wroclaw-150x150.jpg,,,,
+manual_7_agregat,7,generators_and_power,Agregat prądotwórczy 3-fazowy HONDA 7 kVA,180,day, immediately,1,średni,active,no,Agregat do zasilania lub specjalistycznych prac budowlanych.,https://www.rental.wroclaw.pl/images/mid_agregat-pradotworczy-7kva-honda-ect-7000-f7000.jpg,,,,
+manual_7_glebogryzarka,7,garden_equipment,Glebogryzarka spalinowa z napędem MTD,250,day, immediately,1,niski,active,no,Maszyna do spulchniania i przygotowania gleby pod nasadzenia.,https://www.rental.wroclaw.pl/images/glebogryzarka-mtd.jpg,,,,
+manual_7_mlot,7,tools,Młot wyburzeniowy Bosch GSH 16-28,160,day, immediately,1,niski,active,no,"Narzędzie do kucia, skuwania i lekkich prac rozbiórkowych.",https://www.rental.wroclaw.pl/images/gsh-16.jpg,,,,
+manual_7_rusztowanie,7,scaffolding,Rusztowanie aluminiowe jezdne 5.80m ALUBERG,105,day, immediately,1,niski,active,no,System do prac na wysokości przy elewacjach i remontach.,https://www.rental.wroclaw.pl/images/rusztowanie-2.jpg,,,,
+manual_7_zageszczarka,7,construction_equipment,Zageszczarka Belle/AtlasCopco 64kg,140,day, immediately,1,niski,active,no,"Sprzęt do zagęszczania gruntu, podsypki i kostki brukowej.",https://www.rental.wroclaw.pl/images/zageszczarka-belle.jpg,,,,
+sprzet_0cb062032b64,firma_39d91467125f,container,Kontener,120,day, immediately,1,niski,active,no,"Kontener budowlany do zaplecza socjalnego, magazynowego lub sanitarnego.",https://www.szalunki-wroclaw.pl/uploads/tinewsItem/8/thumb-3.JPG,,,,
+sprzet_120812512b94,firma_3fd224781c6e,heavy_equipment,Minikoparka,250,day, immediately,1,niski,active,no,Kompaktowa koparka do prac ziemnych i wykopów na małych działkach.,https://www.koparki-digger.com.pl/wp-content/uploads/JCB-8016.jpg,,,,
+sprzet_129852def6ca,firma_e37b0cc7814c,garden_equipment,Glebogryzarka,zapytaj o cenę,day, immediately,1,niski,active,no,Maszyna do spulchniania i przygotowania gleby pod nasadzenia.,https://www.gardenico.pl/assets/img/kategorie/maszyny-do-pracy-w-glebie.webp,,,,
+sprzet_13ccaff98c25,firma_83c49744fc20,heavy_equipment,Koparka,400,day, immediately,1,niski,inactive,no,Maszyna do robót ziemnych i wykopów przy większych realizacjach.,,,,,
+sprzet_3211e51ffdc8,firma_d2c7bd829792,container,Kontener,120,day, immediately,1,niski,inactive,no,"Kontener budowlany do zaplecza socjalnego, magazynowego lub sanitarnego.",,,,,
+sprzet_3b86848b8832,firma_83c49744fc20,heavy_equipment,Minikoparka z operatorem,120,hour, immediately,1,niski,active,no,Kompaktowa koparka do prac ziemnych i wykopów na małych działkach.,https://www.minikoparkawro.pl/images/projects/project2.jpg,,,,
+sprzet_3d36c27b2046,firma_39d91467125f,scaffolding,Stemple,60,day, immediately,1,niski,inactive,no,Stemple budowlane wykorzystywane przy szalunkach i deskowaniu.,,,,,
+sprzet_44026dff6715,firma_e37b0cc7814c,heavy_equipment,Wiertnica,650,day, immediately,1,niski,inactive,no,Urządzenie do wiercenia otworów w gruncie i pod słupki.,,,,,
+sprzet_47ef5f66d830,firma_d2abb8f5086c,garden_equipment,Wiertnica,120,day, immediately,1,niski,inactive,no,Urządzenie do wiercenia otworów w gruncie i pod słupki.,,,,,
+sprzet_58d2b1d4cf6f,firma_39d91467125f,scaffolding,Szalunki,120,day, immediately,1,niski,inactive,no,Elementy deskowania stropów i konstrukcji do wynajmu na budowę.,,,,,
+sprzet_5c8ee3ac16bb,firma_39d91467125f,scaffolding,Deskowanie,120,day, immediately,1,niski,inactive,no,System deskowania do realizacji stropów i prac żelbetowych.,,,,,
+sprzet_6501889d0a84,firma_d2c7bd829792,heavy_equipment,Żuraw,700,day, immediately,1,niski,inactive,no,Żuraw budowlany do podnoszenia ciężkich elementów na placu budowy.,,,,,
+sprzet_66052d7545ea,firma_39d91467125f,scaffolding,Podpory,60,day, immediately,1,niski,inactive,no,Podpory budowlane do tymczasowego podparcia stropów i elementów konstrukcyjnych.,,,,,
+sprzet_a79afd8c317d,firma_d2abb8f5086c,generators_and_power,Agregat,120,day, immediately,1,niski,inactive,no,Agregat do zasilania lub specjalistycznych prac budowlanych.,,,,,
+sprzet_a7bed38af368,firma_39d91467125f,heavy_equipment,Żuraw,700,day, immediately,1,niski,inactive,no,Żuraw budowlany do podnoszenia ciężkich elementów na placu budowy.,,,,,
+sprzet_a8aea0f87bd6,firma_73eb57e28d47,heavy_equipment,Podnośnik,250,day, immediately,1,niski,inactive,no,Podnośnik do prac montażowych i serwisowych na wysokości.,,,,,
+sprzet_d29792423f59,firma_3fd224781c6e,heavy_equipment,Koparka,400,day, immediately,1,niski,inactive,no,Maszyna do robót ziemnych i wykopów przy większych realizacjach.,https://www.koparki-digger.com.pl/wp-content/uploads/JCB-8016.jpg,,,,
+sprzet_dbb16c5b723c,firma_401973d69acc,tools,Agregat malarski Graco PC 390,230,day, immediately,1,niski,active,no,Agregat do zasilania lub specjalistycznych prac budowlanych.,https://stromorental.pl/wp-content/uploads/2024/03/graco-pc.jpeg,,,,
+sprzet_e62b6f63e783,firma_d2abb8f5086c,construction_equipment,Zagęszczarka,70,day, immediately,1,niski,inactive,no,"Sprzęt do zagęszczania gruntu, podsypki i kostki brukowej.",,,,,
+sprzet_f8b687a58af0,firma_39d91467125f,heavy_equipment,Dźwig,700,day, immediately,1,niski,inactive,no,Dźwig do transportu i montażu ciężkich elementów konstrukcyjnych.,,,,,
+sprzet_fe0f878ade90,firma_e37b0cc7814c,heavy_equipment,Koparka,650,day, immediately,1,niski,inactive,no,Maszyna do robót ziemnych i wykopów przy większych realizacjach.,,,,,
+vxwccptsc,F-kolqz,tools,Wiertarka extra power,100,day,on_call,1,,inactive,no,Opisik tego cuda,https://res.cloudinary.com/dd2jkcg5z/image/upload/v1777554707/listings/i4dfsxqpzpsxjwksnazw.jpg,,,,
+yda6j64qo,F-movpx,garden_equipment,Rębak cedrus rb04 pro-e ,250,day,on_call,1,,active,no,"Oferuję wynajem/usługę profesjonalnego rębaka do drewna Cedrus RB04 Pro-E 
+(oraz frezarki do pni razem taniej oferta dostępna na profilu ;) )
+– idealnego do szybkiego i efektywnego rozdrabniania gałęzi oraz odpadów drzewnych. Urządzenie sprawdzi się zarówno przy pracach ogrodowych, jak i większych zleceniach terenowych.
+
+Specyfikacja:
+
+Silnik z elektrycznym startem: 15 KM (Loncin G420F)
+
+Średnica wlotu: 15 cm 
+
+Wydajność: od 5m³/h do 7 m³/h
+
+Waga: ok. 150 kg
+
+Solidna konstrukcja i łatwość manewrowania
+
+Zalety:
+
+Szybka i skuteczna praca nawet z dużymi gałęziami
+
+Możliwość pracy w trudno dostępnych miejscach
+
+Prosta obsługa – szybkie wdrożenie nawet dla początkujących
+
+Warunki wynajmu:
+
+Cena: 250 zł/dzień + 500zł zwrotnej kaucji 
+Płatne przy wypisywaniu umowy wynajmu 
+
+Możliwość wynajmu na kilka dni – atrakcyjne rabaty przy dłuższym terminie
+
+Możliwe wypożyczenie przyczepy 50zł /doba 
+
+Lokalizacja: Brzeszcze
+
+Możliwość dostarczenia rębaka pod wskazany adres więcej informacji pod numerem telefonu 
+
+Kontakt: 5-1-6--5-1-5--3-4-3",https://res.cloudinary.com/dd2jkcg5z/image/upload/v1777827543/listings/lubaneryklx1qnfhvt12.jpg,,,,
+wddp7ejbt,F-movpx,construction_equipment,Zagęszczarka komatsu gtz 744 112 kg  30-50 cm ubicia w głąb,150,day,on_call,1,,active,no,"Zagęszczarka komatsu gtz 744
+
+Głebokość zagęszczania 30-50 cm w zależności od podłoża 
+
+Moc 7,1 km 
+
+Waga robocza: 112 kg.
+Siła odśrodkowa: 17 kN.
+Siła zagęszczania: 3200 kg.
+Częstotliwość wibracji: 90 Hz. 
+
+Wymiary płyty: 55 x 45 cm.
+Maksymalny posuw: 25,5 m/min.
+Budowa wzbudnicy: Metalowa obudowa wzbudnicy zwiększająca odporność na uderzenia i trudne warunki na budowie.
+
+Idealnie nadaje sie do: 
+
+Zagęszczania gleby mieszanej, piasku, żwiru oraz kamieni.
+Prac brukarskich (ubijanie kostki brukowej z użyciem maty gumowej).
+Napraw nawierzchni asfaltowych. 
+
+Cena: 150 zł/dzień + 400zł zwrotnej kaucji 
+Płatne przy wypisywaniu umowy wynajmu 
+
+Możliwość wynajęcia przyczepy 50zł/dzień 
+
+5-1-6---5-1-5---3-4--3",https://res.cloudinary.com/dd2jkcg5z/image/upload/v1777827658/listings/uemom4k2kyqqbjxsabls.jpg,,,,
+utxo4gdcp,F-7vbg1,heavy_equipment,Wynajem Mini Koparki /usługi/z wiertłami/transport / Wrocław,260,day,on_call,1,,active,no,"Wynajem mini koparki z rocznika 2023, która nigdy nie była uszkodzona, co gwarantuje jej niezawodność i wysoką jakość.
+
+GWARANTUJEMY
+Pewność działania - Nasza koparka zawsze jest gotowa do pracy, niezależnie od warunków.
+Oszczędność czasu i pieniędzy - Bez potrzeby napraw i serwisowania, możesz skoncentrować się na realizacji swoich projektów.
+Elastyczne warunki wynajmu - Oferujemy atrakcyjne stawki i elastyczne warunki najmu, dopasowane do Twoich potrzeb.
+
+INFORMACJE O MINI KOPARCE
+Marka/model - LiuGong 9018F
+Masa - 1,8T
+Rok produkcji - 2023 rok
+Moc znamionowa - 13.4kW
+Prędkość jazdy - 4,5km/h
+wyposażenie - 3 łyżki:
+-łyżka z zębami 30cm
+-łyżka z zębami 45 cm
+-łyżka skarpowa 90cm
+
+Opcjonalne wyposażenie:
+-Wiertła idealne do wiercenia pod słupki, w razie potrzeby informować przed wynajmem
+
+!! Wyposażenie nie jest dodatkowo płatne !!
+CENNIK
+
+Możliwości negocjacji cen
+
+Cena za wynajem 430 zł,- brutto /dobę
+Opcjonalne + 184,50 zł,- brutto /dobę z Przyczepą (Kategoria E)
+Opcjonalne + 492,00 zł,- brutto /dobę z Auto-lawetą (Kategoria B)
+
+Możemy dostarczyć koparkę pod adres wskazany przez wynajmującego.",https://res.cloudinary.com/dd2jkcg5z/image/upload/v1777926904/listings/ocjsklon31xmjjhbukrf.webp,https://www.olx.pl/d/oferta/wynajem-mini-koparki-uslugi-z-wiertlami-transport-wroclaw-CID3018-IDWSAzx.html?search_reason=search%7Corganic,,,
+mrwjcn8de,F-o1trz,heavy_equipment,Minikoparka NEX NANO,200,day, immediately,1,,active,no,"Wynajmę minikoparkę/mikrokoparke oraz przyczepkę ogrodową z kiprem. 
+
+CENNIK 
+
+1-2 DOBY
+220 zł/doba koparka 
+270 zł/doba koparka +przyczepka ogrodowa 
+KAUCJA 700zł
+
+3+ DOBY 
+200 zł/doba koparka
+250 zł/doba koparka+przyczepka ogrodowa 
+KAUCJA 1000 zł 
+
+Możliwość wystawienia faktury VAT 
+
+TRANSPORT 
+- Własny (po stronie klienta: laweta/przyczepa/bus) KAUCJA 1000 zł niezależnie od długości najmu + weryfikacja posiadania prawa jazdy 
+- Transport na terenie Lublińca GRATIS
+- Lubliniec +10 km 50 zł 
+- Lubliniec +60 km 1,5 zł/km płatne w obie strony 
+
+SPECYFIKACJA MASZYNY 
+
+- Niska waga 562 kg 
+- 68 cm szerokości (przejeżdża przez drzwi oraz furtki)
+- Głębokość kopania 1,2m 
+- Skrętne ramie 140 stopni 
+- Obrót 360 stopni
+
+Nadaje się idealnie na małych podwórkach w ciasnych miejscach (z uwagi na szerokość przejdzie nawet przez drzwi)
+
+PRZEZNACZENIE 
+
+- Do wykopów pod kable, rury, fundamenty, odwodnienia 
+- Do korytowania pod kostkę
+- Do odkopywania fundamentów
+- Do prac porządkowych( drobnych rozbiórek, wykopywania korzeni z krzaków/ małych drzew 
+- Do innych drobnych prac ogrodowo-budowlanych.
+
+AKCESORIA 
+- Łyżka kopiąca 30 cm
+- Łyżka skarpówka 50 cm 
+- Szybkozłącze mechaniczne (wymiana łyżki w 1 minutę)
+- Powiększony Lemiesz (spych)
+- Przystawka do łapania przedmiotów
+- Oświetlenie LED 
+
+W razie chęci wynajmu proszę DZWONIĆ lub PISAĆ SMS-a
+
+Lokalizacja: LUBLINIEC",https://res.cloudinary.com/dd2jkcg5z/image/upload/v1777966236/listings/dvryw4ipkcjky4jqzf5g.jpg,https://www.olx.pl/d/oferta/wynajem-minikoparki-mikrokoparki-nex-nano-CID3018-ID176jV3.html,,,
+elprocar_miniko,elprocar,heavy_equipment,"Mini koparka wynajem, wypożyczalnia koparek",300,day,on_call,1,,active,no,"Oferujemy profesjonalny wynajem minikoparek o wadze 2–6 oraz 9 ton na terenie Polanicy-Zdroju, Kłodzka i okolic. W ofercie posiadamy kilka maszyn, dzięki czemu dopasujemy sprzęt do Twoich potrzeb.
+
+Wyposażenie:
+łyżki: 30 cm, 60 cm
+łyżka skarpowa (sztywna)
+chwytak
+młot hydrauliczny
+klimatyzacja
+Warunki wynajmu:
+minimalny okres wynajmu: 3 dni
+możliwość wynajmu różnych maszyn budowlanych
+Obszar działania:
+
+Polanica-Zdrój, Kłodzko, Szczytna, Duszniki-Zdrój, Kudowa-Zdrój, Lądek-Zdrój, Stronie Śląskie, Niwa, Wambierzyce, Szalejów, Wolany, Stary Wielisław, Chocieszów, Bystrzyca Kłodzka",https://res.cloudinary.com/dd2jkcg5z/image/upload/v1777975728/image_zdof3d.webp,https://www.olx.pl/d/oferta/mini-koparka-wynajem-wypozyczalnia-koparek-CID3018-IDCD39P.html?isPreviewActive=0&reason=seller_listing&sliderIndex=0,,,
+o2u99d096,elprocar,heavy_equipment,Wynajem koparko-ładowarka i sprzęt budowlany – Polanica-Zdrój i okolice,700,day,on_call,1,,active,no,"Oferujemy profesjonalny wynajem sprzętu budowlanego na terenie Polanicy-Zdroju, Kłodzka i okolic.
+
+Dostępny sprzęt:
+-koparko-ładowarka CAT 444F2
+-minikoparki
+-koparka kołowa CAT M315D
+-wozidła budowlane
+Warunki wynajmu:
+-wynajem z operatorem lub bez operatora
+-minimalny okres wynajmu: 3 dni
+-wymagana kaucja
+Obszar działania:
+
+Polanica-Zdrój, Kłodzko, Szczytna, Duszniki-Zdrój, Kudowa-Zdrój, Niwa, Wambierzyce, Szalejów, Wolany, Stary Wielisław, Chocieszów, Bystrzyca Kłodzka",https://res.cloudinary.com/dd2jkcg5z/image/upload/v1777976280/listings/qn8vwc9ktzviiwbrina4.webp,https://www.olx.pl/d/oferta/koparko-ladowarka-koparka-kolowa-wynajem-wypozyczalnia-CID3018-IDxxO09.html?reason=seller_listing,,,
+3wg7xqu5o,F-ojutg,heavy_equipment,"Minikoparka 2,3t / 2,7t / 3,5t",350,day,on_call,1,,active,no,"Oferujemy wynajem minikoparek o masie 2,3 t, 2,7 t oraz 3,5 t – idealnych do prac ziemnych, ogrodowych i budowlanych.
+
+Dlaczego warto:
+-atrakcyjne ceny – przy dłuższym wynajmie rabaty
+-sprawny i zadbany sprzęt
+-możliwość dopasowania maszyny do zakresu prac
+Dodatkowe informacje:
+-transport ustalany indywidualnie
+-dostępność telefoniczna: codziennie 7:00–22:00
+
+📞 Zapraszamy do kontaktu!",https://res.cloudinary.com/dd2jkcg5z/image/upload/v1777977232/listings/kczumkfvrxm97qt1gd0j.webp,https://www.olx.pl/d/oferta/wynajem-minikoparek-CID3018-ID17wOfo.html?reason=seller_listing,,,
+dc0oj51b6,F-9tykc,heavy_equipment,"Minikoparka z operatorem - wykopy, rozbiórki, prace ziemne | Trzebnica i okolice",zapytaj,day,on_call,1,,active,no,"Usługi minikoparką – wykopy, rozbiórki, prace ziemne | Polanica-Zdrój i okolice
+Specjalizacje:
+usługi koparką i minikoparką
+wyburzenia i rozbiórki
+
+Oferujemy profesjonalne usługi minikoparką na terenie Polanicy-Zdroju, Kłodzka i okolic. Realizujemy zarówno mniejsze zlecenia, jak i większe prace ziemne.
+
+Zakres usług:
+wykopy pod fundamenty
+wykopy pod instalacje (kable, rury)
+drenaże i melioracje
+korytowanie pod kostkę brukową
+niwelacja i równanie terenu
+usuwanie korzeni
+inne prace ziemne
+Sprzęt i możliwości:
+łyżki: 30 cm, 50 cm, 100 cm (skarpowa)
+głębokość kopania: ok. 2,5 m
+precyzyjna praca nawet w trudno dostępnych miejscach
+
+📞 Zapraszamy do kontaktu – chętnie odpowiemy na pytania i przygotujemy ofertę dopasowaną do Twoich potrzeb.",https://res.cloudinary.com/dd2jkcg5z/image/upload/v1777978432/listings/f19yu9mfurmhnkvrqftn.webp,https://www.olx.pl/d/oferta/uslugi-minikoparka-minikoparka-wynajem-CID4371-ID13qMkx.html?reason=seller_listing,,,
+869bxtbx1,F-xsr01,heavy_equipment,Wynajem koparka 24t Liebherr 924 oraz sprzęt budowlany | prace ziemne i wyburzenia,800,day,on_call,1,,active,no,"Oferujemy wynajem koparki gąsienicowej Liebherr 924 (24 t) wraz z profesjonalnym osprzętem oraz szerokim zapleczem maszyn budowlanych.
+
+Koparka Liebherr 924 – wyposażenie:
+- łyżka kopiąca z zębami (1,4 m³)
+- łyżka skarpowa hydrauliczna
+- masa maszyny: 24 t
+Dostępne maszyny w ofercie:
+- wozidła technologiczne Volvo 6x6 (ładowność 30 t)
+- spycharka CAT D6
+- ładowarka Manitou
+- inne maszyny budowlane
+Zakres usług:
+- prace ziemne
+- wykopy i roboty budowlane
+- rozbiórki i wyburzenia
+- realizacja kompleksowych zleceń
+- wyceny i doradztwo techniczne
+Warunki współpracy:
+- wynajem maszyn z operatorem lub bez
+- konkurencyjne ceny
+- fachowe doradztwo i indywidualne podejście do klienta
+
+📞 Zapraszamy do kontaktu – chętnie odpowiemy na pytania i przygotujemy ofertę dopasowaną do Twojej inwestycji.",https://res.cloudinary.com/dd2jkcg5z/image/upload/v1777987662/listings/m2f2agscnh2cv6ertkuq.webp,https://www.olx.pl/d/oferta/wynajem-koparki-gasienicowej-wynajm-koparka-gasienicowa-liebherr-924-uslugi-wynajme-koparke-CID3018-ID1ae2Of.html?isPreviewActive=0&sliderIndex=1&srsltid=AfmBOorp6jLCiLykM5EARhMnQhyyui7-mijd8L9xBNBIu-UM-vMVoFE1,,,
+7orzmugwh,F-xsr01,heavy_equipment,Wynajem wozidło przegubowe Volvo 30t | maszyny budowlane,800,day,on_call,1,,active,no,"Dzień dobry, oferujemy wynajem wozideł przegubowych Volvo o ładowności 30 ton – dostępnych w różnych konfiguracjach (z tylną klapą oraz bez klapy).
+
+Nasze maszyny są przystosowane do pracy w wymagających warunkach terenowych.
+
+Charakterystyka wozideł:
+- ładowność: 30 ton
+- szerokie koła – bardzo dobra mobilność w trudnym terenie
+- przystosowane do ciężkich prac budowlanych i ziemnych
+- dostępne warianty: z tylną klapą / bez klapy
+Zakres działania:
+- usługi na terenie całej Polski
+- obsługa inwestycji budowlanych i ziemnych
+Warunki wynajmu:
+- cena ustalana indywidualnie
+- zależna od czasu wynajmu oraz zakresu prac
+- elastyczne warunki współpracy
+
+📞 W razie pytań zapraszamy do kontaktu telefonicznego.",https://res.cloudinary.com/dd2jkcg5z/image/upload/v1777987944/listings/l8elvqnhpwdiyoe9ydlw.webp,https://www.olx.pl/d/oferta/wynajme-wozidlo-przegubowe-volvo-30-ton-wynajm-wozidla-uslugi-CID3018-IDVNmoR.html?reason=seller_listing,,,
+v8wvqt1qy,F-4x8zw,heavy_equipment,"Wynajem koparka kołowa z rototilt, koparko-ładowarka, wozidła, wywrotki | roboty ziemne",150,day,on_call,1,,incomplete,no,"Dzień dobry, świadczymy kompleksowe usługi robót ziemnych oraz wynajem sprzętu budowlanego. Dysponujemy nowoczesnym zapleczem maszyn, dzięki czemu realizujemy zarówno mniejsze zlecenia, jak i pełną obsługę inwestycji.
+
+Nasza oferta:
+usługi koparką kołową z głowicą obrotowo-wychylną (rototilt) – precyzyjne prace ziemne
+usługi koparko-ładowarką
+wynajem wozideł budowlanych 9t (z operatorem lub bez)
+transport materiałów sypkich: kruszywo, piasek, ziemia, gruz
+wykonywanie przyłączy: wodociągowych, kanalizacyjnych, elektrycznych
+kompleksowa obsługa budowy, w tym:
+przygotowanie i czyszczenie działek
+budowa dróg dojazdowych
+płyty fundamentowe
+prace brukarskie
+Dlaczego warto:
+nowoczesny sprzęt (większa precyzja i szybkość prac)
+możliwość realizacji kompleksowych zleceń
+elastyczne podejście do klienta
+
+📞 Zapraszamy do kontaktu – chętnie doradzimy i przygotujemy ofertę dopasowaną do Twojej inwestycji.
+
+😉 Rzeczy niemożliwe robimy od ręki – na cuda trzeba chwilę poczekać!",https://res.cloudinary.com/dd2jkcg5z/image/upload/v1778098999/listings/hjrdbkuezzzstxrfqzw6.webp,,,,
+r6mixd1gq,F-4x8zw,heavy_equipment,Wozidło budowlane 9t – wynajem | transport i prace ziemne,500,day,on_call,1,,incomplete,no,"Wozidło budowlane 9t – wynajem | transport i prace ziemne
+
+Oferujemy wynajem wozideł budowlanych o ładowności 9 ton – idealnych do transportu materiałów na placu budowy oraz w trudnym terenie.
+
+Oferta:
+wynajem krótko- i długoterminowy
+możliwość wynajmu z operatorem lub bez operatora
+sprawdzone i gotowe do pracy maszyny
+Zastosowanie:
+transport kruszywa, piasku, ziemi, gruzu
+prace ziemne i budowlane
+obsługa inwestycji drogowych i budowlanych
+Dodatkowo oferujemy:
+koparki
+wywrotki
+kompleksowe prace ziemne
+
+Dysponujemy szerokim zapleczem sprzętu, dzięki czemu możemy zrealizować większe i bardziej wymagające zlecenia.
+
+📞 Zapraszamy do kontaktu – przygotujemy ofertę dopasowaną do Twoich potrzeb.",https://res.cloudinary.com/dd2jkcg5z/image/upload/v1778099190/listings/xojkyjmwnmv8adkrlyld.webp,https://www.olx.pl/d/oferta/wozidlo-budowlane-CID5-ID1as3hq.html?reason=seller_listing,,,
+btjfr0mik,F-0vm3m,scaffolding,Wynajem rusztowania elewacyjnego Plettac | montaż i transport,35,day, immediately,1,,incomplete,no,"Oferujemy wynajem rusztowania elewacyjnego typu Plettac – idealnego do prac remontowych, elewacyjnych i budowlanych.
+
+Warunki wynajmu:
+cena od 35 zł / 100 m² / doba + kaucja
+atrakcyjne rabaty przy dłuższych wynajmach
+niedziele i święta gratis
+Dodatkowe usługi:
+transport rusztowania
+montaż i demontaż (wycena indywidualna)
+możliwość wynajmu bez transportu i montażu
+Dla kogo:
+firmy budowlane
+inwestorzy
+osoby prywatne
+
+📞 Kontakt: 694695513
+
+Zapraszamy do współpracy – przygotujemy ofertę dopasowaną do Twojej inwestycji.",https://res.cloudinary.com/dd2jkcg5z/image/upload/v1778101054/listings/cwxbvuabgau6ai8nteht.webp,,,,
+kx3advg9u,F-19d2d,Budowlane,"Wynajem maszyn ogrodowych – aerator, glebogryzarka, wertykulator | Syców i okolice",99,day, immediately,1,,incomplete,no,"Szukasz sprzętu do ogrodu lub regeneracji trawnika?
+Oferuję wynajem maszyn ogrodowych – sprawdzony, mocny sprzęt gotowy do pracy od ręki.
+
+Dostępne maszyny:
+glebogryzarka Baretto 16 KM – 250 zł/dzień
+wiertnica spalinowa (10/15/20 cm) – 100 zł/dzień
+aeratory rurkowe (Weibang, Billy Goat) – 250–300 zł/dzień
+wertykulatory (Weibang, Cedrus) – 120 zł/dzień
+wycinarka do darni – 300 zł/dzień
+równiarka / niwelator terenu – 120 zł/dzień
+posypywarka do piasku (top dressing) – 150 zł/dzień
+
+(kaucja zależna od sprzętu)
+
+Transport i warunki:
+gmina Syców – transport gratis
+powyżej 30 km – wycena indywidualna
+odbiór osobisty: Stradomia Wierzchnia
+rabaty przy wynajmie kilku maszyn
+
+✔️ sprzęt sprawny i gotowy do pracy
+✔️ instruktaż obsługi na miejscu
+
+📞 Zapraszam do kontaktu!",https://res.cloudinary.com/dd2jkcg5z/image/upload/v1778101885/listings/tc7rkmmbcvzybfhdak6x.webp,,,,
+v57dqpjjg,F-69nth,lifts_and_platforms,Wynajem podnośnik koszowy - 22 m i 27 m | Bielawa i okolice,100,day,on_call,1,,incomplete,no,"Oferujemy wynajem podnośników koszowych do prac na wysokości – bezpiecznie, sprawnie i w konkurencyjnej cenie.
+
+Dostępne podnośniki:
+-Mercedes Atego + WT270 – wysokość robocza 27 m
+-Mercedes Sprinter + WTB220 – wysokość robocza 22 m
+✔️ wynajem wyłącznie z operatorem
+Zastosowanie:
+-prace dekarskie i elewacyjne
+-montaż reklam, oświetlenia, kamer
+-mycie elewacji i okien
+-wycinka i pielęgnacja drzew
+-instalacje elektryczne i budowlane
+Oferta:
+-wynajem krótko- i długoterminowy
+-sprzęt sprawny, regularnie serwisowany
+-elastyczne terminy
+
+📍 Bielawa i okolice (woj. dolnośląskie)
+📞 Tel.: 60*****53",https://res.cloudinary.com/dd2jkcg5z/image/upload/v1778102544/listings/bpjlomq1hkvdozl4nqxj.webp,https://www.olx.pl/d/oferta/podnosnik-koszowy-22m-27m-wynajem-CID3018-ID16wDS5.html?reason=seller_listing,,,
