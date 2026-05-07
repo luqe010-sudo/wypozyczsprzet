@@ -103,14 +103,18 @@ export default function EquipmentTable({ initialEquipment }) {
                   <Package className="w-12 h-12" />
                 </div>
               )}
-              <div className="absolute top-2 right-2 flex gap-1">
+                  <div className="absolute top-2 right-2 flex gap-1">
                 {item.promotion && (
                   <span className="bg-yellow-400 text-yellow-900 p-1.5 rounded-lg shadow-lg" title="Promowane">
                     <Star className="w-4 h-4 fill-current" />
                   </span>
                 )}
-                <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase shadow-lg ${item.status === 'active' ? 'bg-green-500 text-white' : 'bg-gray-500 text-white'}`}>
-                  {item.status}
+                <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase shadow-lg ${
+                  item.status === 'active' ? 'bg-green-500 text-white' : 
+                  item.status === 'incomplete' ? 'bg-orange-500 text-white' : 
+                  'bg-gray-500 text-white'
+                }`}>
+                  {item.status === 'incomplete' ? 'Niekompletne' : item.status}
                 </span>
               </div>
             </div>
@@ -138,11 +142,11 @@ export default function EquipmentTable({ initialEquipment }) {
                     <Edit2 className="w-4 h-4" />
                   </Link>
                   <button
-                    onClick={() => handleStatusChange(item.id, item.status === 'active' ? 'hidden' : 'active')}
-                    className={`p-2 rounded-lg transition-colors ${item.status === 'active' ? 'text-gray-400 hover:bg-gray-100' : 'text-blue-600 bg-blue-50'}`}
-                    title={item.status === 'active' ? 'Ukryj' : 'Pokaż'}
+                    onClick={() => handleStatusChange(item.id, item.status === 'hidden' ? 'active' : 'hidden')}
+                    className={`p-2 rounded-lg transition-colors ${item.status !== 'hidden' ? 'text-blue-600 bg-blue-50' : 'text-gray-400 hover:bg-gray-100'}`}
+                    title={item.status !== 'hidden' ? 'Kliknij, aby ukryć' : 'Kliknij, aby pokazać'}
                   >
-                    {item.status === 'active' ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {item.status !== 'hidden' ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                   </button>
                   <button
                     onClick={() => handleDelete(item.id)}
