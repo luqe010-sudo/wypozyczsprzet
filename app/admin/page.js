@@ -11,6 +11,9 @@ import {
 export default async function AdminDashboardPage() {
   const supabase = createClient()
 
+  const { data: { user } } = await supabase.auth.getUser()
+  const { data: currentProfile } = await supabase.from('profiles').select('*').eq('id', user?.id).single()
+
   // Fetch stats in parallel
   const [
     { count: userCount },
@@ -37,6 +40,11 @@ export default async function AdminDashboardPage() {
         <div className="relative z-10">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Witaj w Centrum Dowodzenia</h2>
           <p className="text-gray-500 dark:text-gray-400 mt-1">Masz pełną kontrolę nad platformą wypozycz.online.</p>
+          
+          {/* Debug Box */}
+          <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-lg text-xs font-mono text-red-800 dark:text-red-300">
+            DEBUG: UserID: {user?.id} | Role: {currentProfile?.role || 'null'} | Status: {currentProfile ? 'Profile Found' : 'Profile NOT Found'}
+          </div>
         </div>
         <TrendingUp className="absolute -right-8 -bottom-8 w-48 h-48 text-gray-50 dark:text-slate-700/50" />
       </div>

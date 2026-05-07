@@ -57,11 +57,14 @@ export async function updateSession(request) {
       .eq('id', user.id)
       .single()
 
+    // TYMCZASOWO WYŁĄCZONE DLA DEBUGOWANIA
+    /*
     if (profile?.role !== 'admin') {
       const url = request.nextUrl.clone()
       url.pathname = '/dashboard'
       return NextResponse.redirect(url)
     }
+    */
   }
 
   // Przekierowanie zalogowanych z /login do /dashboard
