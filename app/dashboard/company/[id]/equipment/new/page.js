@@ -120,12 +120,47 @@ export default function NewEquipmentPage({ params }) {
               </div>
 
               <div className="sm:col-span-6">
+                <label htmlFor="image_url" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Link do zdjęcia sprzętu (URL)
+                </label>
+                <div className="mt-1">
+                  <input type="url" name="image_url" id="image_url" placeholder="https://example.com/image.jpg"
+                    className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border" />
+                </div>
+              </div>
+
+              <div className="sm:col-span-6">
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Opis (Opcjonalnie)
                 </label>
                 <div className="mt-1">
                   <textarea name="description" id="description" rows={4}
                     className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border" />
+                </div>
+              </div>
+
+              <div className="sm:col-span-6 space-y-4">
+                <div className="relative flex items-start">
+                  <div className="flex items-center h-5">
+                    <input id="promotion" name="promotion" type="checkbox"
+                      className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded" />
+                  </div>
+                  <div className="ml-3 text-sm">
+                    <label htmlFor="promotion" className="font-medium text-gray-700 dark:text-gray-300">Chcę promować to ogłoszenie w przyszłości</label>
+                    <p className="text-gray-500 dark:text-gray-400">Zaznacz, jeśli jesteś zainteresowany płatnym wyróżnieniem swojego sprzętu.</p>
+                  </div>
+                </div>
+
+                <div className="relative flex items-start">
+                  <div className="flex items-center h-5">
+                    <input id="terms" name="terms" type="checkbox" required
+                      className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded" />
+                  </div>
+                  <div className="ml-3 text-sm">
+                    <label htmlFor="terms" className="font-medium text-gray-700 dark:text-gray-300">
+                      Akceptuję <Link href="/regulamin" className="text-blue-600 hover:underline">Regulamin</Link> oraz politykę RODO <span className="text-red-500">*</span>
+                    </label>
+                  </div>
                 </div>
               </div>
             </div>

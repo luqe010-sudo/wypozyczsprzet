@@ -33,6 +33,8 @@ export async function createEquipment(companyId, formData) {
     availability: formData.get('availability'),
     description: formData.get('description'),
     external_olx_url: formData.get('external_olx_url'),
+    image_url: formData.get('image_url'),
+    promotion: formData.get('promotion') === 'on',
     status: 'active',
   }
 
@@ -59,6 +61,8 @@ export async function updateEquipment(id, companyId, formData) {
     availability: formData.get('availability'),
     description: formData.get('description'),
     external_olx_url: formData.get('external_olx_url'),
+    image_url: formData.get('image_url'),
+    promotion: formData.get('promotion') === 'on',
   }
 
   const { error } = await supabase

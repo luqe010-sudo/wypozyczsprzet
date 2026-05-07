@@ -87,17 +87,13 @@ export default function Navbar({ actionUrl, actionLabel }) {
             Mój Panel
           </Link>
 
-          {actionUrl ? (
-            <Link
-              href="/dodaj-ogloszenie"
-              className="btn-primary"
-              onClick={() => { setIsOpen(false); trackEvent('click_add_listing', { source: 'navbar' }); }}
-            >
-              {actionLabel}
-            </Link>
-          ) : (
-            <span className="btn-primary opacity-60 cursor-not-allowed">{'Formularz niedost\u0119pny'}</span>
-          )}
+          <Link
+            href="/dashboard"
+            className="btn-primary"
+            onClick={() => { setIsOpen(false); trackEvent('click_add_listing', { source: 'navbar' }); }}
+          >
+            Dodaj ogłoszenie
+          </Link>
         </div>
       </div>
     </nav>
