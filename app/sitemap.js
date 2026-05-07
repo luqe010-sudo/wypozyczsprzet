@@ -36,12 +36,6 @@ export default async function sitemap() {
       priority: 0.8,
     },
     {
-      url: `${BASE_URL}/dodaj-ogloszenie`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
       url: `${BASE_URL}/kontakt`,
       lastModified: new Date(),
       changeFrequency: 'monthly',

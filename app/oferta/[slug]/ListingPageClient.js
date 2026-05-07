@@ -144,7 +144,7 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
             
             {isIncomplete && (
               <Link 
-                href={`/dodaj-ogloszenie?edit=${listing.ID_sprzetu}`}
+                href="/dashboard"
                 className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-6 rounded-2xl transition-all text-center block text-sm"
               >
                 Jesteś właścicielem? Uzupełnij dane.

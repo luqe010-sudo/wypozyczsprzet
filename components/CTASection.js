@@ -15,7 +15,7 @@ export default function CTASection() {
           </p>
           
           <Link 
-            href="/dodaj-ogloszenie"
+            href="/dashboard"
             className="bg-white text-blue-600 hover:bg-blue-50 font-bold py-2 px-4 rounded-xl transition-all duration-200 inline-flex items-center justify-center gap-2 shadow-sm w-full text-xs"
           >
             Dodaj ogłoszenie
