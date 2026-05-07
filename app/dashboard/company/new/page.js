@@ -5,9 +5,13 @@ import { createCompany } from '../actions'
 import { toast } from 'react-hot-toast'
 import Link from 'next/link'
 import { ArrowLeft, Building2 } from 'lucide-react'
+import AddressAutocomplete from '@/components/AddressAutocomplete'
 
 export default function NewCompanyPage() {
   const [isLoading, setIsLoading] = useState(false)
+  const [city, setCity] = useState('')
+  const [postalCode, setPostalCode] = useState('')
+  const [address, setAddress] = useState('')
 
   async function handleSubmit(formData) {
     setIsLoading(true)
@@ -18,6 +22,12 @@ export default function NewCompanyPage() {
       setIsLoading(false)
     }
   }
+
+  const handleAddressSelect = (data) => {
+    setCity(data.city);
+    setPostalCode(data.postalCode);
+    setAddress(data.street || data.fullAddress.split(',')[0]);
+  };
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -39,6 +49,14 @@ export default function NewCompanyPage() {
           
           <form action={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+              {/* Autocomplete helper */}
+              <div className="sm:col-span-6 bg-blue-50 dark:bg-blue-900/10 p-4 rounded-xl border border-blue-100 dark:border-blue-900/20">
+                <label className="block text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-2">
+                  Wyszukaj adres (ułatwienie)
+                </label>
+                <AddressAutocomplete onSelect={handleAddressSelect} />
+              </div>
+
               <div className="sm:col-span-6">
                 <label htmlFor="company_name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Nazwa firmy <span className="text-red-500">*</span>
@@ -85,6 +103,7 @@ export default function NewCompanyPage() {
                 </label>
                 <div className="mt-1">
                   <input type="text" name="postal_code" id="postal_code" required
+                    value={postalCode} onChange={(e) => setPostalCode(e.target.value)}
                     className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border" />
                 </div>
               </div>
@@ -95,6 +114,7 @@ export default function NewCompanyPage() {
                 </label>
                 <div className="mt-1">
                   <input type="text" name="city" id="city" required
+                    value={city} onChange={(e) => setCity(e.target.value)}
                     className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border" />
                 </div>
               </div>
@@ -105,6 +125,7 @@ export default function NewCompanyPage() {
                 </label>
                 <div className="mt-1">
                   <input type="text" name="address" id="address"
+                    value={address} onChange={(e) => setAddress(e.target.value)}
                     className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border" />
                 </div>
               </div>

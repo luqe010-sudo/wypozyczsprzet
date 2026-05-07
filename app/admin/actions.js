@@ -3,6 +3,8 @@
 import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import cloudinary from '@/lib/cloudinary'
+import { geocodeAddress } from '@/lib/geocoding'
+import { sanitizeAddress } from '@/lib/utils'
 
 async function checkAdmin() {
   const supabase = createClient()
@@ -70,14 +72,21 @@ export async function adminDeleteRecord(table, id) {
 export async function adminUpdateCompany(id, formData) {
   try {
     const { supabase } = await checkAdmin()
+    const address = formData.get('address')
+    const city = formData.get('city')
+    const sanitized = sanitizeAddress(address, city)
+    const coords = await geocodeAddress(sanitized)
+
     const rawData = {
       name: formData.get('company_name'),
       phone: formData.get('phone'),
       email: formData.get('email'),
       website: formData.get('website'),
       zip_code: formData.get('postal_code'),
-      city: formData.get('city'),
-      address: formData.get('address'),
+      city: city,
+      address: address,
+      lat: coords?.lat || null,
+      lng: coords?.lng || null,
     }
 
     const { error } = await supabase
@@ -145,14 +154,21 @@ export async function adminUpdateEquipment(id, formData) {
 export async function adminCreateCompany(formData) {
   try {
     const { supabase } = await checkAdmin()
+    const address = formData.get('address')
+    const city = formData.get('city')
+    const sanitized = sanitizeAddress(address, city)
+    const coords = await geocodeAddress(sanitized)
+
     const rawData = {
       name: formData.get('company_name'),
       phone: formData.get('phone'),
       email: formData.get('email'),
       website: formData.get('website'),
       zip_code: formData.get('postal_code'),
-      city: formData.get('city'),
-      address: formData.get('address'),
+      city: city,
+      address: address,
+      lat: coords?.lat || null,
+      lng: coords?.lng || null,
       owner_user_id: formData.get('owner_user_id') || null,
       status: 'active',
     }

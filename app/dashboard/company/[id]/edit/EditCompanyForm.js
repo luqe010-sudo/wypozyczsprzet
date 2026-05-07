@@ -4,10 +4,14 @@ import { useState } from 'react'
 import { updateCompany, deleteCompany } from '../../actions'
 import { toast } from 'react-hot-toast'
 import { Trash2 } from 'lucide-react'
+import AddressAutocomplete from '@/components/AddressAutocomplete'
 
 export default function EditCompanyForm({ company }) {
   const [isLoading, setIsLoading] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [city, setCity] = useState(company.city || company.miasto || '')
+  const [postalCode, setPostalCode] = useState(company.zip_code || company.postal_code || '')
+  const [address, setAddress] = useState(company.address || '')
 
   async function handleSubmit(formData) {
     setIsLoading(true)
@@ -20,6 +24,12 @@ export default function EditCompanyForm({ company }) {
       toast.success('Dane firmy zaktualizowane')
     }
   }
+
+  const handleAddressSelect = (data) => {
+    setCity(data.city);
+    setPostalCode(data.postalCode);
+    setAddress(data.street || data.fullAddress.split(',')[0]);
+  };
 
   async function handleDelete() {
     if (confirm('Czy na pewno chcesz usunąć tę firmę? Spowoduje to usunięcie również całego przypisanego sprzętu.')) {
@@ -36,6 +46,14 @@ export default function EditCompanyForm({ company }) {
     <div>
       <form action={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+          {/* Autocomplete helper */}
+          <div className="sm:col-span-6 bg-blue-50 dark:bg-blue-900/10 p-4 rounded-xl border border-blue-100 dark:border-blue-900/20">
+            <label className="block text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-2">
+              Wyszukaj nowy adres (ułatwienie)
+            </label>
+            <AddressAutocomplete onSelect={handleAddressSelect} defaultValue={company.address ? `${company.address}, ${company.city}` : ''} />
+          </div>
+
           <div className="sm:col-span-6">
             <label htmlFor="company_name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Nazwa firmy <span className="text-red-500">*</span>
@@ -81,7 +99,8 @@ export default function EditCompanyForm({ company }) {
               Kod pocztowy <span className="text-red-500">*</span>
             </label>
             <div className="mt-1">
-              <input type="text" name="postal_code" id="postal_code" required defaultValue={company.zip_code || company.postal_code}
+              <input type="text" name="postal_code" id="postal_code" required
+                value={postalCode} onChange={(e) => setPostalCode(e.target.value)}
                 className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border" />
             </div>
           </div>
@@ -91,7 +110,8 @@ export default function EditCompanyForm({ company }) {
               Miejscowość <span className="text-red-500">*</span>
             </label>
             <div className="mt-1">
-              <input type="text" name="city" id="city" required defaultValue={company.city || company.miasto}
+              <input type="text" name="city" id="city" required
+                value={city} onChange={(e) => setCity(e.target.value)}
                 className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border" />
             </div>
           </div>
@@ -101,7 +121,8 @@ export default function EditCompanyForm({ company }) {
               Adres (Ulica i numer)
             </label>
             <div className="mt-1">
-              <input type="text" name="address" id="address" defaultValue={company.address}
+              <input type="text" name="address" id="address"
+                value={address} onChange={(e) => setAddress(e.target.value)}
                 className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border" />
             </div>
           </div>
