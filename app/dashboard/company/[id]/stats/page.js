@@ -21,6 +21,7 @@ export default async function CompanyStatsPage({ params }) {
     .single();
 
   if (companyError || !company) {
+    console.error('Company fetch error or not found:', companyError, company, 'params.id:', params.id);
     redirect('/dashboard');
   }
 
@@ -45,17 +46,24 @@ export default async function CompanyStatsPage({ params }) {
   }
 
   // Flatten the stats data
-  const flattenedStats = stats?.map(item => ({
-    equipment_id: item.id,
-    equipment_name: item.name,
-    ...(item.equipment_stats || {
-      views_count: 0,
-      phone_clicks: 0,
-      website_clicks: 0,
-      olx_clicks: 0,
-      favorites_count: 0
-    })
-  })) || [];
+  const flattenedStats = stats?.map(item => {
+    // Supabase returns an array for joins even if it's a 1-to-1 relationship
+    const itemStats = Array.isArray(item.equipment_stats) 
+      ? item.equipment_stats[0] 
+      : item.equipment_stats;
+
+    return {
+      equipment_id: item.id,
+      equipment_name: item.name,
+      ...(itemStats || {
+        views_count: 0,
+        phone_clicks: 0,
+        website_clicks: 0,
+        olx_clicks: 0,
+        favorites_count: 0
+      })
+    };
+  }) || [];
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
