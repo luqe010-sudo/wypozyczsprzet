@@ -41,7 +41,7 @@ export default function EditCompanyForm({ company }) {
               Nazwa firmy <span className="text-red-500">*</span>
             </label>
             <div className="mt-1">
-              <input type="text" name="company_name" id="company_name" required defaultValue={company.company_name || company.nazwa}
+              <input type="text" name="company_name" id="company_name" required defaultValue={company.name || company.nazwa}
                 className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border" />
             </div>
           </div>
@@ -81,7 +81,7 @@ export default function EditCompanyForm({ company }) {
               Kod pocztowy <span className="text-red-500">*</span>
             </label>
             <div className="mt-1">
-              <input type="text" name="postal_code" id="postal_code" required defaultValue={company.postal_code}
+              <input type="text" name="postal_code" id="postal_code" required defaultValue={company.zip_code || company.postal_code}
                 className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border" />
             </div>
           </div>

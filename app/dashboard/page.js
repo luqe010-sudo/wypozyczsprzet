@@ -44,7 +44,7 @@ export default async function DashboardPage() {
                   </div>
                   <div className="ml-4 flex-1">
                     <h3 className="text-lg font-medium text-gray-900 dark:text-white truncate">
-                      {company.nazwa || company.company_name || 'Nienazwana firma'}
+                      {company.name || company.nazwa || 'Nienazwana firma'}
                     </h3>
                     <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-1">
                       <MapPin className="flex-shrink-0 mr-1.5 h-4 w-4" />

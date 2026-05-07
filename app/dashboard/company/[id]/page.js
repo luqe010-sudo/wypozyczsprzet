@@ -49,13 +49,13 @@ export default async function CompanyDetailsPage({ params }) {
       <div className="bg-white dark:bg-slate-800 shadow-sm rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden transition-colors">
         <div className="px-4 py-5 sm:p-6">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-            {company.company_name || company.nazwa || 'Nienazwana firma'}
+            {company.name || company.nazwa || 'Nienazwana firma'}
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-500 dark:text-gray-400">
             <div className="flex items-center">
               <MapPin className="w-4 h-4 mr-2 text-gray-400" />
-              {company.address}, {company.postal_code} {company.city}
+              {company.address}, {company.zip_code || company.postal_code} {company.city}
             </div>
             {company.phone && (
               <div className="flex items-center">

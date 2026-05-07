@@ -14,11 +14,11 @@ export async function createCompany(formData) {
 
   const rawData = {
     owner_user_id: user.id,
-    company_name: formData.get('company_name'),
+    name: formData.get('company_name'),
     phone: formData.get('phone'),
     email: formData.get('email'),
     website: formData.get('website'),
-    postal_code: formData.get('postal_code'),
+    zip_code: formData.get('postal_code'),
     city: formData.get('city'),
     address: formData.get('address'),
     status: 'active',
@@ -41,11 +41,11 @@ export async function updateCompany(id, formData) {
   const supabase = createClient()
 
   const rawData = {
-    company_name: formData.get('company_name'),
+    name: formData.get('company_name'),
     phone: formData.get('phone'),
     email: formData.get('email'),
     website: formData.get('website'),
-    postal_code: formData.get('postal_code'),
+    zip_code: formData.get('postal_code'),
     city: formData.get('city'),
     address: formData.get('address'),
   }
