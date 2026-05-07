@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import EquipmentTable from './EquipmentTable'
 import { Package } from 'lucide-react'
+import { Suspense } from 'react'
 
 export default async function AdminEquipmentPage() {
   const supabase = createClient()
@@ -23,7 +24,9 @@ export default async function AdminEquipmentPage() {
         </div>
       </div>
 
-      <EquipmentTable initialEquipment={equipment || []} />
+      <Suspense fallback={<div className="p-8 text-center text-gray-500">Ładowanie tabeli...</div>}>
+        <EquipmentTable initialEquipment={equipment || []} />
+      </Suspense>
     </div>
   )
 }

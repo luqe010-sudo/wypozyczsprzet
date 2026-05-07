@@ -10,8 +10,10 @@ import {
   MapPin, 
   Phone, 
   ExternalLink,
-  MoreVertical
+  MoreVertical,
+  Package
 } from 'lucide-react'
+import Link from 'next/link'
 
 export default function CompaniesTable({ initialCompanies, users }) {
   const [companies, setCompanies] = useState(initialCompanies)
