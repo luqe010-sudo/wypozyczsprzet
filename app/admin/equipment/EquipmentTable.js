@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { adminDeleteRecord, updateEquipmentStatus } from '../actions'
 import { toast } from 'react-hot-toast'
+import { useSearchParams } from 'next/navigation'
 import { 
   Search, 
   Trash2, 
@@ -11,20 +12,25 @@ import {
   EyeOff, 
   Star,
   Package,
-  Building
+  Building,
+  Edit2
 } from 'lucide-react'
+import Link from 'next/link'
 
 export default function EquipmentTable({ initialEquipment }) {
   const [equipment, setEquipment] = useState(initialEquipment)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterCategory, setFilterCategory] = useState('all')
+  const searchParams = useSearchParams()
+  const companyFilter = searchParams.get('company')
 
   const categories = [...new Set(equipment.map(e => e.category))].filter(Boolean)
 
   const filteredEquipment = equipment.filter(e => {
     const matchesSearch = e.name?.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesCategory = filterCategory === 'all' || e.category === filterCategory
-    return matchesSearch && matchesCategory
+    const matchesCompany = !companyFilter || e.company_id === companyFilter
+    return matchesSearch && matchesCategory && matchesCompany
   })
 
   const handleDelete = async (id) => {
@@ -124,6 +130,13 @@ export default function EquipmentTable({ initialEquipment }) {
                 </div>
                 
                 <div className="flex items-center gap-1">
+                  <Link
+                    href={`/admin/equipment/${item.id}/edit`}
+                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    title="Edytuj"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </Link>
                   <button
                     onClick={() => handleStatusChange(item.id, item.status === 'active' ? 'hidden' : 'active')}
                     className={`p-2 rounded-lg transition-colors ${item.status === 'active' ? 'text-gray-400 hover:bg-gray-100' : 'text-blue-600 bg-blue-50'}`}

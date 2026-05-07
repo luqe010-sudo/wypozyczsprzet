@@ -5,12 +5,12 @@ import { Building2 } from 'lucide-react'
 export default async function AdminCompaniesPage() {
   const supabase = createClient()
 
-  // Fetch all companies and users
+  // Fetch all companies with equipment count and users
   const [
     { data: companies },
     { data: users }
   ] = await Promise.all([
-    supabase.from('companies').select('*').order('name'),
+    supabase.from('companies').select('*, equipment(count)').order('name'),
     supabase.from('profiles').select('id, role').order('role')
   ])
 

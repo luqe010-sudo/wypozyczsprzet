@@ -72,6 +72,7 @@ export default function CompaniesTable({ initialCompanies, users }) {
             <thead className="text-xs uppercase bg-gray-50 dark:bg-slate-900 text-gray-500 border-b border-gray-200 dark:border-slate-700">
               <tr>
                 <th className="px-6 py-4 font-semibold">Firma</th>
+                <th className="px-6 py-4 font-semibold">Sprzęt</th>
                 <th className="px-6 py-4 font-semibold">Lokalizacja</th>
                 <th className="px-6 py-4 font-semibold">Kontakt</th>
                 <th className="px-6 py-4 font-semibold">Właściciel</th>
@@ -86,14 +87,22 @@ export default function CompaniesTable({ initialCompanies, users }) {
                     <div className="text-xs text-gray-500 truncate max-w-[200px]">{company.id}</div>
                   </td>
                   <td className="px-6 py-4">
+                    <Link 
+                      href={`/admin/equipment?company=${company.id}`}
+                      className="flex items-center gap-1.5 px-2 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-lg font-medium hover:bg-blue-100 transition-colors whitespace-nowrap"
+                    >
+                      <Package className="w-3.5 h-3.5" />
+                      {company.equipment?.[0]?.count || 0} ogłoszeń
+                    </Link>
+                  </td>
+                  <td className="px-6 py-4">
                     <div className="flex items-center gap-1.5 text-gray-700 dark:text-gray-300">
                       <MapPin className="w-3.5 h-3.5 text-gray-400" />
                       {company.city}
                     </div>
-                    <div className="text-xs text-gray-500 ml-5">{company.address}</div>
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-1.5 text-gray-700 dark:text-gray-300">
+                  <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
+                    <div className="flex items-center gap-1.5">
                       <Phone className="w-3.5 h-3.5 text-gray-400" />
                       {company.phone}
                     </div>
@@ -112,6 +121,13 @@ export default function CompaniesTable({ initialCompanies, users }) {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end gap-2">
+                      <Link
+                        href={`/admin/companies/${company.id}/edit`}
+                        className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                        title="Edytuj firmę"
+                      >
+                        <UserCircle className="w-4 h-4" />
+                      </Link>
                       <button
                         onClick={() => handleDelete(company.id)}
                         className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
