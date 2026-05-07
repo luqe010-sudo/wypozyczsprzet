@@ -3,6 +3,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import cloudinary from '@/lib/cloudinary'
 
 export async function createEquipment(companyId, formData) {
   const supabase = createClient()
@@ -24,6 +25,29 @@ export async function createEquipment(companyId, formData) {
     throw new Error('Unauthorized or company not found')
   }
 
+  const imageFile = formData.get('image')
+  let imageUrl = ''
+
+  if (imageFile && imageFile.size > 0) {
+    try {
+      const bytes = await imageFile.arrayBuffer()
+      const buffer = Buffer.from(bytes)
+      
+      const uploadResponse = await new Promise((resolve, reject) => {
+        cloudinary.uploader.upload_stream({
+          folder: 'listings',
+        }, (error, result) => {
+          if (error) reject(error)
+          else resolve(result)
+        }).end(buffer)
+      })
+      
+      imageUrl = uploadResponse.secure_url
+    } catch (uploadError) {
+      console.error('Error uploading to Cloudinary:', uploadError)
+    }
+  }
+
   const rawData = {
     company_id: companyId,
     category: formData.get('category'),
@@ -33,7 +57,7 @@ export async function createEquipment(companyId, formData) {
     availability: formData.get('availability'),
     description: formData.get('description'),
     external_olx_url: formData.get('external_olx_url'),
-    image_url: formData.get('image_url'),
+    image_url: imageUrl,
     promotion: formData.get('promotion') === 'on',
     status: 'active',
   }
@@ -53,6 +77,29 @@ export async function createEquipment(companyId, formData) {
 export async function updateEquipment(id, companyId, formData) {
   const supabase = createClient()
 
+  const imageFile = formData.get('image')
+  let imageUrl = formData.get('current_image_url')
+
+  if (imageFile && imageFile.size > 0) {
+    try {
+      const bytes = await imageFile.arrayBuffer()
+      const buffer = Buffer.from(bytes)
+      
+      const uploadResponse = await new Promise((resolve, reject) => {
+        cloudinary.uploader.upload_stream({
+          folder: 'listings',
+        }, (error, result) => {
+          if (error) reject(error)
+          else resolve(result)
+        }).end(buffer)
+      })
+      
+      imageUrl = uploadResponse.secure_url
+    } catch (uploadError) {
+      console.error('Error uploading to Cloudinary:', uploadError)
+    }
+  }
+
   const rawData = {
     category: formData.get('category'),
     name: formData.get('name'),
@@ -61,7 +108,7 @@ export async function updateEquipment(id, companyId, formData) {
     availability: formData.get('availability'),
     description: formData.get('description'),
     external_olx_url: formData.get('external_olx_url'),
-    image_url: formData.get('image_url'),
+    image_url: imageUrl,
     promotion: formData.get('promotion') === 'on',
   }
 
