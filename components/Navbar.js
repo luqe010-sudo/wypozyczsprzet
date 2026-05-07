@@ -1,15 +1,42 @@
 "use client";
+
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { trackEvent } from '../lib/gtag';
+import { usePathname } from 'next/navigation';
+import { createClient } from '../utils/supabase/client';
 
 export default function Navbar({ actionUrl, actionLabel }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains('dark'));
+    
+    // Check if user is admin
+    const checkAdmin = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+        if (profile?.role === 'admin') {
+          setIsAdmin(true);
+        }
+      }
+    };
+    checkAdmin();
   }, []);
+
+  // Hide Navbar on admin routes
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
 
   const toggleDarkMode = () => {
     if (document.documentElement.classList.contains('dark')) {
@@ -78,6 +105,16 @@ export default function Navbar({ actionUrl, actionLabel }) {
           <Link href="/regulamin" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">{'Regulamin'}</Link>
           <Link href="/kontakt" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">{'Kontakt'}</Link>
           
+          {isAdmin && (
+            <Link 
+              href="/admin" 
+              onClick={() => setIsOpen(false)} 
+              className="font-bold text-red-600 dark:text-red-400 hover:text-red-800"
+            >
+              Panel Admina
+            </Link>
+          )}
+
           {/* Auth Link */}
           <Link 
             href="/dashboard" 
