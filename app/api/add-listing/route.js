@@ -47,6 +47,55 @@ export async function POST(request) {
     }
 
     const scriptUrl = process.env.GOOGLE_SCRIPT_URL;
+    
+    // 1. Write to Supabase
+    try {
+      const { supabase } = require('../../../lib/supabaseClient');
+      
+      // Upsert company first
+      const { data: companyData, error: companyError } = await supabase
+        .from('companies')
+        .upsert({
+          name: company,
+          phone: phone,
+          email: email,
+          website: www,
+          zip_code: zipCode,
+          city: city,
+          address: lokalizacja,
+          status: 'active'
+        }, { onConflict: 'name, phone' })
+        .select('id')
+        .single();
+
+      if (companyError) throw companyError;
+
+      // Insert equipment
+      const { error: equipError } = await supabase
+        .from('equipment')
+        .insert({
+          company_id: companyData.id,
+          category: category,
+          name: equipment,
+          price_from: price,
+          rental_period: time,
+          availability: availability,
+          description: description,
+          image_url: imageUrl,
+          external_olx_url: olxUrl,
+          status: 'active',
+          promotion: wantsPromotion ? 'Mozliwe' : 'Nie',
+          priority: 1
+        });
+
+      if (equipError) throw equipError;
+      console.log('Successfully saved to Supabase');
+    } catch (sbError) {
+      console.error('Error saving to Supabase:', sbError);
+      // We continue to Google Sheets as fallback
+    }
+
+    // 2. Write to Google Sheets (Original Logic)
     if (!scriptUrl) {
       console.warn('GOOGLE_SCRIPT_URL is not set. Data will not be sent to Google Sheets.');
     } else {
@@ -70,7 +119,7 @@ export async function POST(request) {
           OLX: olxUrl,
           email: email,
           WWW: www,
-          imageContent: imageUrl, // Now sending URL instead of base64
+          imageContent: imageUrl,
           imageName: imageFile ? imageFile.name : '',
           imageType: imageFile ? imageFile.type : '',
           Status: 'AKTYWNE',
@@ -81,7 +130,7 @@ export async function POST(request) {
       
       const result = await response.json();
       if (!result.success) {
-        throw new Error(`Google Script Error: ${result.error}`);
+        console.error(`Google Script Error: ${result.error}`);
       }
     }
 
