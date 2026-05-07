@@ -7,7 +7,8 @@ import {
   Home, 
   Settings, 
   ArrowLeft,
-  ShieldCheck 
+  ShieldCheck,
+  Handshake
 } from 'lucide-react'
 
 export default function AdminLayout({ children }) {
@@ -16,6 +17,7 @@ export default function AdminLayout({ children }) {
     { label: 'Firmy', icon: Building2, href: '/admin/companies' },
     { label: 'Sprzęt', icon: Package, href: '/admin/equipment' },
     { label: 'Użytkownicy', icon: Users, href: '/admin/users' },
+    { label: 'Zgłoszenia', icon: Handshake, href: '/admin/claims' },
   ]
 
   return (

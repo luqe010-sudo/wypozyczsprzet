@@ -2,13 +2,20 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import DynamicPlaceholder from '../../../components/DynamicPlaceholder';
 import ListingMap from '../../../components/ListingMap';
+import ClaimCompanyModal from '../../../components/ClaimCompanyModal';
 import { trackEvent } from '../../../lib/gtag';
+import { createClient } from '@/utils/supabase/client';
 
 export default function ListingPageClient({ listing, seoDescription, faqItems, related }) {
   const [showPhone, setShowPhone] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
+  const [showClaimModal, setShowClaimModal] = useState(false);
+  const [user, setUser] = useState(null);
+  const router = useRouter();
+  const supabase = createClient();
 
   const name = listing['Sprzęt'] || 'Sprzęt';
   const company = listing.companyDetails || {};
@@ -18,12 +25,28 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
   const isIncomplete = listing.Status && listing.Status.toLowerCase().includes('niekompletne');
 
   useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    getUser();
+  }, []);
+
+  useEffect(() => {
     trackEvent('view_listing', {
       listing_name: name,
       listing_category: listing.Kategoria,
       listing_city: listing.Miasto,
     });
   }, [name, listing.Kategoria, listing.Miasto]);
+
+  const handleClaimClick = () => {
+    if (!user) {
+      router.push(`/login?returnTo=/oferta/${listing.slug}`);
+      return;
+    }
+    setShowClaimModal(true);
+  };
 
   return (
     <>
@@ -108,6 +131,15 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
               >
                 Jesteś właścicielem? Uzupełnij dane.
               </Link>
+            )}
+            
+            {!company.owner_user_id && (
+              <button 
+                onClick={handleClaimClick}
+                className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-4 px-6 rounded-2xl transition-all text-center block text-sm shadow-lg active:scale-[0.98]"
+              >
+                🏢 To moja firma (Zgłoś)
+              </button>
             )}
             {listing.olxUrl && (
               <a href={listing.olxUrl} target="_blank" rel="noopener noreferrer" 
@@ -228,6 +260,13 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
           Powrót do wszystkich ofert
         </Link>
       </div>
+
+      <ClaimCompanyModal 
+        isOpen={showClaimModal} 
+        onClose={() => setShowClaimModal(false)} 
+        company={company} 
+        user={user} 
+      />
     </>
   );
 }
