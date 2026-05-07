@@ -41,16 +41,20 @@ async function migrate() {
   const equipmentData = Papa.parse(fs.readFileSync(EQUIPMENT_CSV, 'utf8'), { header: true, skipEmptyLines: true }).data;
   console.log(`Loaded ${equipmentData.length} equipment items from CSV.`);
 
-  const companyMap = new Map(); // Old CSV ID -> New Supabase ID
+  const companyMap = new Map(); // Old CSV ID -> New UUID
 
   // 3. Migrate Companies
   console.log('Migrating companies...');
+  const { randomUUID } = require('crypto');
+
   for (const company of companiesData) {
-    const oldId = String(company.id || company.ID_firmy);
+    const oldId = String(company.id || company.ID_firmy || '').trim();
+    const newId = randomUUID();
+    
     const { data, error } = await supabase
       .from('companies')
       .upsert({
-        id: oldId,
+        id: newId,
         name: company.name || company.Nazwa,
         phone: company.phone || company.Telefon,
         email: company.email || company.WWW,
@@ -62,23 +66,32 @@ async function migrate() {
         lng: parseFloat(company.lng) || null,
         status: company.status || 'active',
         description: company.description || company.Notatka || '',
-      }, { onConflict: 'id' }) // Upsert based on the CSV ID
+      }, { onConflict: 'name, phone' }) // Use name/phone for conflict now since we generate new IDs
       .select('id, name')
       .single();
 
     if (error) {
       console.error(`Error migrating company ${company.name || company.Nazwa}:`, error.message);
     } else {
-      console.log(`Migrated company: ${data.name} (ID: ${data.id})`);
+      console.log(`Migrated company: ${data.name} (New UUID: ${data.id})`);
+      companyMap.set(oldId, data.id);
     }
   }
 
   // 4. Migrate Equipment
   console.log('Migrating equipment...');
   const equipmentToInsert = equipmentData.map(item => {
+    const oldCompanyId = String(item.company_id || item.ID_firmy || '').trim();
+    const newCompanyId = companyMap.get(oldCompanyId);
+
+    if (!newCompanyId) {
+      // If we can't find the company, we'll log it later
+      return null;
+    }
+
     return {
-      id: String(item.id || item.ID_sprzetu || '').trim(),
-      company_id: String(item.company_id || item.ID_firmy || '').trim(),
+      id: randomUUID(),
+      company_id: newCompanyId,
       category: item.category || item.Kategoria,
       name: item.name || item.Sprzęt || item.Sprzet,
       price_from: item.price_from || item.Cena_od || item.Cena,
@@ -91,24 +104,16 @@ async function migrate() {
       promotion: item.promotion || item.Promowanie,
       external_olx_url: item.external_olx_url || item.OLX || item.Link_OLX,
     };
-  }).filter(item => item.id && item.company_id);
+  }).filter(item => item !== null);
 
   const { error: equipError } = await supabase
     .from('equipment')
-    .upsert(equipmentToInsert, { onConflict: 'id' });
+    .insert(equipmentToInsert);
 
   if (equipError) {
     console.error('Error migrating equipment:', equipError.message);
-    // Try to find which one failed by inserting one by one (only for debugging)
-    console.log('Attempting to identify the problematic record...');
-    for (const item of equipmentToInsert) {
-      const { error } = await supabase.from('equipment').upsert(item);
-      if (error) {
-        console.error(`Failed record: ${item.name} (Company ID: ${item.company_id}) - Error: ${error.message}`);
-      }
-    }
   } else {
-    console.log(`Successfully migrated ${equipmentToInsert.length} equipment items.`);
+    console.log(`Successfully migrated ${equipmentToInsert.length} equipment items with UUIDs.`);
   }
 
   console.log('✅ Migration finished.');
