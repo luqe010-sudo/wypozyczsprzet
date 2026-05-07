@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import DynamicPlaceholder from '../../../components/DynamicPlaceholder';
 import ListingMap from '../../../components/ListingMap';
 import ClaimCompanyModal from '../../../components/ClaimCompanyModal';
+import { trackEvent } from '../../../lib/gtag';
 import { createClient } from '@/utils/supabase/client';
 import { trackView, trackClick } from '../../../lib/tracking';
 
