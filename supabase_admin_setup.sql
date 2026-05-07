@@ -45,22 +45,13 @@ CREATE TRIGGER on_auth_user_created
 -- 5. UPDATE COMPANIES RLS FOR ADMINS
 DROP POLICY IF EXISTS "Admins have full access to companies" ON public.companies;
 CREATE POLICY "Admins have full access to companies" ON public.companies
-  FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
-    )
-  );
+  FOR ALL USING (public.is_admin());
 
 -- 6. UPDATE EQUIPMENT RLS FOR ADMINS
 DROP POLICY IF EXISTS "Admins have full access to equipment" ON public.equipment;
 CREATE POLICY "Admins have full access to equipment" ON public.equipment
-  FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
-    )
-  );
+  FOR ALL USING (public.is_admin());
+
 
 -- 7. INITIAL ADMIN (Manual step instruction)
 -- Aby ustawić siebie jako admina, znajdź swój ID w auth.users i wykonaj:
