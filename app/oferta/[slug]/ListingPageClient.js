@@ -6,8 +6,8 @@ import { useRouter } from 'next/navigation';
 import DynamicPlaceholder from '../../../components/DynamicPlaceholder';
 import ListingMap from '../../../components/ListingMap';
 import ClaimCompanyModal from '../../../components/ClaimCompanyModal';
-import { trackEvent } from '../../../lib/gtag';
 import { createClient } from '@/utils/supabase/client';
+import { trackView, trackClick } from '../../../lib/tracking';
 
 export default function ListingPageClient({ listing, seoDescription, faqItems, related }) {
   const [showPhone, setShowPhone] = useState(false);
@@ -28,9 +28,23 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
+
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+        
+        // Track view, ignoring if admin
+        trackView(listing.ID_sprzetu, profile?.role === 'admin');
+      } else {
+        // Track view for guests
+        trackView(listing.ID_sprzetu, false);
+      }
     };
     getUser();
-  }, []);
+  }, [listing.ID_sprzetu]);
 
   useEffect(() => {
     trackEvent('view_listing', {
@@ -111,7 +125,10 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
               showPhone ? (
                 <a href={`tel:${phoneNumber.replace(/\s/g, '')}`} 
                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 px-6 rounded-2xl transition-all shadow-lg hover:shadow-blue-500/30 flex items-center justify-center gap-2 text-lg"
-                   onClick={() => trackEvent('click_phone', { listing_name: name, phone: phoneNumber })}>
+                   onClick={() => {
+                     trackEvent('click_phone', { listing_name: name, phone: phoneNumber });
+                     trackClick(listing.ID_sprzetu, 'phone');
+                   }}>
                   📞 {phoneNumber}
                 </a>
               ) : (
@@ -144,7 +161,10 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
             {listing.olxUrl && (
               <a href={listing.olxUrl} target="_blank" rel="noopener noreferrer" 
                  className="w-full bg-[#002f34] text-[#23e5db] font-black py-4 px-6 rounded-2xl transition-all text-center block text-lg"
-                 onClick={() => trackEvent('click_olx', { listing_name: name, olx_url: listing.olxUrl })}>
+                 onClick={() => {
+                   trackEvent('click_olx', { listing_name: name, olx_url: listing.olxUrl });
+                   trackClick(listing.ID_sprzetu, 'olx');
+                 }}>
                 Załatw przez OLX
               </a>
             )}
@@ -152,7 +172,10 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
               <a href={company.WWW.startsWith('http') ? company.WWW : `https://${company.WWW}`} 
                 target="_blank" rel="noopener noreferrer" 
                 className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 text-gray-700 dark:text-gray-300 font-bold py-4 px-6 rounded-2xl transition-all text-center flex items-center justify-center gap-2"
-                onClick={() => trackEvent('click_www', { listing_name: name, www: company.WWW })}>
+                onClick={() => {
+                  trackEvent('click_www', { listing_name: name, www: company.WWW });
+                  trackClick(listing.ID_sprzetu, 'website');
+                }}>
                 🌐 Przejdź do strony
               </a>
             )}

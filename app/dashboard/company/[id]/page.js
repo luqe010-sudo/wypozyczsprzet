@@ -1,7 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { ArrowLeft, Edit, Plus, MapPin, Globe, Phone, Mail, PackageOpen } from 'lucide-react'
+import { ArrowLeft, Edit, Plus, MapPin, Globe, Phone, Mail, PackageOpen, BarChart3 } from 'lucide-react'
 
 export default async function CompanyDetailsPage({ params }) {
   const supabase = createClient()
@@ -37,13 +37,22 @@ export default async function CompanyDetailsPage({ params }) {
           <ArrowLeft className="w-4 h-4 mr-1" />
           Wróć do firm
         </Link>
-        <Link
-          href={`/dashboard/company/${company.id}/edit`}
-          className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-slate-600 shadow-sm text-sm font-medium rounded text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-700 hover:bg-gray-50 dark:hover:bg-slate-600"
-        >
-          <Edit className="w-4 h-4 mr-2" />
-          Edytuj firmę
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            href={`/dashboard/company/${company.id}/stats`}
+            className="inline-flex items-center px-3 py-1.5 border border-blue-600 shadow-sm text-sm font-medium rounded text-blue-600 bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+          >
+            <BarChart3 className="w-4 h-4 mr-2" />
+            Statystyki
+          </Link>
+          <Link
+            href={`/dashboard/company/${company.id}/edit`}
+            className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-slate-600 shadow-sm text-sm font-medium rounded text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-700 hover:bg-gray-50 dark:hover:bg-slate-600"
+          >
+            <Edit className="w-4 h-4 mr-2" />
+            Edytuj firmę
+          </Link>
+        </div>
       </div>
 
       <div className="bg-white dark:bg-slate-800 shadow-sm rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden transition-colors">
