@@ -77,6 +77,16 @@ export default function Navbar({ actionUrl, actionLabel }) {
           <Link href="/blog" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">{'Poradniki'}</Link>
           <Link href="/regulamin" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">{'Regulamin'}</Link>
           <Link href="/kontakt" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">{'Kontakt'}</Link>
+          
+          {/* Auth Link */}
+          <Link 
+            href="/dashboard" 
+            onClick={() => setIsOpen(false)} 
+            className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+          >
+            Mój Panel
+          </Link>
+
           {actionUrl ? (
             <Link
               href="/dodaj-ogloszenie"
