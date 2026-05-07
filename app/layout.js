@@ -1,6 +1,7 @@
 import './globals.css';
 import Navbar from '../components/Navbar';
 import CookieConsent from '../components/CookieConsent';
+import ToastProvider from '../components/ToastProvider';
 import Script from 'next/script';
 
 const publicFormUrl = process.env.NEXT_PUBLIC_FORM_URL || process.env.FORM_URL || '';
@@ -61,6 +62,7 @@ export default function RootLayout({ children }) {
         }} />
       </head>
       <body>
+        <ToastProvider />
         <CookieConsent />
         <Navbar actionUrl={actionUrl} actionLabel={actionLabel} />
         <main className="bg-gray-50 dark:bg-slate-900 min-h-screen transition-colors">{children}</main>
