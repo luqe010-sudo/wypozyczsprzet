@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import cloudinary from '@/lib/cloudinary'
 import { geocodeAddress } from '@/lib/geocoding'
 import { sanitizeAddress } from '@/lib/utils'
@@ -47,6 +47,7 @@ export async function updateCompanyOwner(companyId, newOwnerId) {
 
     if (error) throw error
     revalidatePath('/admin/companies')
+    revalidateTag('listings')
     return { success: true }
   } catch (error) {
     return { error: error.message }
@@ -56,6 +57,11 @@ export async function updateCompanyOwner(companyId, newOwnerId) {
 export async function adminDeleteRecord(table, id) {
   try {
     const { supabase } = await checkAdmin()
+    const ALLOWED_TABLES = ['companies', 'equipment', 'company_claims', 'profiles']
+    if (!ALLOWED_TABLES.includes(table)) {
+      throw new Error('Invalid table')
+    }
+
     const { error } = await supabase
       .from(table)
       .delete()
@@ -63,6 +69,7 @@ export async function adminDeleteRecord(table, id) {
 
     if (error) throw error
     revalidatePath(`/admin/${table}`)
+    revalidateTag('listings')
     return { success: true }
   } catch (error) {
     return { error: error.message }
@@ -96,6 +103,7 @@ export async function adminUpdateCompany(id, formData) {
 
     if (error) throw error
     revalidatePath('/admin/companies')
+    revalidateTag('listings')
     return { success: true }
   } catch (error) {
     return { error: error.message }
@@ -145,6 +153,7 @@ export async function adminUpdateEquipment(id, formData) {
 
     if (error) throw error
     revalidatePath('/admin/equipment')
+    revalidateTag('listings')
     return { success: true }
   } catch (error) {
     return { error: error.message }
@@ -180,6 +189,7 @@ export async function adminCreateCompany(formData) {
 
     if (error) throw error
     revalidatePath('/admin/companies')
+    revalidateTag('listings')
     return { success: true, id: data[0].id }
   } catch (error) {
     return { error: error.message }
@@ -230,6 +240,7 @@ export async function adminCreateEquipment(formData) {
 
     if (error) throw error
     revalidatePath('/admin/equipment')
+    revalidateTag('listings')
     return { success: true }
   } catch (error) {
     return { error: error.message }
@@ -246,6 +257,7 @@ export async function updateEquipmentStatus(id, status) {
 
     if (error) throw error
     revalidatePath('/admin/equipment')
+    revalidateTag('listings')
     return { success: true }
   } catch (error) {
     return { error: error.message }

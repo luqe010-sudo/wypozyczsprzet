@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
 import cloudinary from '@/lib/cloudinary'
 
@@ -71,11 +71,29 @@ export async function createEquipment(companyId, formData) {
   }
 
   revalidatePath(`/dashboard/company/${companyId}`)
+  revalidateTag('listings')
   redirect(`/dashboard/company/${companyId}`)
 }
 
 export async function updateEquipment(id, companyId, formData) {
   const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    throw new Error('Unauthorized')
+  }
+
+  // Verify company ownership
+  const { data: company } = await supabase
+    .from('companies')
+    .select('id')
+    .eq('id', companyId)
+    .eq('owner_user_id', user.id)
+    .single()
+
+  if (!company) {
+    throw new Error('Unauthorized or company not found')
+  }
 
   const imageFile = formData.get('image')
   let imageUrl = formData.get('current_image_url')
@@ -125,11 +143,29 @@ export async function updateEquipment(id, companyId, formData) {
   }
 
   revalidatePath(`/dashboard/company/${companyId}`)
+  revalidateTag('listings')
   redirect(`/dashboard/company/${companyId}`)
 }
 
 export async function deleteEquipment(id, companyId) {
   const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    throw new Error('Unauthorized')
+  }
+
+  // Verify company ownership
+  const { data: company } = await supabase
+    .from('companies')
+    .select('id')
+    .eq('id', companyId)
+    .eq('owner_user_id', user.id)
+    .single()
+
+  if (!company) {
+    throw new Error('Unauthorized or company not found')
+  }
   
   const { error } = await supabase
     .from('equipment')
@@ -142,5 +178,6 @@ export async function deleteEquipment(id, companyId) {
   }
 
   revalidatePath(`/dashboard/company/${companyId}`)
+  revalidateTag('listings')
   redirect(`/dashboard/company/${companyId}`)
 }

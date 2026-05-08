@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 
 async function checkAdmin() {
   const supabase = createClient()
@@ -121,6 +121,7 @@ export async function handleClaimAction(claimId, action, companyId, userId) {
 
     revalidatePath('/admin/claims')
     revalidatePath('/dashboard')
+    revalidateTag('listings')
     return { success: true }
   } catch (error) {
     return { error: error.message }

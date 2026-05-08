@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { geocodeAddress } from '@/lib/geocoding'
 import { sanitizeAddress } from '@/lib/utils'
@@ -43,11 +43,28 @@ export async function createCompany(formData) {
   }
 
   revalidatePath('/dashboard')
+  revalidateTag('listings')
   redirect(`/dashboard/company/${data[0].id}`)
 }
 
 export async function updateCompany(id, formData) {
   const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    throw new Error('Unauthorized')
+  }
+
+  // Verify ownership
+  const { data: company } = await supabase
+    .from('companies')
+    .select('owner_user_id')
+    .eq('id', id)
+    .single()
+
+  if (!company || company.owner_user_id !== user.id) {
+    throw new Error('Unauthorized or company not found')
+  }
 
   const address = formData.get('address')
   const city = formData.get('city')
@@ -77,11 +94,28 @@ export async function updateCompany(id, formData) {
 
   revalidatePath('/dashboard')
   revalidatePath(`/dashboard/company/${id}`)
+  revalidateTag('listings')
   redirect(`/dashboard/company/${id}`)
 }
 
 export async function deleteCompany(id) {
   const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    throw new Error('Unauthorized')
+  }
+
+  // Verify ownership
+  const { data: company } = await supabase
+    .from('companies')
+    .select('owner_user_id')
+    .eq('id', id)
+    .single()
+
+  if (!company || company.owner_user_id !== user.id) {
+    throw new Error('Unauthorized or company not found')
+  }
   
   const { error } = await supabase
     .from('companies')
@@ -93,5 +127,6 @@ export async function deleteCompany(id) {
   }
 
   revalidatePath('/dashboard')
+  revalidateTag('listings')
   redirect('/dashboard')
 }

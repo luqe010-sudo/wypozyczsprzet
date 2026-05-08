@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import cloudinary from '../../../lib/cloudinary';
+import { supabase } from '../../../lib/supabaseClient';
 
 export async function POST(request) {
   try {
@@ -50,7 +51,6 @@ export async function POST(request) {
     
     // 1. Write to Supabase
     try {
-      const { supabase } = require('../../../lib/supabaseClient');
       
       // Upsert company first
       const { data: companyData, error: companyError } = await supabase
@@ -63,7 +63,7 @@ export async function POST(request) {
           zip_code: zipCode,
           city: city,
           address: lokalizacja,
-          status: 'active'
+          status: 'pending' // Public submissions are pending by default
         }, { onConflict: 'name, phone' })
         .select('id')
         .single();
@@ -83,8 +83,8 @@ export async function POST(request) {
           description: description,
           image_url: imageUrl,
           external_olx_url: olxUrl,
-          status: 'active',
-          promotion: wantsPromotion ? 'Mozliwe' : 'Nie',
+          status: 'pending',
+          promotion: wantsPromotion, // Store as boolean
           priority: 1
         });
 
