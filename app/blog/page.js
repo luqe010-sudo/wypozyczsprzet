@@ -9,7 +9,7 @@ export const metadata = {
     description: 'Baza wiedzy o wynajmie sprzętu budowlanego. Poradniki, zestawienia cen i wskazówki.',
     images: [
       {
-        url: 'https://wypozycz.online/header.png',
+        url: '/header.png',
         width: 1200,
         height: 630,
         alt: 'Blog WypożyczSprzęt',

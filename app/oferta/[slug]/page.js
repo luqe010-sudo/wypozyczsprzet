@@ -18,7 +18,7 @@ export async function generateMetadata({ params }) {
 
   const productImage = listing.Zdjecie && String(listing.Zdjecie).startsWith('http')
     ? listing.Zdjecie
-    : 'https://wypozycz.online/header.png';
+    : '/header.png';
 
   return {
     title: `${name} – wynajem ${city} | od ${price} PLN | WypożyczSprzęt`,
@@ -95,7 +95,7 @@ Wszystkie oferty na WypożyczSprzęt są weryfikowane, a kontakt z dostawcą odb
   // Product image for structured data
   const productImage = listing.Zdjecie && String(listing.Zdjecie).startsWith('http')
     ? listing.Zdjecie
-    : 'https://wypozycz.online/placeholders/default-equipment.png';
+    : '/placeholders/default-equipment.png';
 
   // JSON-LD Structured Data
   const jsonLd = {

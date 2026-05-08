@@ -1,7 +1,7 @@
 import { fetchAllSlugs } from '../lib/googleSheets';
 import { articles } from '../lib/articles';
 
-const BASE_URL = 'https://wypozycz.online';
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://wypozycz.online';
 
 export default async function sitemap() {
   const slugs = await fetchAllSlugs();

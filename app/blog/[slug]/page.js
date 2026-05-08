@@ -14,7 +14,7 @@ export async function generateMetadata({ params }) {
       description: article.description,
       images: [
         {
-          url: 'https://wypozycz.online/header.png',
+          url: '/header.png',
           width: 1200,
           height: 630,
           alt: article.title,
