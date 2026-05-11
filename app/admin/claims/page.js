@@ -119,7 +119,7 @@ export default function AdminClaimsPage() {
                     <div className="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-gray-100 dark:border-slate-800">
                       <div className="flex gap-2 items-start">
                         <MessageSquare className="w-4 h-4 text-gray-400 mt-1 flex-shrink-0" />
-                        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed italic">"{claim.message}"</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed italic">&quot;{claim.message}&quot;</p>
                       </div>
                     </div>
                   )}

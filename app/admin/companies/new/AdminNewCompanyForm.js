@@ -93,7 +93,7 @@ export default function AdminNewCompanyForm({ users }) {
                   <option key={u.id} value={u.id}>{u.id.substring(0, 8)}... ({u.role})</option>
                 ))}
               </select>
-              <p className="mt-1 text-xs text-gray-500 italic">Jeśli nie wybierzesz właściciela, firma będzie "niczyja" (tylko dla admina).</p>
+              <p className="mt-1 text-xs text-gray-500 italic">Jeśli nie wybierzesz właściciela, firma będzie &quot;niczyja&quot; (tylko dla admina).</p>
             </div>
           </div>
 
