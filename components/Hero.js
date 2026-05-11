@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 
 export default function Hero({ 
   searchTerm, setSearchTerm,
@@ -31,8 +32,8 @@ export default function Hero({
           Szybko znajdź koparki, narzędzia i sprzęt budowlany blisko Ciebie. Bez pośredników.
         </p>
 
-        <div className="hidden md:block text-[10px] md:text-xs text-gray-400 mb-8 max-w-2xl font-medium tracking-wide">
-          Wynajem koparki Wrocław cena • Minikoparka z operatorem Legnica • Usługi koparką Wałbrzych • Wynajem maszyn budowlanych Lubin
+        <div className="hidden md:block text-[10px] md:text-xs text-gray-300 mb-8 max-w-3xl font-medium tracking-wide">
+          Skorzystaj z darmowych wzorów umów wynajmu sprzętu i zabezpiecz interesy obu stron. Pliki dostępne w zakładce <Link href="/umowy" className="text-blue-400 hover:text-blue-300 hover:underline">UMOWY</Link>
         </div>
 
         {/* Search Bar */}
