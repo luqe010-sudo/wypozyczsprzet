@@ -57,13 +57,15 @@ export default function DocumentCard({ doc }) {
           Zobacz szczegóły
           <ArrowRight size={16} />
         </Link>
-        <button 
+        <a 
+          href={doc.pdfUrl}
+          download
           className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-50 dark:bg-slate-700 hover:bg-gray-100 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-200 text-sm font-semibold rounded-xl transition-colors border border-gray-100 dark:border-slate-600"
-          onClick={() => alert('Pobieranie PDF będzie dostępne wkrótce.')}
+          onClick={(e) => !doc.pdfUrl && alert('Pobieranie PDF będzie dostępne wkrótce.')}
         >
           <Download size={16} />
           PDF
-        </button>
+        </a>
       </div>
     </div>
   );

@@ -156,13 +156,14 @@ export default function DocumentDetailPage({ params }) {
                 Format: PDF (A4) <br />
                 Rozmiar: ok. 150 KB
               </p>
-              <Link 
-                href="#"
+              <a 
+                href={doc.pdfUrl}
+                download
                 className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl transition-all shadow-xl shadow-blue-500/20 active:scale-95 flex items-center justify-center gap-2"
               >
                 <Download size={20} />
                 Pobierz teraz PDF
-              </Link>
+              </a>
               <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-4 uppercase tracking-widest font-bold">
                 Darmowy dostęp
               </p>
