@@ -26,7 +26,7 @@ export default async function AdminDashboardPage() {
     supabase.from('profiles').select('*', { count: 'exact', head: true }),
     supabase.from('companies').select('*', { count: 'exact', head: true }),
     supabase.from('equipment').select('*', { count: 'exact', head: true }),
-    supabase.from('companies').select('*, profiles(role)').order('created_at', { ascending: false }).limit(5),
+    supabase.from('companies').select('*').order('created_at', { ascending: false }).limit(5),
     supabase.from('equipment_stats').select('*, equipment(name, category)').order('views_count', { ascending: false }).limit(5),
     supabase.from('equipment_stats').select('views_count, phone_clicks, website_clicks, olx_clicks')
   ])

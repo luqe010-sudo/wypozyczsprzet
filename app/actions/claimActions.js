@@ -68,8 +68,7 @@ export async function getPendingClaims() {
       .from('company_claims')
       .select(`
         *,
-        companies (name, city),
-        profiles:user_id (id)
+        companies (name, city)
       `)
       .eq('status', 'pending')
       .order('created_at', { ascending: false })
