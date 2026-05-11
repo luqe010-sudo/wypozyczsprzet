@@ -102,6 +102,7 @@ export default function Navbar({ actionUrl, actionLabel }) {
         <div className={`nav-links ${isOpen ? 'active' : ''} dark:bg-slate-900`}>
           <Link href="/" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">{'Strona główna'}</Link>
           <Link href="/blog" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">{'Poradniki'}</Link>
+          <Link href="/umowy" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">{'Umowy'}</Link>
           <Link href="/regulamin" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">{'Regulamin'}</Link>
           <Link href="/kontakt" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">{'Kontakt'}</Link>
           

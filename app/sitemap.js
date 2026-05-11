@@ -1,5 +1,6 @@
 import { fetchAllSlugs } from '../lib/googleSheets';
 import { articles } from '../lib/articles';
+import { documents } from '../lib/umowy-data';
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://wypozycz.online';
 
@@ -20,6 +21,13 @@ export default async function sitemap() {
     priority: 0.8,
   }));
 
+  const documentPages = documents.map((doc) => ({
+    url: `${BASE_URL}/umowy/${doc.slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly',
+    priority: 0.7,
+  }));
+
   return [
     {
       url: BASE_URL,
@@ -29,8 +37,15 @@ export default async function sitemap() {
     },
     ...listingPages,
     ...blogPages,
+    ...documentPages,
     {
       url: `${BASE_URL}/blog`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/umowy`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.8,
