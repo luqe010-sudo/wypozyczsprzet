@@ -55,7 +55,7 @@ export default function Navbar({ actionUrl, actionLabel }) {
       <div className="navbar-container">
         <Link href="/" className="flex items-center group">
           <span className="text-xl font-black tracking-tight text-gray-900 dark:text-white">
-            Wypożycz<span className="text-blue-600">Sprzęt</span>
+            Wypozycz<span className="text-blue-600">.Online</span>
           </span>
         </Link>
 
