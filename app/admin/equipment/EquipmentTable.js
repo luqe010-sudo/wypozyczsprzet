@@ -13,7 +13,8 @@ import {
   Star,
   Package,
   Building,
-  Edit2
+  Edit2,
+  AlertCircle
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -142,11 +143,18 @@ export default function EquipmentTable({ initialEquipment }) {
                     <Edit2 className="w-4 h-4" />
                   </Link>
                   <button
-                    onClick={() => handleStatusChange(item.id, item.status === 'hidden' ? 'active' : 'hidden')}
-                    className={`p-2 rounded-lg transition-colors ${item.status !== 'hidden' ? 'text-blue-600 bg-blue-50' : 'text-gray-400 hover:bg-gray-100'}`}
-                    title={item.status !== 'hidden' ? 'Kliknij, aby ukryć' : 'Kliknij, aby pokazać'}
+                    onClick={() => handleStatusChange(item.id, item.status === 'active' ? 'hidden' : 'active')}
+                    className={`p-2 rounded-lg transition-colors ${item.status === 'active' ? 'text-green-600 bg-green-50' : 'text-gray-400 hover:bg-gray-100'}`}
+                    title={item.status === 'active' ? 'Aktywne - kliknij aby ukryć' : 'Ukryte - kliknij aby aktywować'}
                   >
-                    {item.status !== 'hidden' ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                    {item.status === 'active' ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                  </button>
+                  <button
+                    onClick={() => handleStatusChange(item.id, 'incomplete')}
+                    className={`p-2 rounded-lg transition-colors ${item.status === 'incomplete' ? 'text-orange-600 bg-orange-50' : 'text-gray-400 hover:bg-gray-100'}`}
+                    title="Oznacz jako niekompletne"
+                  >
+                    <AlertCircle className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(item.id)}
