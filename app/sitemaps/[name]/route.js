@@ -1,7 +1,7 @@
-import { fetchAllSlugs } from '../../lib/googleSheets';
-import { SEO_CATEGORY_SLUGS } from '../../lib/categories';
-import { articles } from '../../lib/articles';
-import { documents } from '../../lib/umowy-data';
+import { fetchAllSlugs } from '../../../lib/googleSheets';
+import { SEO_CATEGORY_SLUGS } from '../../../lib/categories';
+import { articles } from '../../../lib/articles';
+import { documents } from '../../../lib/umowy-data';
 
 const BASE_URL = 'https://wypozycz.online';
 
