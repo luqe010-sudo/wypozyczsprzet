@@ -5,8 +5,8 @@ import { createEquipment } from '../../../../equipment/actions'
 import { toast } from 'react-hot-toast'
 import Link from 'next/link'
 import { ArrowLeft, PackagePlus } from 'lucide-react'
-import { FORM_CATEGORIES, SEO_CATEGORIES } from '../../../../../lib/categories'
-import CustomSelect from '../../../../../components/CustomSelect'
+import { FORM_CATEGORIES, SEO_CATEGORIES } from '../../../../../../lib/categories'
+import CustomSelect from '../../../../../../components/CustomSelect'
 
 export default function NewEquipmentPage({ params }) {
   const [isLoading, setIsLoading] = useState(false)

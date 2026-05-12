@@ -6,7 +6,7 @@ import { toast } from 'react-hot-toast'
 import { ArrowLeft, Building2 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import CustomSelect from '../../../components/CustomSelect'
+import CustomSelect from '../../../../components/CustomSelect'
 
 export default function AdminNewCompanyForm({ users }) {
   const [isLoading, setIsLoading] = useState(false)
