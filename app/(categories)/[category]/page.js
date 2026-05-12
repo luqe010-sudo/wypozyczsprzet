@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { SEO_CATEGORIES, SEO_CATEGORY_SLUGS } from '../../../lib/categories';
 import { fetchListingsByCategory, fetchMarketplaceData } from '../../../lib/googleSheets';
@@ -18,7 +18,7 @@ export async function generateMetadata({ params }) {
   return {
     title: cat.title,
     description: cat.description,
-    keywords: `wynajem ${cat.name.toLowerCase()}, wypożyczalnia ${cat.name.toLowerCase()}, ${cat.filters.join(', ')}`,
+    keywords: `wynajem ${cat.name.toLowerCase()}, wypożyczalnia ${cat.name.toLowerCase()}, ${cat.filters.map(f => f.label).join(', ')}`,
     alternates: {
       canonical: `${BASE_URL}/${cat.slug}`,
     },
@@ -68,12 +68,14 @@ export default async function CategoryPage({ params }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
-      <CategoryPageClient
-        category={cat}
-        listings={listings}
-        cities={citiesInCategory}
-        otherCategories={otherCategories}
-      />
+      <Suspense fallback={<div className="min-h-screen bg-gray-50 dark:bg-slate-900 animate-pulse" />}>
+        <CategoryPageClient
+          category={cat}
+          listings={listings}
+          cities={citiesInCategory}
+          otherCategories={otherCategories}
+        />
+      </Suspense>
     </>
   );
 }

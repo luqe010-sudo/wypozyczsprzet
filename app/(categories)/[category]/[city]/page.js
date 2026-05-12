@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { fetchMarketplaceData } from '../../../../lib/googleSheets';
 import { SEO_CATEGORIES, getSeoCategoryByDbKey, getCitySlug } from '../../../../lib/categories';
@@ -72,13 +73,15 @@ export default async function LocalHubPage({ params }) {
     .slice(0, 15);
 
   return (
-    <CategoryPageClient 
-      category={category}
-      listings={categoryListings}
-      cities={filters.cities}
-      otherCategories={otherCategories}
-      cityName={cityName}
-      otherCities={otherCities}
-    />
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 dark:bg-slate-900 animate-pulse" />}>
+      <CategoryPageClient 
+        category={category}
+        listings={categoryListings}
+        cities={filters.cities}
+        otherCategories={otherCategories}
+        cityName={cityName}
+        otherCities={otherCities}
+      />
+    </Suspense>
   );
 }
