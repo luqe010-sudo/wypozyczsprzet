@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { trackEvent } from '../../lib/gtag';
 import PrivacyModal from '../../components/PrivacyModal';
 import { FORM_CATEGORIES, SEO_CATEGORIES } from '../../lib/categories';
+import CustomSelect from '../../components/CustomSelect';
 
 function AddListingForm() {
   const searchParams = useSearchParams();
@@ -174,27 +175,25 @@ function AddListingForm() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Kategoria</label>
-                    <select name="category" value={formData.category} onChange={handleChange} 
-                            className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all appearance-none cursor-pointer">
-                      {FORM_CATEGORIES.map((cat) => (
-                        <option key={cat.value} value={cat.value}>{cat.label}</option>
-                      ))}
-                    </select>
+                    <CustomSelect
+                      options={FORM_CATEGORIES}
+                      value={formData.category}
+                      onChange={(val) => setFormData({ ...formData, category: val, subcategory: '' })}
+                      placeholder="Wybierz kategorię..."
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Typ sprzętu (opcjonalnie)</label>
-                    <select name="subcategory" value={formData.subcategory} onChange={handleChange}
-                            className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all appearance-none cursor-pointer">
-                      <option value="">Wybierz typ...</option>
-                      {(() => {
+                    <CustomSelect
+                      options={(() => {
                         const fc = FORM_CATEGORIES.find(c => c.value === formData.category);
                         const seoSlug = fc?.seoSlug;
-                        const filters = seoSlug && SEO_CATEGORIES[seoSlug] ? SEO_CATEGORIES[seoSlug].filters : [];
-                        return filters.map((f) => (
-                          <option key={f.value} value={f.value}>{f.label}</option>
-                        ));
+                        return seoSlug && SEO_CATEGORIES[seoSlug] ? SEO_CATEGORIES[seoSlug].filters : [];
                       })()}
-                    </select>
+                      value={formData.subcategory}
+                      onChange={(val) => setFormData({ ...formData, subcategory: val })}
+                      placeholder="Wybierz typ..."
+                    />
                   </div>
                 </div>
 

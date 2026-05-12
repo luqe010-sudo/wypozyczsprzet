@@ -79,7 +79,7 @@ export default function CustomSelect({
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute top-full left-0 mt-3 w-full min-w-[240px] bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-700 z-50 overflow-hidden animate-in fade-in zoom-in duration-200">
+        <div className="absolute top-full left-0 mt-3 w-full min-w-[240px] bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-700 z-[100] overflow-hidden animate-in fade-in zoom-in duration-200">
           {/* Search Input inside dropdown */}
           <div className="p-3 border-b border-gray-50 dark:border-slate-700">
             <div className="relative">
