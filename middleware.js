@@ -4,12 +4,6 @@ export async function middleware(request) {
   const url = request.nextUrl.clone();
   const host = request.headers.get('host');
 
-  // Enforce non-WWW in production
-  if (process.env.NODE_ENV === 'production' && host && host.startsWith('www.')) {
-    url.host = host.replace('www.', '');
-    return Response.redirect(url, 301);
-  }
-
   return await updateSession(request)
 }
 
