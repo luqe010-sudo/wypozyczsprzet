@@ -108,6 +108,7 @@ export default function Hero({
               value={selectedCategory}
               onChange={setSelectedCategory}
               placeholder="Wszystkie kategorie"
+              showSearch={false}
             />
           </div>
 

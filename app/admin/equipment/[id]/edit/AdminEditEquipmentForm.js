@@ -11,6 +11,11 @@ import { FORM_CATEGORIES, SEO_CATEGORIES } from '../../../../../lib/categories'
 export default function AdminEditEquipmentForm({ equipment }) {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  
+  const [category, setCategory] = useState(equipment.category)
+  const [subcategory, setSubcategory] = useState(equipment.subcategory || '')
+  const [availability, setAvailability] = useState(equipment.availability)
+  const [rentalPeriod, setRentalPeriod] = useState(equipment.rental_period)
 
   async function handleSubmit(formData) {
     setIsLoading(true)
@@ -47,53 +52,70 @@ export default function AdminEditEquipmentForm({ equipment }) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Kategoria</label>
-              <select name="category" required defaultValue={equipment.category}
-                className="mt-1 block w-full rounded-lg border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border focus:ring-blue-500 focus:border-blue-500">
-                {FORM_CATEGORIES.map(cat => (
-                  <option key={cat.value} value={cat.value}>{cat.label}</option>
-                ))}
-              </select>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kategoria</label>
+              <CustomSelect
+                options={FORM_CATEGORIES}
+                value={category}
+                onChange={(val) => {
+                  setCategory(val);
+                  setSubcategory('');
+                }}
+                placeholder="Wybierz kategorię..."
+                showSearch={false}
+              />
+              <input type="hidden" name="category" value={category} />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Podkategoria</label>
-              <select name="subcategory" defaultValue={equipment.subcategory || ''}
-                className="mt-1 block w-full rounded-lg border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border focus:ring-blue-500 focus:border-blue-500">
-                <option value="">Wybierz typ...</option>
-                {FORM_CATEGORIES.flatMap(fc => {
-                  const cat = SEO_CATEGORIES[fc.seoSlug];
-                  return cat ? cat.filters.map(f => (
-                    <option key={f.value} value={f.value}>{fc.label} — {f.label}</option>
-                  )) : [];
-                })}
-              </select>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Podkategoria</label>
+              <CustomSelect
+                options={(() => {
+                  const fc = FORM_CATEGORIES.find(c => c.value === category);
+                  const seoSlug = fc?.seoSlug;
+                  return seoSlug && SEO_CATEGORIES[seoSlug] ? SEO_CATEGORIES[seoSlug].filters : [];
+                })()}
+                value={subcategory}
+                onChange={setSubcategory}
+                placeholder="Wybierz typ..."
+                showSearch={false}
+              />
+              <input type="hidden" name="subcategory" value={subcategory} />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Dostępność</label>
-              <select name="availability" defaultValue={equipment.availability}
-                className="mt-1 block w-full rounded-lg border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border focus:ring-blue-500 focus:border-blue-500">
-                <option value="immediately">Dostępny od ręki</option>
-                <option value="on_call">Na telefon</option>
-              </select>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dostępność</label>
+              <CustomSelect
+                options={[
+                  { value: 'immediately', label: 'Dostępny od ręki' },
+                  { value: 'on_call', label: 'Na telefon' }
+                ]}
+                value={availability}
+                onChange={setAvailability}
+                showSearch={false}
+              />
+              <input type="hidden" name="availability" value={availability} />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Cena (PLN)</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cena (PLN)</label>
               <input type="number" name="price_from" required step="0.01" defaultValue={equipment.price_from}
                 className="mt-1 block w-full rounded-lg border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border focus:ring-blue-500 focus:border-blue-500" />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Jednostka czasu</label>
-              <select name="rental_period" defaultValue={equipment.rental_period}
-                className="mt-1 block w-full rounded-lg border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border focus:ring-blue-500 focus:border-blue-500">
-                <option value="hour">/ godzina</option>
-                <option value="day">/ doba</option>
-                <option value="week">/ tydzień</option>
-                <option value="month">/ miesiąc</option>
-              </select>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jednostka czasu</label>
+              <CustomSelect
+                options={[
+                  { value: 'hour', label: '/ godzina' },
+                  { value: 'day', label: '/ doba' },
+                  { value: 'week', label: '/ tydzień' },
+                  { value: 'month', label: '/ miesiąc' }
+                ]}
+                value={rentalPeriod}
+                onChange={setRentalPeriod}
+                showSearch={false}
+              />
+              <input type="hidden" name="rental_period" value={rentalPeriod} />
             </div>
 
             <div className="sm:col-span-2">

@@ -4,10 +4,17 @@ import { useState } from 'react'
 import { updateEquipment, deleteEquipment } from '../../actions'
 import { toast } from 'react-hot-toast'
 import { Trash2 } from 'lucide-react'
+import { FORM_CATEGORIES, SEO_CATEGORIES } from '../../../../lib/categories'
+import CustomSelect from '../../../components/CustomSelect'
 
 export default function EditEquipmentForm({ equipment }) {
   const [isLoading, setIsLoading] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  
+  const [category, setCategory] = useState(equipment.category || equipment.Kategoria)
+  const [availability, setAvailability] = useState(equipment.availability || equipment.Dostępność)
+  const [rentalPeriod, setRentalPeriod] = useState(equipment.rental_period || equipment.Czas)
+  const [subcategory, setSubcategory] = useState(equipment.subcategory || '')
 
   async function handleSubmit(formData) {
     setIsLoading(true)
@@ -47,62 +54,80 @@ export default function EditEquipmentForm({ equipment }) {
           </div>
 
           <div className="sm:col-span-3">
-            <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Kategoria <span className="text-red-500">*</span>
             </label>
-            <div className="mt-1">
-              <select name="category" id="category" required defaultValue={equipment.category || equipment.Kategoria}
-                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border">
-                <option value="tools">Narzędzia i elektronarzędzia</option>
-                <option value="construction_equipment">Zagęszczarki i sprzęt budowlany</option>
-                <option value="heavy_equipment">Koparki i sprzęt ciężki</option>
-                <option value="garden_equipment">Maszyny ogrodowe</option>
-                <option value="lifts_and_platforms">Podnośniki i platformy</option>
-                <option value="scaffolding">Rusztowania</option>
-                <option value="generators_and_power">Agregaty i zasilanie</option>
-                <option value="trailers_and_transport">Lawety i transport</option>
-                <option value="cleaning_equipment">Myjki i sprzęt sprzątający</option>
-                <option value="others">Inne</option>
-              </select>
-            </div>
+            <CustomSelect
+              options={FORM_CATEGORIES}
+              value={category}
+              onChange={(val) => {
+                setCategory(val);
+                setSubcategory('');
+              }}
+              placeholder="Wybierz kategorię..."
+              showSearch={false}
+            />
+            <input type="hidden" name="category" value={category} />
           </div>
 
           <div className="sm:col-span-3">
-            <label htmlFor="availability" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Podkategoria
+            </label>
+            <CustomSelect
+              options={(() => {
+                const fc = FORM_CATEGORIES.find(c => c.value === category);
+                const seoSlug = fc?.seoSlug;
+                return seoSlug && SEO_CATEGORIES[seoSlug] ? SEO_CATEGORIES[seoSlug].filters : [];
+              })()}
+              value={subcategory}
+              onChange={setSubcategory}
+              placeholder="Wybierz typ..."
+              showSearch={false}
+            />
+            <input type="hidden" name="subcategory" value={subcategory} />
+          </div>
+
+          <div className="sm:col-span-3">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Dostępność
             </label>
-            <div className="mt-1">
-              <select name="availability" id="availability" defaultValue={equipment.availability || equipment.Dostępność}
-                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border">
-                <option value="immediately">Dostępny od ręki</option>
-                <option value="on_call">Na telefon</option>
-              </select>
-            </div>
+            <CustomSelect
+              options={[
+                { value: 'immediately', label: 'Dostępny od ręki' },
+                { value: 'on_call', label: 'Na telefon' }
+              ]}
+              value={availability}
+              onChange={setAvailability}
+              showSearch={false}
+            />
+            <input type="hidden" name="availability" value={availability} />
           </div>
 
           <div className="sm:col-span-3">
-            <label htmlFor="price_from" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Cena (PLN) <span className="text-red-500">*</span>
             </label>
-            <div className="mt-1">
-              <input type="number" name="price_from" id="price_from" required min="0" step="0.01" defaultValue={equipment.price_from || equipment.Cena_od}
-                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border" />
-            </div>
+            <input type="number" name="price_from" id="price_from" required min="0" step="0.01" defaultValue={equipment.price_from || equipment.Cena_od}
+              className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border" />
           </div>
 
           <div className="sm:col-span-3">
-            <label htmlFor="rental_period" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Jednostka czasu
             </label>
-            <div className="mt-1">
-              <select name="rental_period" id="rental_period" defaultValue={equipment.rental_period || equipment.Czas}
-                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border">
-                <option value="hour">/ godzina</option>
-                <option value="day">/ doba</option>
-                <option value="week">/ tydzień</option>
-                <option value="month">/ miesiąc</option>
-              </select>
-            </div>
+            <CustomSelect
+              options={[
+                { value: 'hour', label: '/ godzina' },
+                { value: 'day', label: '/ doba' },
+                { value: 'week', label: '/ tydzień' },
+                { value: 'month', label: '/ miesiąc' }
+              ]}
+              value={rentalPeriod}
+              onChange={setRentalPeriod}
+              showSearch={false}
+            />
+            <input type="hidden" name="rental_period" value={rentalPeriod} />
           </div>
 
           <div className="sm:col-span-6">

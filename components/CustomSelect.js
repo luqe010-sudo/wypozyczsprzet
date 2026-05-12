@@ -9,7 +9,8 @@ export default function CustomSelect({
   onChange, 
   placeholder = "Wybierz...",
   icon,
-  className = ""
+  className = "",
+  showSearch = true
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -40,13 +41,13 @@ export default function CustomSelect({
   }, []);
 
   useEffect(() => {
-    if (isOpen && inputRef.current) {
+    if (isOpen && inputRef.current && showSearch) {
       inputRef.current.focus();
     }
     if (!isOpen) {
       setSearchTerm('');
     }
-  }, [isOpen]);
+  }, [isOpen, showSearch]);
 
   const handleSelect = (option) => {
     const val = typeof option === 'string' ? option : option.value;
@@ -64,7 +65,7 @@ export default function CustomSelect({
       
       <div 
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center cursor-pointer group"
+        className="flex items-center cursor-pointer group h-full min-h-[20px]"
       >
         <span className={`text-sm font-medium transition-colors ${value ? 'text-gray-900 dark:text-white' : 'text-gray-400'}`}>
           {displayValue}
@@ -81,23 +82,24 @@ export default function CustomSelect({
       {isOpen && (
         <div className="absolute top-full left-0 mt-3 w-full min-w-[240px] bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-700 z-[100] overflow-hidden opacity-100 visible transition-all duration-200 shadow-blue-500/10">
           {/* Search Input inside dropdown */}
-          <div className="p-3 border-b border-gray-50 dark:border-slate-700">
-            <div className="relative">
-              <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <input
-                ref={inputRef}
-                type="text"
-                placeholder="Szukaj..."
-                className="w-full pl-9 pr-4 py-2 bg-gray-50 dark:bg-slate-900 border-none rounded-xl text-sm outline-none text-gray-900 dark:text-white placeholder-gray-500"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onClick={(e) => e.stopPropagation()}
-              />
+          {showSearch && (
+            <div className="p-3 border-b border-gray-50 dark:border-slate-700">
+              <div className="relative">
+                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                  ref={inputRef}
+                  type="text"
+                  placeholder="Szukaj..."
+                  className="w-full pl-9 pr-4 py-2 bg-gray-50 dark:bg-slate-900 border-none rounded-xl text-sm outline-none text-gray-900 dark:text-white placeholder-gray-500"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </div>
             </div>
-          </div>
-
+          )}
           <ul className="max-h-60 overflow-y-auto py-2">
             <li 
               onClick={() => handleSelect('')}

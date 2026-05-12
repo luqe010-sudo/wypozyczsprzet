@@ -178,8 +178,12 @@ function AddListingForm() {
                     <CustomSelect
                       options={FORM_CATEGORIES}
                       value={formData.category}
-                      onChange={(val) => setFormData({ ...formData, category: val, subcategory: '' })}
+                      onChange={(val) => {
+                        console.log("Selected category:", val);
+                        setFormData({ ...formData, category: val, subcategory: '' });
+                      }}
                       placeholder="Wybierz kategorię..."
+                      showSearch={false}
                     />
                   </div>
                   <div>
@@ -188,11 +192,13 @@ function AddListingForm() {
                       options={(() => {
                         const fc = FORM_CATEGORIES.find(c => c.value === formData.category);
                         const seoSlug = fc?.seoSlug;
-                        return seoSlug && SEO_CATEGORIES[seoSlug] ? SEO_CATEGORIES[seoSlug].filters : [];
+                        const filters = seoSlug && SEO_CATEGORIES[seoSlug] ? SEO_CATEGORIES[seoSlug].filters : [];
+                        return filters;
                       })()}
                       value={formData.subcategory}
                       onChange={(val) => setFormData({ ...formData, subcategory: val })}
                       placeholder="Wybierz typ..."
+                      showSearch={false}
                     />
                   </div>
                 </div>
@@ -208,13 +214,19 @@ function AddListingForm() {
                     <div className="flex gap-2 min-w-0">
                       <input required type="number" name="price" value={formData.price} onChange={handleChange} placeholder="0.00"
                              className="flex-1 min-w-0 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all" />
-                      <select name="time" value={formData.time || 'day'} onChange={handleChange} 
-                              className="w-24 sm:w-32 flex-shrink-0 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-2 sm:px-4 py-3 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all appearance-none cursor-pointer text-sm sm:text-base">
-                        <option value="hour">/ godzina</option>
-                        <option value="day">/ doba</option>
-                        <option value="week">/ tydzień</option>
-                        <option value="month">/ miesiąc</option>
-                      </select>
+                      <div className="w-32 flex-shrink-0">
+                        <CustomSelect
+                          options={[
+                            { value: 'hour', label: '/ godzina' },
+                            { value: 'day', label: '/ doba' },
+                            { value: 'week', label: '/ tydzień' },
+                            { value: 'month', label: '/ miesiąc' }
+                          ]}
+                          value={formData.time || 'day'}
+                          onChange={(val) => setFormData({ ...formData, time: val })}
+                          showSearch={false}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -222,11 +234,15 @@ function AddListingForm() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Dostępność</label>
-                    <select name="availability" value={formData.availability} onChange={handleChange} 
-                            className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all appearance-none cursor-pointer">
-                      <option value="immediately">Dostępny od ręki</option>
-                      <option value="on_call">Na telefon</option>
-                    </select>
+                    <CustomSelect
+                      options={[
+                        { value: 'immediately', label: 'Dostępny od ręki' },
+                        { value: 'on_call', label: 'Na telefon' }
+                      ]}
+                      value={formData.availability}
+                      onChange={(val) => setFormData({ ...formData, availability: val })}
+                      showSearch={false}
+                    />
                   </div>
                 </div>
 
