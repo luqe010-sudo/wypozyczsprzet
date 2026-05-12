@@ -1,4 +1,5 @@
 import React from 'react';
+import { SEO_CATEGORIES } from '../lib/categories';
 
 export default function FiltersSidebar({
   availableCities,
@@ -7,12 +8,16 @@ export default function FiltersSidebar({
   setSelectedCity,
   selectedCategory,
   setSelectedCategory,
+  selectedSubcategory,
+  setSelectedSubcategory,
   maxPrice,
   setMaxPrice,
   radius,
   setRadius,
   hasSearchCenter,
 }) {
+  const activeCategory = availableCategories.find(c => c.value === selectedCategory);
+  const subcategories = activeCategory ? SEO_CATEGORIES[activeCategory.seoSlug]?.filters : [];
   return (
     <div className="w-full">
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 p-3 md:p-4 transition-colors">
@@ -22,6 +27,7 @@ export default function FiltersSidebar({
             onClick={() => {
               setSelectedCity('');
               setSelectedCategory('');
+              setSelectedSubcategory('');
               setMaxPrice(2000);
             }}
             className="text-[10px] text-blue-600 dark:text-blue-400 hover:text-blue-800 font-bold uppercase"
@@ -62,7 +68,7 @@ export default function FiltersSidebar({
               >
                 <option value="">Wszystkie kategorie</option>
                 {availableCategories.map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
+                  <option key={cat.value} value={cat.value}>{cat.label}</option>
                 ))}
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
@@ -70,6 +76,28 @@ export default function FiltersSidebar({
               </div>
             </div>
           </div>
+
+          {/* Subcategory */}
+          {selectedCategory && (
+            <div className="flex flex-col gap-1 animate-fadeIn">
+              <label className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Typ sprzętu</label>
+              <div className="relative">
+                <select 
+                  value={selectedSubcategory}
+                  onChange={(e) => setSelectedSubcategory(e.target.value)}
+                  className="w-full bg-blue-50 dark:bg-slate-900 border border-blue-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-xs text-gray-700 dark:text-gray-200 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 appearance-none font-medium transition-colors"
+                >
+                  <option value="">Dowolny typ</option>
+                  {subcategories?.map((sub) => (
+                    <option key={sub.value} value={sub.value}>{sub.label}</option>
+                  ))}
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-blue-500">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Price Slider & Input */}
           <div className="flex flex-col gap-1">

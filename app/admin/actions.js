@@ -137,6 +137,7 @@ export async function adminUpdateEquipment(id, formData) {
     const rawData = {
       name: formData.get('name'),
       category: formData.get('category'),
+      subcategory: formData.get('subcategory') || null,
       price_from: parseFloat(formData.get('price_from')),
       rental_period: formData.get('rental_period'),
       availability: formData.get('availability'),
@@ -224,6 +225,7 @@ export async function adminCreateEquipment(formData) {
       company_id: formData.get('company_id'),
       name: formData.get('name'),
       category: formData.get('category'),
+      subcategory: formData.get('subcategory') || null,
       price_from: parseFloat(formData.get('price_from')),
       rental_period: formData.get('rental_period'),
       availability: formData.get('availability'),

@@ -20,6 +20,7 @@ export async function POST(request) {
     const olxUrl = formData.get('olxUrl') || '';
     const email = formData.get('email') || '';
     const www = formData.get('www') || '';
+    const subcategory = formData.get('subcategory') || '';
     const wantsPromotion = formData.get('wantsPromotion') === 'true';
     const imageFile = formData.get('image');
     const editId = formData.get('editId');
@@ -76,6 +77,7 @@ export async function POST(request) {
         .insert({
           company_id: companyData.id,
           category: category,
+          subcategory: subcategory || null,
           name: equipment,
           price_from: price,
           rental_period: time,

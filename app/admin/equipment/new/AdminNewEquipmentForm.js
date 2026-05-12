@@ -6,6 +6,7 @@ import { toast } from 'react-hot-toast'
 import { ArrowLeft, Package } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { FORM_CATEGORIES, SEO_CATEGORIES } from '../../../../lib/categories'
 
 export default function AdminNewEquipmentForm({ companies }) {
   const [isLoading, setIsLoading] = useState(false)
@@ -68,16 +69,23 @@ export default function AdminNewEquipmentForm({ companies }) {
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Kategoria <span className="text-red-500">*</span></label>
               <select name="category" required
                 className="mt-1 block w-full rounded-lg border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border focus:ring-blue-500 focus:border-blue-500">
-                <option value="tools">Narzędzia i elektronarzędzia</option>
-                <option value="construction_equipment">Sprzęt budowlany</option>
-                <option value="heavy_equipment">Sprzęt ciężki</option>
-                <option value="garden_equipment">Maszyny ogrodowe</option>
-                <option value="lifts_and_platforms">Podnośniki i platformy</option>
-                <option value="scaffolding">Rusztowania</option>
-                <option value="generators_and_power">Agregaty i zasilanie</option>
-                <option value="trailers_and_transport">Lawety i transport</option>
-                <option value="cleaning_equipment">Myjki i sprzątanie</option>
-                <option value="others">Inne</option>
+                {FORM_CATEGORIES.map(cat => (
+                  <option key={cat.value} value={cat.value}>{cat.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Podkategoria</label>
+              <select name="subcategory"
+                className="mt-1 block w-full rounded-lg border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border focus:ring-blue-500 focus:border-blue-500">
+                <option value="">Wybierz typ...</option>
+                {FORM_CATEGORIES.flatMap(fc => {
+                  const cat = SEO_CATEGORIES[fc.seoSlug];
+                  return cat ? cat.filters.map(f => (
+                    <option key={f} value={f}>{fc.label} — {f}</option>
+                  )) : [];
+                })}
               </select>
             </div>
 

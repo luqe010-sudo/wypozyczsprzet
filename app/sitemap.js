@@ -1,17 +1,42 @@
 import { fetchAllSlugs } from '../lib/googleSheets';
 import { articles } from '../lib/articles';
 import { documents } from '../lib/umowy-data';
+import { SEO_CATEGORY_SLUGS } from '../lib/categories';
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://wypozycz.online';
 
 export default async function sitemap() {
-  const slugs = await fetchAllSlugs();
+  const slugData = await fetchAllSlugs();
 
-  const listingPages = slugs.map((slug) => ({
-    url: `${BASE_URL}/oferta/${slug}`,
+  // Category hub pages (highest priority after home)
+  const categoryPages = SEO_CATEGORY_SLUGS.map((slug) => ({
+    url: `${BASE_URL}/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'daily',
+    priority: 0.95,
+  }));
+
+  // Local hub pages (Category + City)
+  const localHubsSet = new Set();
+  slugData.forEach(item => {
+    if (item.seoCategory && item.citySlug) {
+      localHubsSet.add(`${item.seoCategory}/${item.citySlug}`);
+    }
+  });
+
+  const localHubPages = Array.from(localHubsSet).map(path => ({
+    url: `${BASE_URL}/${path}`,
+    lastModified: new Date(),
+    changeFrequency: 'daily',
+    priority: 0.9,
+  }));
+
+  // Listing pages with new URL structure: /{category}/{city}/{slug}
+  const listingPages = slugData.map((item) => ({
+    url: `${BASE_URL}/${item.seoCategory}/${item.citySlug}/${item.slug}`,
     lastModified: new Date(),
     changeFrequency: 'weekly',
-    priority: 0.9,
+    priority: 0.8,
   }));
 
   const blogPages = articles.map((article) => ({
@@ -35,6 +60,8 @@ export default async function sitemap() {
       changeFrequency: 'daily',
       priority: 1,
     },
+    ...categoryPages,
+    ...localHubPages,
     ...listingPages,
     ...blogPages,
     ...documentPages,

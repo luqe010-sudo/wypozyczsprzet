@@ -1,13 +1,45 @@
-import React from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { SEO_CATEGORIES, FORM_CATEGORIES, getCitySlug } from '../lib/categories';
 
 export default function Hero({ 
   searchTerm, setSearchTerm,
   availableCities = [],
   availableCategories = [],
   selectedCity, setSelectedCity,
-  selectedCategory, setSelectedCategory
+  selectedCategory, setSelectedCategory,
+  selectedSubcategory, setSelectedSubcategory
 }) {
+  const router = useRouter();
+  const activeCategory = availableCategories.find(c => c.value === selectedCategory);
+
+  const handleSearch = () => {
+    if (selectedCategory) {
+      // Find the SEO slug for the selected category key
+      const catConfig = FORM_CATEGORIES.find(c => c.value === selectedCategory);
+      if (catConfig) {
+        let url = `/${catConfig.seoSlug}`;
+        
+        if (selectedCity) {
+          const citySlug = getCitySlug(selectedCity);
+          url = `${url}/${citySlug}`;
+        }
+
+        const params = new URLSearchParams();
+        if (searchTerm) params.set('s', searchTerm);
+        
+        const queryString = params.toString();
+        router.push(queryString ? `${url}?${queryString}` : url);
+        return;
+      }
+    }
+
+    // Fallback: if no category, just scroll to marketplace on homepage
+    window.scrollTo({
+      top: document.querySelector('main')?.offsetTop - 80 || 600,
+      behavior: 'smooth'
+    });
+  };
   return (
     <section className="relative w-full bg-gray-900 overflow-hidden">
       {/* Background Image */}
@@ -72,8 +104,8 @@ export default function Hero({
             </div>
           </div>
 
-          {/* Category Select placeholder */}
-          <div className="flex-1 w-full flex items-center px-4 py-2">
+          {/* Category Select */}
+          <div className="flex-1 w-full flex items-center px-4 py-2 border-gray-200 dark:border-slate-700 transition-all duration-300">
             <svg className="w-4 h-4 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
             <div className="flex flex-col flex-1 text-left">
               <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider hidden md:block">Kategoria</label>
@@ -84,7 +116,7 @@ export default function Hero({
               >
                 <option value="" className="dark:bg-slate-800">Wszystkie kategorie</option>
                 {availableCategories.map(cat => (
-                  <option key={cat} value={cat} className="dark:bg-slate-800">{cat}</option>
+                  <option key={cat.value} value={cat.value} className="dark:bg-slate-800">{cat.label}</option>
                 ))}
               </select>
             </div>
@@ -93,15 +125,24 @@ export default function Hero({
           {/* CTA Button */}
           <button 
             className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl md:rounded-full transition-all duration-200 flex items-center justify-center whitespace-nowrap shadow-md"
-            onClick={() => {
-              window.scrollTo({
-                top: document.querySelector('main')?.offsetTop - 80 || 600,
-                behavior: 'smooth'
-              });
-            }}
+            onClick={handleSearch}
           >
             Znajdź <span className="ml-2">→</span>
           </button>
+        </div>
+
+        {/* Category Quick Links */}
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
+          {Object.values(SEO_CATEGORIES).map((cat) => (
+            <Link
+              key={cat.slug}
+              href={`/${cat.slug}`}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white text-xs font-medium hover:bg-white/20 transition-all duration-200"
+            >
+              <span>{cat.icon}</span>
+              <span>{cat.name}</span>
+            </Link>
+          ))}
         </div>
       </div>
     </section>

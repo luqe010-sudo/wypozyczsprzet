@@ -18,6 +18,7 @@ export default function Marketplace({ initialData }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedSubcategory, setSelectedSubcategory] = useState('');
   const [maxPrice, setMaxPrice] = useState(2000);
   const [radius, setRadius] = useState(50); // km
   const [searchCenter, setSearchCenter] = useState(null);
@@ -60,7 +61,7 @@ export default function Marketplace({ initialData }) {
     setCurrentPage(1); // Reset page on filter change
     const timer = setTimeout(() => setIsLoading(false), 300);
     return () => clearTimeout(timer);
-  }, [searchTerm, selectedCity, selectedCategory, maxPrice, radius, searchCenter]);
+  }, [searchTerm, selectedCity, selectedCategory, selectedSubcategory, maxPrice, radius, searchCenter]);
 
   const getDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371;
@@ -80,11 +81,13 @@ export default function Marketplace({ initialData }) {
 
       const matchSearch = searchTerm
         ? equipmentName.toLowerCase().includes(searchValue) ||
-          categoryName.toLowerCase().includes(searchValue)
+          categoryName.toLowerCase().includes(searchValue) ||
+          String(item.subcategory || '').toLowerCase().includes(searchValue)
         : true;
 
       const matchCity = selectedCity ? item.Miasto === selectedCity : true;
-      const matchCategory = selectedCategory ? item.Kategoria === selectedCategory : true;
+      const matchCategory = selectedCategory ? item._rawCategory === selectedCategory : true;
+      const matchSubcategory = selectedSubcategory ? item.subcategory === selectedSubcategory : true;
       const rawPrice = String(item.Cena_od || '').replace(/[^\d.,]/g, '').replace(',', '.');
       const priceVal = parseFloat(rawPrice);
       const matchPrice = !isNaN(priceVal) ? priceVal <= maxPrice : true;
@@ -107,9 +110,9 @@ export default function Marketplace({ initialData }) {
         }
       }
 
-      return matchSearch && matchCity && matchCategory && matchPrice && matchDistance;
+      return matchSearch && matchCity && matchCategory && matchSubcategory && matchPrice && matchDistance;
     });
-  }, [listings, searchTerm, selectedCity, selectedCategory, maxPrice, radius, searchCenter, geoCache]);
+  }, [listings, searchTerm, selectedCity, selectedCategory, selectedSubcategory, maxPrice, radius, searchCenter, geoCache]);
 
   const [isGeocoding, setIsGeocoding] = useState(false);
   const [pendingGeocodes, setPendingGeocodes] = useState(0);
@@ -215,7 +218,9 @@ export default function Marketplace({ initialData }) {
         selectedCity={selectedCity}
         setSelectedCity={setSelectedCity}
         selectedCategory={selectedCategory}
-        setSelectedCategory={setSelectedCategory}
+        setSelectedCategory={(val) => { setSelectedCategory(val); setSelectedSubcategory(''); }}
+        selectedSubcategory={selectedSubcategory}
+        setSelectedSubcategory={setSelectedSubcategory}
       />
 
       {/* Trust & Benefits Bar */}
@@ -233,7 +238,9 @@ export default function Marketplace({ initialData }) {
                 selectedCity={selectedCity}
                 setSelectedCity={setSelectedCity}
                 selectedCategory={selectedCategory}
-                setSelectedCategory={setSelectedCategory}
+                setSelectedCategory={(val) => { setSelectedCategory(val); setSelectedSubcategory(''); }}
+                selectedSubcategory={selectedSubcategory}
+                setSelectedSubcategory={setSelectedSubcategory}
                 maxPrice={maxPrice}
                 setMaxPrice={setMaxPrice}
                 radius={radius}
@@ -395,6 +402,7 @@ export default function Marketplace({ initialData }) {
                     setSearchTerm('');
                     setSelectedCity('');
                     setSelectedCategory('');
+                    setSelectedSubcategory('');
                     setMaxPrice(2000);
                   }}
                 >

@@ -4,6 +4,7 @@ export default function robots() {
       {
         userAgent: '*',
         allow: '/',
+        disallow: ['/oferta/', '/admin/', '/dashboard/', '/api/'],
       },
       {
         userAgent: 'facebookexternalhit',

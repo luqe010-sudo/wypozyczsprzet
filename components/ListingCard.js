@@ -4,16 +4,19 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import DynamicPlaceholder from './DynamicPlaceholder';
 import { trackEvent } from '../lib/gtag';
+import { buildListingUrl } from '../lib/categories';
 
 export default function ListingCard({ listing }) {
   const router = useRouter();
   const company = listing.companyDetails || {};
 
+  const listingUrl = buildListingUrl(listing);
+
   const handleCardClick = (e) => {
     if (e.target.closest('button') || e.target.closest('a')) {
       return;
     }
-    router.push(`/oferta/${listing.slug}`);
+    router.push(listingUrl);
   };
 
   const hasImage = listing.Zdjecie && String(listing.Zdjecie).startsWith('http');
@@ -29,7 +32,7 @@ export default function ListingCard({ listing }) {
     >
       {/* Image Container with 4:3 Aspect Ratio */}
       <div className="relative w-full aspect-[4/3] bg-gray-100 dark:bg-slate-700 overflow-hidden">
-        <Link href={`/oferta/${listing.slug}`} tabIndex="-1" className="block w-full h-full">
+        <Link href={listingUrl} tabIndex="-1" className="block w-full h-full">
           {hasImage ? (
             <img 
               src={listing.Zdjecie} 
@@ -103,7 +106,7 @@ export default function ListingCard({ listing }) {
 
         {/* Action Button */}
         <Link 
-          href={`/oferta/${listing.slug}`}
+          href={listingUrl}
           className="w-full flex items-center justify-center gap-1.5 border border-gray-200 dark:border-slate-700 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-slate-700 font-bold py-1.5 px-3 rounded-lg transition-all text-xs"
           onClick={(e) => e.stopPropagation()}
         >
@@ -113,7 +116,7 @@ export default function ListingCard({ listing }) {
 
         {isIncomplete && (
           <Link 
-            href={`/oferta/${listing.slug}`}
+            href={listingUrl}
             className="mt-2 text-[9px] text-center text-gray-400 hover:text-red-500 transition-colors uppercase tracking-wider font-bold"
             onClick={(e) => e.stopPropagation()}
           >

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { trackEvent } from '../lib/gtag';
 import { usePathname } from 'next/navigation';
 import { createClient } from '../utils/supabase/client';
+import { SEO_CATEGORIES } from '../lib/categories';
 
 export default function Navbar({ actionUrl, actionLabel }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -101,6 +102,43 @@ export default function Navbar({ actionUrl, actionLabel }) {
         {/* Links */}
         <div className={`nav-links ${isOpen ? 'active' : ''} dark:bg-slate-900`}>
           <Link href="/" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">{'Strona główna'}</Link>
+          
+          {/* Categories Dropdown */}
+          <div className="relative group">
+            <button className="dark:text-gray-300 dark:hover:text-white flex items-center gap-1 font-medium">
+              Kategorie
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+            </button>
+            <div className="absolute top-full left-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-200 dark:border-slate-700 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+              {Object.values(SEO_CATEGORIES).map((cat) => (
+                <Link
+                  key={cat.slug}
+                  href={`/${cat.slug}`}
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 transition-colors"
+                >
+                  <span>{cat.icon}</span>
+                  <span>{cat.name}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Mobile: flat category links */}
+          <div className="md:hidden space-y-1">
+            {Object.values(SEO_CATEGORIES).map((cat) => (
+              <Link
+                key={cat.slug}
+                href={`/${cat.slug}`}
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-2 pl-4 py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600"
+              >
+                <span>{cat.icon}</span>
+                <span>{cat.name}</span>
+              </Link>
+            ))}
+          </div>
+
           <Link href="/blog" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">{'Poradniki'}</Link>
           <Link href="/umowy" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">{'Umowy'}</Link>
           <Link href="/regulamin" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">{'Regulamin'}</Link>

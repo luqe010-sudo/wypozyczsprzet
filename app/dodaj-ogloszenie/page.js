@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { trackEvent } from '../../lib/gtag';
 import PrivacyModal from '../../components/PrivacyModal';
+import { FORM_CATEGORIES, SEO_CATEGORIES } from '../../lib/categories';
 
 function AddListingForm() {
   const searchParams = useSearchParams();
@@ -17,7 +18,8 @@ function AddListingForm() {
     zipCode: '',
     city: '',
     lokalizacja: '',
-    category: 'tools',
+    category: 'roboty_ziemne',
+    subcategory: '',
     equipment: '',
     price: '',
     availability: 'immediately',
@@ -71,7 +73,8 @@ function AddListingForm() {
         zipCode: '',
         city: '', 
         lokalizacja: '',
-        category: 'Budowlane', 
+        category: 'roboty_ziemne',
+        subcategory: '',
         equipment: '', 
         price: '', 
         availability: 'Dostępne od zaraz', 
@@ -173,16 +176,24 @@ function AddListingForm() {
                     <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Kategoria</label>
                     <select name="category" value={formData.category} onChange={handleChange} 
                             className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all appearance-none cursor-pointer">
-                      <option value="tools">Narzędzia i elektronarzędzia</option>
-                      <option value="construction_equipment">Zagęszczarki i sprzęt budowlany</option>
-                      <option value="heavy_equipment">Koparki i sprzęt ciężki</option>
-                      <option value="garden_equipment">Maszyny ogrodowe</option>
-                      <option value="lifts_and_platforms">Podnośniki i platformy</option>
-                      <option value="scaffolding">Rusztowania</option>
-                      <option value="generators_and_power">Agregaty i zasilanie</option>
-                      <option value="trailers_and_transport">Lawety i transport</option>
-                      <option value="cleaning_equipment">Myjki i sprzęt sprzątający</option>
-                      <option value="others">Inne</option>
+                      {FORM_CATEGORIES.map((cat) => (
+                        <option key={cat.value} value={cat.value}>{cat.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Typ sprzętu (opcjonalnie)</label>
+                    <select name="subcategory" value={formData.subcategory} onChange={handleChange}
+                            className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all appearance-none cursor-pointer">
+                      <option value="">Wybierz typ...</option>
+                      {(() => {
+                        const fc = FORM_CATEGORIES.find(c => c.value === formData.category);
+                        const seoSlug = fc?.seoSlug;
+                        const filters = seoSlug && SEO_CATEGORIES[seoSlug] ? SEO_CATEGORIES[seoSlug].filters : [];
+                        return filters.map((f) => (
+                          <option key={f} value={f}>{f}</option>
+                        ));
+                      })()}
                     </select>
                   </div>
                 </div>

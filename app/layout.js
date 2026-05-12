@@ -13,7 +13,7 @@ export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://wypozycz.online'),
   title: 'WypożyczSprzęt - Największa wypożyczalnia sprzętu budowlanego w jednym miejscu',
   description: 'Znajdź koparki, minikoparki i sprzęt budowlany lokalnie. Porównaj oferty bez dzwonienia po firmach.',
-  keywords: 'wynajem, sprzęt budowlany, koparki, ładowarki, wypożyczalnia, wrocław, dolny śląsk, z operatorem, cena, usługi koparką',
+  keywords: 'wynajem sprzętu budowlanego, roboty ziemne, sprzęt ogrodowy, agregaty, prace na wysokości, narzędzia, koparki, rusztowania, wypożyczalnia, wrocław',
   alternates: {
     canonical: '/',
   },
