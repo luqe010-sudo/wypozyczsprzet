@@ -61,7 +61,7 @@ export default function AdminNewEquipmentForm({ companies }) {
                 options={companies.map(c => ({ value: c.id, label: `${c.name} (${c.city})` }))}
                 value={companyId}
                 onChange={setCompanyId}
-                placeholder="Wybierz firmę"
+                variant="field"
               />
               <input type="hidden" name="company_id" value={companyId} />
             </div>
@@ -82,7 +82,7 @@ export default function AdminNewEquipmentForm({ companies }) {
                   setSubcategory('');
                 }}
                 placeholder="Wybierz kategorię..."
-                showSearch={false}
+                variant="field"
               />
               <input type="hidden" name="category" value={category} />
             </div>
@@ -98,7 +98,7 @@ export default function AdminNewEquipmentForm({ companies }) {
                 value={subcategory}
                 onChange={setSubcategory}
                 placeholder="Wybierz typ..."
-                showSearch={false}
+                variant="field"
               />
               <input type="hidden" name="subcategory" value={subcategory} />
             </div>
@@ -112,7 +112,7 @@ export default function AdminNewEquipmentForm({ companies }) {
                 ]}
                 value={availability}
                 onChange={setAvailability}
-                showSearch={false}
+                variant="field"
               />
               <input type="hidden" name="availability" value={availability} />
             </div>
@@ -134,7 +134,7 @@ export default function AdminNewEquipmentForm({ companies }) {
                 ]}
                 value={rentalPeriod}
                 onChange={setRentalPeriod}
-                showSearch={false}
+                variant="field"
               />
               <input type="hidden" name="rental_period" value={rentalPeriod} />
             </div>

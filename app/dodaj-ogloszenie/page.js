@@ -183,7 +183,7 @@ function AddListingForm() {
                         setFormData({ ...formData, category: val, subcategory: '' });
                       }}
                       placeholder="Wybierz kategorię..."
-                      showSearch={false}
+                      variant="field"
                     />
                   </div>
                   <div>
@@ -198,7 +198,7 @@ function AddListingForm() {
                       value={formData.subcategory}
                       onChange={(val) => setFormData({ ...formData, subcategory: val })}
                       placeholder="Wybierz typ..."
-                      showSearch={false}
+                      variant="field"
                     />
                   </div>
                 </div>
@@ -224,7 +224,7 @@ function AddListingForm() {
                           ]}
                           value={formData.time || 'day'}
                           onChange={(val) => setFormData({ ...formData, time: val })}
-                          showSearch={false}
+                          variant="field"
                         />
                       </div>
                     </div>
@@ -241,7 +241,7 @@ function AddListingForm() {
                       ]}
                       value={formData.availability}
                       onChange={(val) => setFormData({ ...formData, availability: val })}
-                      showSearch={false}
+                      variant="field"
                     />
                   </div>
                 </div>

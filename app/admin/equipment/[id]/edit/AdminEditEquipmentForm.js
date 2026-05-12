@@ -69,7 +69,7 @@ export default function AdminEditEquipmentForm({ equipment }) {
                   setSubcategory('');
                 }}
                 placeholder="Wybierz kategorię..."
-                showSearch={false}
+                variant="field"
               />
               <input type="hidden" name="category" value={category} />
             </div>
@@ -85,7 +85,7 @@ export default function AdminEditEquipmentForm({ equipment }) {
                 value={subcategory}
                 onChange={setSubcategory}
                 placeholder="Wybierz typ..."
-                showSearch={false}
+                variant="field"
               />
               <input type="hidden" name="subcategory" value={subcategory} />
             </div>
@@ -99,7 +99,7 @@ export default function AdminEditEquipmentForm({ equipment }) {
                 ]}
                 value={availability}
                 onChange={setAvailability}
-                showSearch={false}
+                variant="field"
               />
               <input type="hidden" name="availability" value={availability} />
             </div>
@@ -121,7 +121,7 @@ export default function AdminEditEquipmentForm({ equipment }) {
                 ]}
                 value={rentalPeriod}
                 onChange={setRentalPeriod}
-                showSearch={false}
+                variant="field"
               />
               <input type="hidden" name="rental_period" value={rentalPeriod} />
             </div>

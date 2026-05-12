@@ -93,6 +93,7 @@ export default function AdminNewCompanyForm({ users }) {
                 value={ownerUserId}
                 onChange={setOwnerUserId}
                 placeholder="Wybierz użytkownika (opcjonalnie)"
+                variant="field"
               />
               <input type="hidden" name="owner_user_id" value={ownerUserId} />
               <p className="mt-1 text-xs text-gray-500 italic">Jeśli nie wybierzesz właściciela, firma będzie &quot;niczyja&quot; (tylko dla admina).</p>

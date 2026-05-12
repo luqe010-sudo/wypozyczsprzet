@@ -10,7 +10,8 @@ export default function CustomSelect({
   placeholder = "Wybierz...",
   icon,
   className = "",
-  showSearch = true
+  showSearch = true,
+  variant = "minimal" // "minimal" or "field"
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -65,7 +66,11 @@ export default function CustomSelect({
       
       <div 
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center cursor-pointer group h-full min-h-[20px]"
+        className={`flex items-center cursor-pointer group transition-all duration-200 ${
+          variant === 'field' 
+            ? 'h-11 px-3 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl hover:border-blue-400 dark:hover:border-blue-500 shadow-sm focus-within:ring-2 focus-within:ring-blue-500/20' 
+            : 'h-full min-h-[20px]'
+        }`}
       >
         <span className={`text-sm font-medium transition-colors ${value ? 'text-gray-900 dark:text-white' : 'text-gray-400'}`}>
           {displayValue}
