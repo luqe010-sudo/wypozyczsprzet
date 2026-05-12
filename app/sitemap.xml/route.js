@@ -10,17 +10,16 @@ export async function GET() {
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  ${sitemaps.map(s => `
-  <sitemap>
+${sitemaps.map(s => `  <sitemap>
     <loc>${BASE_URL}/sitemaps/${s}</loc>
     <lastmod>${new Date().toISOString()}</lastmod>
-  </sitemap>`).join('')}
-</sitemapindex>`;
+  </sitemap>`).join('\n')}
+</sitemapindex>`.trim();
 
   return new Response(xml, {
     headers: {
-      'Content-Type': 'application/xml',
-      'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=59',
+      'Content-Type': 'application/xml; charset=utf-8',
+      'X-Content-Type-Options': 'nosniff',
     },
   });
 }

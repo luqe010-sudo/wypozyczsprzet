@@ -9,11 +9,6 @@ export async function GET(request, { params }) {
   const { name } = params;
   let xml = '';
 
-  const headers = {
-    'Content-Type': 'application/xml',
-    'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=59',
-  };
-
   if (name === 'categories.xml') {
     xml = generateCategoriesSitemap();
   } else if (name === 'offers.xml') {
@@ -28,7 +23,12 @@ export async function GET(request, { params }) {
     return new Response('Not Found', { status: 404 });
   }
 
-  return new Response(xml, { headers });
+  return new Response(xml, {
+    headers: {
+      'Content-Type': 'application/xml; charset=utf-8',
+      'X-Content-Type-Options': 'nosniff',
+    },
+  });
 }
 
 function generateCategoriesSitemap() {
@@ -97,6 +97,6 @@ function generateStaticSitemap() {
 function wrapInUrlset(content) {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  ${content}
-</urlset>`;
+${content.trim()}
+</urlset>`.trim();
 }
