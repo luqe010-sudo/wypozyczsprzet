@@ -164,6 +164,7 @@ export default function CategoryPageClient({ category, listings, cities, otherCa
                   value={selectedCity}
                   onChange={(val) => { setSelectedCity(val); setCurrentPage(1); }}
                   placeholder="Wszystkie miasta"
+                  variant="field"
                 />
               </div>
 

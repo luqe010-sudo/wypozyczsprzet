@@ -96,6 +96,7 @@ export default function Hero({
               value={selectedCity}
               onChange={setSelectedCity}
               placeholder="Wszystkie miasta"
+              variant="field"
             />
           </div>
 
@@ -109,6 +110,7 @@ export default function Hero({
               onChange={setSelectedCategory}
               placeholder="Wszystkie kategorie"
               showSearch={false}
+              variant="field"
             />
           </div>
 
