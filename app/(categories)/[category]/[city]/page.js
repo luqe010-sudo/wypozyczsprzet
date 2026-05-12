@@ -21,7 +21,7 @@ export async function generateMetadata({ params }) {
 
   const title = `${category.name} — ${cityName} | Wynajem sprzętu | WypożyczSprzęt`;
   const description = `Szukasz sprzętu w kategorii ${category.name.toLowerCase()} w mieście ${cityName}? Sprawdź najlepsze oferty wynajmu bez pośredników. Największa baza w Twojej okolicy!`;
-  const url = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://wypozycz.online'}/${categorySlug}/${citySlug}`;
+  const url = `https://wypozycz.online/${categorySlug}/${citySlug}`;
 
   return {
     title,

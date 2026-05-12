@@ -13,7 +13,7 @@ export async function generateMetadata({ params }) {
   const cat = SEO_CATEGORIES[category];
   if (!cat) return {};
 
-  const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://wypozycz.online';
+  const BASE_URL = 'https://wypozycz.online';
 
   return {
     title: cat.title,

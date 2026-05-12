@@ -5,7 +5,7 @@ import { fetchListingByNewUrl, fetchRandomListings } from '../../../../../lib/go
 import ListingPageClient from './ListingPageClient';
 import InactiveListingPage from './InactiveListingPage';
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://wypozycz.online';
+const BASE_URL = 'https://wypozycz.online';
 
 export async function generateMetadata({ params }) {
   const { category, city, slug } = await params;
@@ -179,7 +179,7 @@ Wszystkie oferty na WypożyczSprzęt są weryfikowane, a kontakt z dostawcą odb
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Strona główna', item: BASE_URL },
       { '@type': 'ListItem', position: 2, name: catInfo?.name || category, item: `${BASE_URL}/${category}` },
-      { '@type': 'ListItem', position: 3, name: cityName, item: `${BASE_URL}/${category}` },
+      { '@type': 'ListItem', position: 3, name: cityName, item: `${BASE_URL}/${category}/${city}` },
       { '@type': 'ListItem', position: 4, name: name, item: `${BASE_URL}/${category}/${city}/${slug}` },
     ],
   };
@@ -199,7 +199,9 @@ Wszystkie oferty na WypożyczSprzęt są weryfikowane, a kontakt z dostawcą odb
             {catInfo?.name || category}
           </Link>
           <span>/</span>
-          <span className="truncate">{cityName}</span>
+          <Link href={`/${category}/${city}`} className="text-blue-600 dark:text-blue-400 hover:underline flex-shrink-0 truncate">
+            {cityName}
+          </Link>
           <span>/</span>
           <span className="text-gray-900 dark:text-white font-medium truncate">{name}</span>
         </nav>
