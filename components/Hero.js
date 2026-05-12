@@ -42,7 +42,7 @@ export default function Hero({
     });
   };
   return (
-    <section className="relative w-full bg-gray-900 overflow-hidden">
+    <section className="relative w-full bg-gray-900">
       {/* Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
