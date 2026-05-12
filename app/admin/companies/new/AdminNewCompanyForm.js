@@ -34,7 +34,7 @@ export default function AdminNewCompanyForm({ users }) {
         </Link>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm">
         <div className="p-6 border-b border-gray-200 dark:border-slate-700 flex items-center gap-3">
           <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
             <Building2 className="w-6 h-6 text-blue-600" />

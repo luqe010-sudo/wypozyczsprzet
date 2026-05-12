@@ -13,7 +13,14 @@ export default function AdminEditEquipmentForm({ equipment }) {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   
-  const [category, setCategory] = useState(equipment.category)
+  // Robust initialization: find the DB key ('earthmoving') even if the input is a label ('Roboty ziemne')
+  const initialCategoryValue = (() => {
+    const raw = equipment.category || '';
+    const found = FORM_CATEGORIES.find(c => c.value === raw || c.label === raw);
+    return found ? found.value : 'tools'; // fallback
+  })();
+
+  const [category, setCategory] = useState(initialCategoryValue)
   const [subcategory, setSubcategory] = useState(equipment.subcategory || '')
   const [availability, setAvailability] = useState(equipment.availability)
   const [rentalPeriod, setRentalPeriod] = useState(equipment.rental_period)
@@ -39,7 +46,7 @@ export default function AdminEditEquipmentForm({ equipment }) {
         </Link>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm">
         <div className="p-6 border-b border-gray-200 dark:border-slate-700">
           <h2 className="text-xl font-bold text-gray-900 dark:text-white font-serif">Edytuj Ogłoszenie (Tryb Admin)</h2>
         </div>

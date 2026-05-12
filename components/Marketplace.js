@@ -131,8 +131,8 @@ export default function Marketplace({ initialData }) {
         return !geoCache[clean] && !geocodeQueuedRef.current.has(clean);
       });
 
-      // 2. Filtered addresses (only if coords are missing from DB)
-      const addressesToGeocode = [...new Set(filteredListings.map(l => {
+      // 2. All addresses (only if coords are missing from DB)
+      const addressesToGeocode = [...new Set(listings.map(l => {
         if (l.lat && l.lng) return null; // Skip if already has coordinates
         const addr = sanitizeAddress(l.Lokalizacja, l.Miasto);
         return addr;
@@ -177,7 +177,7 @@ export default function Marketplace({ initialData }) {
       setPendingGeocodes(0);
     };
     geocodeListings();
-  }, [listings, filteredListings]);
+  }, [listings]); // Removed filteredListings to prevent infinite loop
   
   // Geocode selected city to set search center
   useEffect(() => {

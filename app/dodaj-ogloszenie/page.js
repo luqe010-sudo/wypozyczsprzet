@@ -19,7 +19,7 @@ function AddListingForm() {
     zipCode: '',
     city: '',
     lokalizacja: '',
-    category: 'roboty_ziemne',
+    category: 'earthmoving',
     subcategory: '',
     equipment: '',
     price: '',
@@ -74,7 +74,7 @@ function AddListingForm() {
         zipCode: '',
         city: '', 
         lokalizacja: '',
-        category: 'roboty_ziemne',
+        category: 'earthmoving',
         subcategory: '',
         equipment: '', 
         price: '', 
@@ -103,7 +103,7 @@ function AddListingForm() {
           </Link>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden transition-colors">
+        <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-gray-100 dark:border-slate-700 transition-colors">
           <div className="p-8 md:p-12">
             <div className="mb-10 text-center">
               <h1 className="text-3xl font-black text-gray-900 dark:text-white mb-4">Dodaj swoje ogłoszenie</h1>

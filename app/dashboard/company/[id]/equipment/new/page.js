@@ -36,7 +36,7 @@ export default function NewEquipmentPage({ params }) {
         </Link>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 shadow-sm rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden transition-colors">
+      <div className="bg-white dark:bg-slate-800 shadow-sm rounded-xl border border-gray-200 dark:border-slate-700 transition-colors">
         <div className="px-4 py-5 sm:p-6">
           <div className="flex items-center mb-5">
             <PackagePlus className="w-6 h-6 text-blue-600 mr-2" />

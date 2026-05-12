@@ -11,7 +11,14 @@ export default function EditEquipmentForm({ equipment }) {
   const [isLoading, setIsLoading] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   
-  const [category, setCategory] = useState(equipment.category || equipment.Kategoria)
+  // Robust category initialization: find the DB key ('earthmoving') even if the input is a label ('Roboty ziemne')
+  const initialCategoryValue = (() => {
+    const raw = equipment.category || equipment.Kategoria || '';
+    const found = FORM_CATEGORIES.find(c => c.value === raw || c.label === raw);
+    return found ? found.value : 'tools'; // fallback to tools
+  })();
+
+  const [category, setCategory] = useState(initialCategoryValue)
   const [availability, setAvailability] = useState(equipment.availability || equipment.Dostępność)
   const [rentalPeriod, setRentalPeriod] = useState(equipment.rental_period || equipment.Czas)
   const [subcategory, setSubcategory] = useState(equipment.subcategory || '')

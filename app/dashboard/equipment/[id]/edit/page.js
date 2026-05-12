@@ -33,7 +33,7 @@ export default async function EditEquipmentPage({ params }) {
         </Link>
       </div>
       
-      <div className="bg-white dark:bg-slate-800 shadow-sm rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden transition-colors">
+      <div className="bg-white dark:bg-slate-800 shadow-sm rounded-xl border border-gray-200 dark:border-slate-700 transition-colors">
         <div className="px-4 py-5 sm:p-6">
           <h3 className="text-lg leading-6 font-bold text-gray-900 dark:text-white mb-5">
             Edytuj dane sprzętu
