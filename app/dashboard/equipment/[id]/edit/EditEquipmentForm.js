@@ -4,8 +4,8 @@ import { useState } from 'react'
 import { updateEquipment, deleteEquipment } from '../../actions'
 import { toast } from 'react-hot-toast'
 import { Trash2 } from 'lucide-react'
-import { FORM_CATEGORIES, SEO_CATEGORIES } from '../../../../lib/categories'
-import CustomSelect from '../../../components/CustomSelect'
+import { FORM_CATEGORIES, SEO_CATEGORIES } from '../../../../../lib/categories'
+import CustomSelect from '../../../../../components/CustomSelect'
 
 export default function EditEquipmentForm({ equipment }) {
   const [isLoading, setIsLoading] = useState(false)

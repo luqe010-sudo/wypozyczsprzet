@@ -7,7 +7,7 @@ import { ArrowLeft, Package } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { FORM_CATEGORIES, SEO_CATEGORIES } from '../../../../lib/categories'
-import CustomSelect from '../../../components/CustomSelect'
+import CustomSelect from '../../../../components/CustomSelect'
 
 export default function AdminNewEquipmentForm({ companies }) {
   const [isLoading, setIsLoading] = useState(false)
