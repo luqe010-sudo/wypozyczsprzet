@@ -6,10 +6,12 @@ import { toast } from 'react-hot-toast'
 import { ArrowLeft, Building2 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import CustomSelect from '../../../components/CustomSelect'
 
 export default function AdminNewCompanyForm({ users }) {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const [ownerUserId, setOwnerUserId] = useState('')
 
   async function handleSubmit(formData) {
     setIsLoading(true)
@@ -85,14 +87,14 @@ export default function AdminNewCompanyForm({ users }) {
             </div>
 
             <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Właściciel (Użytkownik)</label>
-              <select name="owner_user_id"
-                className="mt-1 block w-full rounded-lg border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border focus:ring-blue-500 focus:border-blue-500">
-                <option value="">Wybierz użytkownika (opcjonalnie)</option>
-                {users.map(u => (
-                  <option key={u.id} value={u.id}>{u.id.substring(0, 8)}... ({u.role})</option>
-                ))}
-              </select>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Właściciel (Użytkownik)</label>
+              <CustomSelect
+                options={users.map(u => ({ value: u.id, label: `${u.id.substring(0, 8)}... (${u.role})` }))}
+                value={ownerUserId}
+                onChange={setOwnerUserId}
+                placeholder="Wybierz użytkownika (opcjonalnie)"
+              />
+              <input type="hidden" name="owner_user_id" value={ownerUserId} />
               <p className="mt-1 text-xs text-gray-500 italic">Jeśli nie wybierzesz właściciela, firma będzie &quot;niczyja&quot; (tylko dla admina).</p>
             </div>
           </div>

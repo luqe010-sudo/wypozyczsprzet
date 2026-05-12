@@ -1,4 +1,4 @@
-import React from 'react';
+import CustomSelect from './CustomSelect';
 import { SEO_CATEGORIES } from '../lib/categories';
 
 export default function FiltersSidebar({
@@ -40,62 +40,40 @@ export default function FiltersSidebar({
           {/* Location */}
           <div className="flex flex-col gap-1">
             <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Lokalizacja</label>
-            <div className="relative">
-              <select 
-                value={selectedCity}
-                onChange={(e) => setSelectedCity(e.target.value)}
-                className="w-full bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg px-2 py-1.5 text-xs text-gray-700 dark:text-gray-200 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 appearance-none font-medium transition-colors"
-              >
-                <option value="">Wszystkie miasta</option>
-                {availableCities.map((city) => (
-                  <option key={city} value={city}>{city}</option>
-                ))}
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-              </div>
-            </div>
+            <CustomSelect
+              options={availableCities}
+              value={selectedCity}
+              onChange={setSelectedCity}
+              placeholder="Wszystkie miasta"
+            />
           </div>
 
           {/* Category */}
           <div className="flex flex-col gap-1">
             <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Kategoria</label>
-            <div className="relative">
-              <select 
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg px-2 py-1.5 text-xs text-gray-700 dark:text-gray-200 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 appearance-none font-medium transition-colors"
-              >
-                <option value="">Wszystkie kategorie</option>
-                {availableCategories.map((cat) => (
-                  <option key={cat.value} value={cat.value}>{cat.label}</option>
-                ))}
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-              </div>
-            </div>
+            <CustomSelect
+              options={availableCategories}
+              value={selectedCategory}
+              onChange={(val) => {
+                setSelectedCategory(val);
+                setSelectedSubcategory('');
+              }}
+              placeholder="Wszystkie kategorie"
+              showSearch={false}
+            />
           </div>
 
           {/* Subcategory */}
           {selectedCategory && (
             <div className="flex flex-col gap-1 animate-fadeIn">
               <label className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Typ sprzętu</label>
-              <div className="relative">
-                <select 
-                  value={selectedSubcategory}
-                  onChange={(e) => setSelectedSubcategory(e.target.value)}
-                  className="w-full bg-blue-50 dark:bg-slate-900 border border-blue-200 dark:border-slate-600 rounded-lg px-2 py-1.5 text-xs text-gray-700 dark:text-gray-200 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 appearance-none font-medium transition-colors"
-                >
-                  <option value="">Dowolny typ</option>
-                  {subcategories?.map((sub) => (
-                    <option key={sub.value} value={sub.value}>{sub.label}</option>
-                  ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-blue-500">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                </div>
-              </div>
+              <CustomSelect
+                options={subcategories || []}
+                value={selectedSubcategory}
+                onChange={setSelectedSubcategory}
+                placeholder="Dowolny typ"
+                showSearch={false}
+              />
             </div>
           )}
 

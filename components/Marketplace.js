@@ -11,6 +11,7 @@ import SeoFAQ from './SeoFAQ';
 import { trackEvent } from '../lib/gtag';
 import MapComponent from './MapComponent';
 import { sanitizeAddress } from '../lib/utils';
+import CustomSelect from './CustomSelect';
 
 export default function Marketplace({ initialData }) {
   const { listings, filters } = initialData;
@@ -323,18 +324,21 @@ export default function Marketplace({ initialData }) {
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-bold text-gray-400 uppercase hidden sm:block">Pokaż</span>
-                  <select 
-                    className="bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-lg px-2 py-1 text-sm text-gray-700 dark:text-gray-200 outline-none focus:border-blue-500 transition-colors"
-                    value={itemsPerPage}
-                    onChange={(e) => {
-                      setItemsPerPage(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                  >
-                    <option value="20">20</option>
-                    <option value="50">50</option>
-                    <option value="all">∞</option>
-                  </select>
+                  <div className="w-20 sm:w-24">
+                    <CustomSelect
+                      options={[
+                        { value: '20', label: '20' },
+                        { value: '50', label: '50' },
+                        { value: 'all', label: '∞' }
+                      ]}
+                      value={itemsPerPage}
+                      onChange={(val) => {
+                        setItemsPerPage(val);
+                        setCurrentPage(1);
+                      }}
+                      showSearch={false}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
