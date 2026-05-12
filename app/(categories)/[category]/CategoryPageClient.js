@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import ListingCard from '../../../components/ListingCard';
 import MapComponent from '../../../components/MapComponent';
+import CustomSelect from '../../../components/CustomSelect';
 import { SEO_CATEGORIES } from '../../../lib/categories';
 import { geocodeAddress } from '../../../lib/geocoding';
 import { sanitizeAddress } from '../../../lib/utils';
@@ -158,16 +159,12 @@ export default function CategoryPageClient({ category, listings, cities, otherCa
               {/* City Filter */}
               <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 p-4">
                 <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Lokalizacja</h3>
-                <select
+                <CustomSelect
+                  options={cities}
                   value={selectedCity}
-                  onChange={(e) => { setSelectedCity(e.target.value); setCurrentPage(1); }}
-                  className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-300 dark:border-slate-600 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-200 outline-none focus:border-blue-500 appearance-none font-medium transition-colors"
-                >
-                  <option value="">Wszystkie miasta</option>
-                  {cities.map((city) => (
-                    <option key={city} value={city}>{city}</option>
-                  ))}
-                </select>
+                  onChange={(val) => { setSelectedCity(val); setCurrentPage(1); }}
+                  placeholder="Wszystkie miasta"
+                />
               </div>
 
               {/* Subcategory Filters (UX only, NOT indexed) */}

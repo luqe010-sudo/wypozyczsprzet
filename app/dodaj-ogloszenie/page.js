@@ -191,7 +191,7 @@ function AddListingForm() {
                         const seoSlug = fc?.seoSlug;
                         const filters = seoSlug && SEO_CATEGORIES[seoSlug] ? SEO_CATEGORIES[seoSlug].filters : [];
                         return filters.map((f) => (
-                          <option key={f} value={f}>{f}</option>
+                          <option key={f.value} value={f.value}>{f.label}</option>
                         ));
                       })()}
                     </select>

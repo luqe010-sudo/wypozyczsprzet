@@ -1,6 +1,7 @@
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { SEO_CATEGORIES, FORM_CATEGORIES, getCitySlug } from '../lib/categories';
+import CustomSelect from './CustomSelect';
 
 export default function Hero({ 
   searchTerm, setSearchTerm,
@@ -86,40 +87,28 @@ export default function Hero({
             </div>
           </div>
 
-          {/* Location Select placeholder */}
+          {/* Location Select */}
           <div className="flex-1 w-full flex items-center px-4 py-2 border-b md:border-b-0 md:border-r border-gray-200 dark:border-slate-700">
             <svg className="w-4 h-4 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-            <div className="flex flex-col flex-1 text-left">
-              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider hidden md:block">Lokalizacja</label>
-              <select 
-                className="w-full text-sm text-gray-900 dark:text-white outline-none bg-transparent font-medium cursor-pointer appearance-none"
-                value={selectedCity}
-                onChange={(e) => setSelectedCity(e.target.value)}
-              >
-                <option value="" className="dark:bg-slate-800">Wszystkie miasta</option>
-                {availableCities.map(city => (
-                  <option key={city} value={city} className="dark:bg-slate-800">{city}</option>
-                ))}
-              </select>
-            </div>
+            <CustomSelect
+              label="Lokalizacja"
+              options={availableCities}
+              value={selectedCity}
+              onChange={setSelectedCity}
+              placeholder="Wszystkie miasta"
+            />
           </div>
 
           {/* Category Select */}
           <div className="flex-1 w-full flex items-center px-4 py-2 border-gray-200 dark:border-slate-700 transition-all duration-300">
             <svg className="w-4 h-4 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
-            <div className="flex flex-col flex-1 text-left">
-              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider hidden md:block">Kategoria</label>
-              <select 
-                className="w-full text-sm text-gray-900 dark:text-white outline-none bg-transparent font-medium cursor-pointer appearance-none"
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-              >
-                <option value="" className="dark:bg-slate-800">Wszystkie kategorie</option>
-                {availableCategories.map(cat => (
-                  <option key={cat.value} value={cat.value} className="dark:bg-slate-800">{cat.label}</option>
-                ))}
-              </select>
-            </div>
+            <CustomSelect
+              label="Kategoria"
+              options={availableCategories}
+              value={selectedCategory}
+              onChange={setSelectedCategory}
+              placeholder="Wszystkie kategorie"
+            />
           </div>
 
           {/* CTA Button */}

@@ -83,7 +83,7 @@ export default function AdminNewEquipmentForm({ companies }) {
                 {FORM_CATEGORIES.flatMap(fc => {
                   const cat = SEO_CATEGORIES[fc.seoSlug];
                   return cat ? cat.filters.map(f => (
-                    <option key={f} value={f}>{fc.label} — {f}</option>
+                    <option key={f.value} value={f.value}>{fc.label} — {f.label}</option>
                   )) : [];
                 })}
               </select>
