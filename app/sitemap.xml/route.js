@@ -6,6 +6,8 @@ export async function GET() {
     'categories.xml',
     'local-hubs.xml',
     'static-pages.xml',
+    'blog.xml',
+    'umowy.xml',
   ];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

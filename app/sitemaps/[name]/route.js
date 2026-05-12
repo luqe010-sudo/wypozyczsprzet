@@ -19,6 +19,10 @@ export async function GET(request, { params }) {
     xml = generateLocalHubsSitemap(slugData);
   } else if (name === 'static-pages.xml') {
     xml = generateStaticSitemap();
+  } else if (name === 'blog.xml') {
+    xml = generateBlogSitemap();
+  } else if (name === 'umowy.xml') {
+    xml = generateUmowySitemap();
   } else {
     return new Response('Not Found', { status: 404 });
   }
@@ -90,6 +94,30 @@ function generateStaticSitemap() {
       <lastmod>${new Date().toISOString()}</lastmod>
       <changefreq>weekly</changefreq>
       <priority>${path === '' ? '1.0' : '0.5'}</priority>
+    </url>`).join('');
+
+  return wrapInUrlset(urls);
+}
+
+function generateBlogSitemap() {
+  const urls = articles.map(article => `
+    <url>
+      <loc>${BASE_URL}/blog/${article.slug}</loc>
+      <lastmod>${article.date ? new Date(article.date).toISOString() : new Date().toISOString()}</lastmod>
+      <changefreq>monthly</changefreq>
+      <priority>0.6</priority>
+    </url>`).join('');
+
+  return wrapInUrlset(urls);
+}
+
+function generateUmowySitemap() {
+  const urls = documents.map(doc => `
+    <url>
+      <loc>${BASE_URL}/umowy/${doc.slug}</loc>
+      <lastmod>${new Date().toISOString()}</lastmod>
+      <changefreq>monthly</changefreq>
+      <priority>0.6</priority>
     </url>`).join('');
 
   return wrapInUrlset(urls);
