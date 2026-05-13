@@ -9,6 +9,7 @@ import { SEO_CATEGORIES } from '../lib/categories';
 
 export default function Navbar({ actionUrl, actionLabel }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [mobileCatsOpen, setMobileCatsOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const pathname = usePathname();
@@ -103,13 +104,20 @@ export default function Navbar({ actionUrl, actionLabel }) {
         <div className={`nav-links ${isOpen ? 'active' : ''} dark:bg-slate-900`}>
           <Link href="/" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">{'Strona główna'}</Link>
           
-          {/* Categories Dropdown */}
+          {/* Categories Dropdown (Desktop) / Toggle (Mobile) */}
           <div className="relative group">
-            <button className="dark:text-gray-300 dark:hover:text-white flex items-center gap-1 font-medium">
-              Kategorie
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+            <button 
+              onClick={() => setMobileCatsOpen(!mobileCatsOpen)}
+              className="dark:text-gray-300 dark:hover:text-white flex items-center justify-between md:justify-start w-full md:w-auto gap-1 font-medium group/btn"
+            >
+              <span className="flex items-center gap-1">
+                Kategorie
+                <svg className={`w-3 h-3 transition-transform md:group-hover:rotate-180 ${mobileCatsOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+              </span>
             </button>
-            <div className="absolute top-full left-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-200 dark:border-slate-700 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+            
+            {/* Desktop Hover Menu */}
+            <div className="absolute top-full left-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-200 dark:border-slate-700 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 hidden md:block">
               {Object.values(SEO_CATEGORIES).map((cat) => (
                 <Link
                   key={cat.slug}
@@ -122,22 +130,27 @@ export default function Navbar({ actionUrl, actionLabel }) {
                 </Link>
               ))}
             </div>
+
+            {/* Mobile Expandable Menu */}
+            {mobileCatsOpen && (
+              <div className="md:hidden overflow-hidden transition-all duration-300">
+                <div className="space-y-1 bg-gray-50 dark:bg-slate-800/50 rounded-xl p-2 mt-2">
+                  {Object.values(SEO_CATEGORIES).map((cat) => (
+                    <Link
+                      key={cat.slug}
+                      href={`/${cat.slug}`}
+                      onClick={() => setIsOpen(false)}
+                      className="flex items-center gap-2 pl-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600"
+                    >
+                      <span>{cat.icon}</span>
+                      <span>{cat.name}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Mobile: flat category links */}
-          <div className="md:hidden space-y-1">
-            {Object.values(SEO_CATEGORIES).map((cat) => (
-              <Link
-                key={cat.slug}
-                href={`/${cat.slug}`}
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-2 pl-4 py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600"
-              >
-                <span>{cat.icon}</span>
-                <span>{cat.name}</span>
-              </Link>
-            ))}
-          </div>
 
           <Link href="/blog" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">{'Poradniki'}</Link>
           <Link href="/umowy" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">{'Umowy'}</Link>

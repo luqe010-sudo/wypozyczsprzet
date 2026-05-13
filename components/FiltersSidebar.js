@@ -60,6 +60,7 @@ export default function FiltersSidebar({
                 setSelectedSubcategory('');
               }}
               placeholder="Wszystkie kategorie"
+              showSearch={false}
               variant="field"
             />
           </div>
@@ -73,6 +74,7 @@ export default function FiltersSidebar({
                 value={selectedSubcategory}
                 onChange={setSelectedSubcategory}
                 placeholder="Dowolny typ"
+                showSearch={false}
                 variant="field"
               />
             </div>

@@ -43,7 +43,10 @@ export default function CustomSelect({
 
   useEffect(() => {
     if (isOpen && inputRef.current && showSearch) {
-      inputRef.current.focus();
+      // Only auto-focus on desktop (>= 1024px) to prevent mobile keyboard from opening
+      if (window.innerWidth >= 1024) {
+        inputRef.current.focus();
+      }
     }
     if (!isOpen) {
       setSearchTerm('');
