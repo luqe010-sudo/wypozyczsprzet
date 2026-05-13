@@ -1,8 +1,15 @@
 import './globals.css';
+import { Inter } from 'next/font/google';
 import Navbar from '../components/Navbar';
 import CookieConsent from '../components/CookieConsent';
 import ToastProvider from '../components/ToastProvider';
 import Script from 'next/script';
+
+const inter = Inter({ 
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+});
 
 const publicFormUrl = process.env.NEXT_PUBLIC_FORM_URL || process.env.FORM_URL || '';
 const formSheetUrl = process.env.FORM_SHEET_URL || '';
@@ -48,7 +55,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="pl" suppressHydrationWarning>
+    <html lang="pl" suppressHydrationWarning className={inter.variable}>
       <head>
         <link rel="icon" href="/favicon.png" />
         <link rel="preconnect" href="https://res.cloudinary.com" />

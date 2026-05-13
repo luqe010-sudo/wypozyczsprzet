@@ -69,7 +69,7 @@ export default function CategoryPageClient({ category, listings, cities, otherCa
       })
       .filter(Boolean);
 
-    const uniquePending = [...new Set(addressesToGeocode)].slice(0, 5); // Small batches
+    const uniquePending = [...new Set(addressesToGeocode)].slice(0, 2); // Very small batches for mobile stability
 
     if (uniquePending.length > 0) {
       uniquePending.forEach(addr => geocodeQueuedRef.current.add(addr));

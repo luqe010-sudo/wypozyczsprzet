@@ -17,7 +17,7 @@ const nextConfig = {
       { protocol: 'https', hostname: 'res.cloudinary.com' },
       { protocol: 'https', hostname: '*.supabase.co' },
     ],
-    minimumCacheTTL: 60,
+    minimumCacheTTL: 3600,
   },
   async redirects() {
     return [

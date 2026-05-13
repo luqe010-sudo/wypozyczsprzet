@@ -22,6 +22,27 @@ const SeoFAQ = dynamic(() => import('./SeoFAQ'), { ssr: false });
 export default function Marketplace({ initialData }) {
   const { listings, filters } = initialData;
 
+  const [showBelowFold, setShowBelowFold] = useState(false);
+  const belowFoldRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setShowBelowFold(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '400px' } // Start loading 400px before reaching them
+    );
+
+    if (belowFoldRef.current) {
+      observer.observe(belowFoldRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -158,8 +179,8 @@ export default function Marketplace({ initialData }) {
       setIsGeocoding(true);
       setPendingGeocodes(allPending.length);
 
-      // Process a small batch
-      const batch = allPending.slice(0, 8);
+      // Process a very small batch at a time to keep main thread free
+      const batch = allPending.slice(0, 3);
       for (const q of batch) {
         try {
           const response = await fetch(`/api/geocode?q=${encodeURIComponent(q)}`);
@@ -173,7 +194,8 @@ export default function Marketplace({ initialData }) {
               setGeoCache(prev => ({ ...prev, [q]: 'failed' }));
             }
           }
-          await new Promise(r => setTimeout(r, 1200));
+          // Increase delay between requests to reduce CPU spikes
+          await new Promise(r => setTimeout(r, 2000));
         } catch (e) { 
           console.error('Geocoding error for:', q, e);
         }
@@ -415,11 +437,15 @@ export default function Marketplace({ initialData }) {
               </div>
             )}
             
-            {/* Stats Section */}
-            <StatsSection />
-
-            {/* SEO Content Section */}
-            <SeoFAQ />
+            {/* Defer loading of heavy components */}
+            <div ref={belowFoldRef}>
+              {showBelowFold && (
+                <>
+                  <StatsSection />
+                  <SeoFAQ />
+                </>
+              )}
+            </div>
           </main>
 
 
