@@ -1,6 +1,8 @@
 "use client";
 
 import Link from 'next/link';
+import Image from 'next/image';
+import { CldImage } from 'next-cloudinary';
 import { useRouter } from 'next/navigation';
 import DynamicPlaceholder from './DynamicPlaceholder';
 import { trackEvent } from '../lib/gtag';
@@ -34,12 +36,25 @@ export default function ListingCard({ listing }) {
       <div className="relative w-full aspect-[4/3] bg-gray-100 dark:bg-slate-700 overflow-hidden">
         <Link href={listingUrl} tabIndex="-1" className="block w-full h-full">
           {hasImage ? (
-            <img 
-              src={listing.Zdjecie} 
-              alt={`${listing['Sprzęt']} na wynajem ${listing.Miasto}`} 
-              loading="lazy"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            />
+            listing.Zdjecie.includes('cloudinary.com') ? (
+              <CldImage 
+                src={listing.Zdjecie} 
+                alt={`${listing['Sprzęt']} na wynajem ${listing.Miasto}`} 
+                fill
+                sizes="(max-width: 480px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                format="auto"
+                quality="auto"
+              />
+            ) : (
+              <Image 
+                src={listing.Zdjecie} 
+                alt={`${listing['Sprzęt']} na wynajem ${listing.Miasto}`} 
+                fill
+                sizes="(max-width: 480px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                className="object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+            )
           ) : (
             <div className="w-full h-full group-hover:scale-105 transition-transform duration-500">
                <DynamicPlaceholder title={listing['Sprzęt']} category={listing.Kategoria} />

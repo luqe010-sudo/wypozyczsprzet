@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { CldImage } from 'next-cloudinary';
 import { useRouter } from 'next/navigation';
 import DynamicPlaceholder from '../../../components/DynamicPlaceholder';
 import ListingMap from '../../../components/ListingMap';
@@ -68,11 +70,27 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
       {/* Hero Image */}
       <div className="rounded-3xl overflow-hidden mb-12 relative aspect-video md:aspect-[21/9] bg-blue-50 dark:bg-slate-800 shadow-lg border border-gray-100 dark:border-slate-700">
         {hasHeroImage ? (
-          <img
-            src={listing.Zdjecie}
-            alt={name}
-            className="absolute inset-0 w-full h-full object-cover"
-          />
+          listing.Zdjecie.includes('cloudinary.com') ? (
+            <CldImage
+              src={listing.Zdjecie}
+              alt={name}
+              fill
+              priority={true}
+              loading="eager"
+              className="object-cover"
+              format="auto"
+              quality="auto"
+            />
+          ) : (
+            <Image
+              src={listing.Zdjecie}
+              alt={name}
+              fill
+              priority={true}
+              loading="eager"
+              className="object-cover"
+            />
+          )
         ) : (
           <div className="absolute inset-0 w-full h-full">
             <DynamicPlaceholder title={name} category={listing.Kategoria} />
@@ -251,7 +269,25 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
                 <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-slate-700 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                   <div className="aspect-video relative overflow-hidden">
                     {item.Zdjecie && String(item.Zdjecie).startsWith('http') ? (
-                      <img src={item.Zdjecie} alt={item['Sprzęt']} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      item.Zdjecie.includes('cloudinary.com') ? (
+                        <CldImage 
+                          src={item.Zdjecie} 
+                          alt={item['Sprzęt']} 
+                          fill
+                          sizes="(max-width: 480px) 100vw, (max-width: 1024px) 33vw, 25vw"
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          format="auto"
+                          quality="auto"
+                        />
+                      ) : (
+                        <Image 
+                          src={item.Zdjecie} 
+                          alt={item['Sprzęt']} 
+                          fill
+                          sizes="(max-width: 480px) 100vw, (max-width: 1024px) 33vw, 25vw"
+                          className="object-cover group-hover:scale-105 transition-transform duration-500" 
+                        />
+                      )
                     ) : (
                       <DynamicPlaceholder title={item['Sprzęt']} category={item.Kategoria} />
                     )}

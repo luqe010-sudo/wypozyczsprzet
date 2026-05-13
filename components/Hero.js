@@ -1,4 +1,5 @@
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import Link from 'next/link';
 import { SEO_CATEGORIES, FORM_CATEGORIES, getCitySlug } from '../lib/categories';
 import CustomSelect from './CustomSelect';
@@ -44,10 +45,18 @@ export default function Hero({
   return (
     <section className="relative w-full bg-gray-900">
       {/* Background Image */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/header.png')" }}
-      />
+      <div className="absolute inset-0">
+        <Image
+          src="/header.png"
+          alt="Wynajem sprzętu budowlanego"
+          fill
+          priority={true}
+          loading="eager"
+          sizes="(max-width: 480px) 100vw, 100vw"
+          className="object-cover object-center"
+          quality={85}
+        />
+      </div>
       {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/50 dark:bg-black/70"></div>
 

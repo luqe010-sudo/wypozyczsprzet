@@ -4,11 +4,16 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import ListingCard from '../../../components/ListingCard';
-import MapComponent from '../../../components/MapComponent';
+import dynamic from 'next/dynamic';
 import CustomSelect from '../../../components/CustomSelect';
 import { SEO_CATEGORIES, getCitySlug } from '../../../lib/categories';
 import { geocodeAddress } from '../../../lib/geocoding';
 import { sanitizeAddress } from '../../../lib/utils';
+
+const MapComponent = dynamic(() => import('../../../components/MapComponent'), { 
+  ssr: false,
+  loading: () => <div className="w-full h-full bg-gray-100 animate-pulse flex items-center justify-center text-gray-400">Ładowanie mapy...</div>
+});
 
 export default function CategoryPageClient({ category, listings, cities, otherCategories, cityName, otherCities }) {
   const searchParams = useSearchParams();

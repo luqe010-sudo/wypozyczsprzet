@@ -3,15 +3,21 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Hero from './Hero';
 import TrustBar from './TrustBar';
-import FiltersSidebar from './FiltersSidebar';
 import ListingGrid from './ListingGrid';
-import CTASection from './CTASection';
-import StatsSection from './StatsSection';
-import SeoFAQ from './SeoFAQ';
+import dynamic from 'next/dynamic';
 import { trackEvent } from '../lib/gtag';
-import MapComponent from './MapComponent';
 import { sanitizeAddress } from '../lib/utils';
 import CustomSelect from './CustomSelect';
+
+const MapComponent = dynamic(() => import('./MapComponent'), { 
+  ssr: false,
+  loading: () => <div className="w-full h-full bg-gray-100 animate-pulse flex items-center justify-center text-gray-400">Ładowanie mapy...</div>
+});
+
+const FiltersSidebar = dynamic(() => import('./FiltersSidebar'), { ssr: false });
+const CTASection = dynamic(() => import('./CTASection'), { ssr: false });
+const StatsSection = dynamic(() => import('./StatsSection'), { ssr: false });
+const SeoFAQ = dynamic(() => import('./SeoFAQ'), { ssr: false });
 
 export default function Marketplace({ initialData }) {
   const { listings, filters } = initialData;

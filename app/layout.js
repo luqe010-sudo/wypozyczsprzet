@@ -51,6 +51,12 @@ export default function RootLayout({ children }) {
     <html lang="pl" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/favicon.png" />
+        <link rel="preconnect" href="https://res.cloudinary.com" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        {/* Preconnect to Supabase if used for images */}
+        {process.env.NEXT_PUBLIC_SUPABASE_URL && (
+          <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL} />
+        )}
         <script dangerouslySetInnerHTML={{
           __html: `
             if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {

@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import Image from 'next/image';
+import { CldImage } from 'next-cloudinary';
 import DynamicPlaceholder from '../../../../../components/DynamicPlaceholder';
 import { SEO_CATEGORIES } from '../../../../../lib/categories';
 
@@ -16,12 +18,25 @@ function SuggestionCard({ listing }) {
       {/* Image */}
       <div className="relative w-full aspect-[4/3] bg-gray-100 dark:bg-slate-700 overflow-hidden">
         {hasImage ? (
-          <img
-            src={listing.Zdjecie}
-            alt={listing['Sprzęt']}
-            loading="lazy"
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
+          listing.Zdjecie.includes('cloudinary.com') ? (
+            <CldImage 
+              src={listing.Zdjecie} 
+              alt={listing['Sprzęt']} 
+              fill
+              sizes="(max-width: 480px) 100vw, (max-width: 1024px) 33vw, 25vw"
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
+              format="auto"
+              quality="auto"
+            />
+          ) : (
+            <Image 
+              src={listing.Zdjecie} 
+              alt={listing['Sprzęt']} 
+              fill
+              sizes="(max-width: 480px) 100vw, (max-width: 1024px) 33vw, 25vw"
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          )
         ) : (
           <div className="w-full h-full group-hover:scale-105 transition-transform duration-500">
             <DynamicPlaceholder

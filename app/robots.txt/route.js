@@ -3,6 +3,8 @@ const BASE_URL = 'https://wypozycz.online';
 export async function GET() {
   const robots = `User-agent: *
 Allow: /
+Allow: /_next/static/
+Allow: /_next/image/
 Disallow: /admin/
 Disallow: /api/
 Disallow: /*?*
