@@ -1,4 +1,4 @@
-import React from 'react';
+import Image from 'next/image';
 
 export default function DynamicPlaceholder({ title, category }) {
   let imageSrc = '/placeholders/narzedzia.png'; // default fallback
@@ -16,15 +16,14 @@ export default function DynamicPlaceholder({ title, category }) {
   }
 
   return (
-    <img 
-      src={imageSrc} 
-      alt={`${category || title || 'Sprzęt budowlany'}`}
-      className="listing-image"
-      style={{
-        width: '100%',
-        height: '100%',
-        objectFit: 'cover'
-      }}
-    />
+    <div className="relative w-full h-full">
+      <Image 
+        src={imageSrc} 
+        alt={`${category || title || 'Sprzęt budowlany'}`}
+        fill
+        sizes="(max-width: 480px) 100vw, (max-width: 1024px) 33vw, 25vw"
+        className="object-cover"
+      />
+    </div>
   );
 }

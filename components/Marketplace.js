@@ -49,7 +49,7 @@ export default function Marketplace({ initialData }) {
     if (Object.keys(geoCache).length > 0) {
       localStorage.setItem('geoCache', JSON.stringify(geoCache));
     }
-  }, [geoCache]);
+  }, [listings, geoCache, selectedCity]);
 
   const clearGeoCache = () => {
     if (window.confirm('Czy na pewno chcesz odświeżyć wszystkie lokalizacje na mapie? Może to zająć chwilę.')) {
@@ -183,7 +183,7 @@ export default function Marketplace({ initialData }) {
       setPendingGeocodes(0);
     };
     geocodeListings();
-  }, [listings]); // Removed filteredListings to prevent infinite loop
+  }, [listings, geoCache]); 
   
   // Geocode selected city to set search center
   useEffect(() => {
@@ -321,14 +321,6 @@ export default function Marketplace({ initialData }) {
               <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
                 Najnowsze ogłoszenia
               </h2>
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-gray-400 uppercase hidden sm:block">Pokaż</span>
-                  <div className="w-20 sm:w-24">
-                    <CustomSelect
-                      options={[
-                        { value: '20', label: '20' },
-                        { value: '50', label: '50' },
                         { value: 'all', label: '∞' }
                       ]}
                       value={itemsPerPage}

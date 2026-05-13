@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import Map, { Marker, Popup, NavigationControl, FullscreenControl, GeolocateControl } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import maplibregl from 'maplibre-gl';
+import Image from 'next/image';
 
 // Default center (Poland)
 const DEFAULT_VIEWPORT = {
@@ -258,7 +259,15 @@ export default function MapComponent({ listings, geoCache, searchCenter, radius,
           >
             <div className="p-3 max-w-[200px] dark:bg-slate-800 rounded-lg">
               {popupInfo.Zdjecie && (
-                <img src={popupInfo.Zdjecie} alt={popupInfo['Sprzęt']} className="w-full h-24 object-cover rounded-lg mb-2" />
+                <div className="relative w-full h-24 rounded-lg mb-2 overflow-hidden">
+                  <Image 
+                    src={popupInfo.Zdjecie} 
+                    alt={popupInfo['Sprzęt']} 
+                    fill
+                    sizes="200px"
+                    className="object-cover" 
+                  />
+                </div>
               )}
               <h3 className="font-bold text-sm text-gray-900 dark:text-white leading-tight mb-1">{popupInfo['Sprzęt']}</h3>
               <p className="text-blue-600 dark:text-blue-400 font-bold text-sm mb-1">{popupInfo.Cena_od} PLN / {popupInfo.Czas}</p>

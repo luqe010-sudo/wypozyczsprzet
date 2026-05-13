@@ -47,7 +47,7 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
       }
     };
     getUser();
-  }, [listing.ID_sprzetu]);
+  }, [listing.ID_sprzetu, supabase]);
 
   useEffect(() => {
     trackEvent('view_listing', {

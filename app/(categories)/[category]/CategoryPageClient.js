@@ -54,7 +54,7 @@ export default function CategoryPageClient({ category, listings, cities, otherCa
     } else {
       setSearchCenter(null);
     }
-  }, [cityName, selectedCity]);
+  }, [cityName, selectedCity, geoCache]);
 
   // Background geocoding for listings
   useEffect(() => {
