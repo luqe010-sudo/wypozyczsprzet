@@ -76,14 +76,16 @@ export default function Hero({
           <div className="flex-1 w-full flex items-center px-4 py-2 border-b md:border-b-0 md:border-r border-gray-200 dark:border-slate-700">
             <svg className="w-4 h-4 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
             <div className="flex flex-col flex-1 text-left">
-              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider hidden md:block">Czego szukasz?</label>
-              <input
-                type="text"
-                placeholder="np. koparka, wiertarka..."
-                className="w-full text-sm text-gray-900 dark:text-white placeholder-gray-400 outline-none bg-transparent font-medium"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider hidden md:block mb-0.5">Czego szukasz?</label>
+              <div className="h-11 px-3 bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl hover:border-blue-400 dark:hover:border-blue-500 shadow-sm focus-within:ring-2 focus-within:ring-blue-500/20 flex items-center transition-all duration-200">
+                <input
+                  type="text"
+                  placeholder="np. koparka, wiertarka..."
+                  className="w-full text-sm text-gray-900 dark:text-white placeholder-gray-400 outline-none bg-transparent font-medium"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
             </div>
           </div>
 
