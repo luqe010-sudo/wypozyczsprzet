@@ -10,9 +10,12 @@ export default function CustomSelect({
   placeholder = "Wybierz...",
   icon,
   className = "",
-  showSearch = true,
+  showSearch, // undefined by default, we'll determine it below
   variant = "minimal" // "minimal" or "field"
 }) {
+  // If showSearch is not explicitly provided, only show it for lists with more than 15 items
+  const actualShowSearch = showSearch !== undefined ? showSearch : (options && options.length > 15);
+
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const dropdownRef = useRef(null);
@@ -42,7 +45,7 @@ export default function CustomSelect({
   }, []);
 
   useEffect(() => {
-    if (isOpen && inputRef.current && showSearch) {
+    if (isOpen && inputRef.current && actualShowSearch) {
       // Only auto-focus on desktop (>= 1024px) to prevent mobile keyboard from opening
       if (window.innerWidth >= 1024) {
         inputRef.current.focus();
@@ -51,7 +54,7 @@ export default function CustomSelect({
     if (!isOpen) {
       setSearchTerm('');
     }
-  }, [isOpen, showSearch]);
+  }, [isOpen, actualShowSearch]);
 
   const handleSelect = (option) => {
     const val = typeof option === 'string' ? option : option.value;
@@ -90,7 +93,7 @@ export default function CustomSelect({
       {isOpen && (
         <div className="absolute top-full left-0 mt-3 w-full min-w-[240px] bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-700 z-[100] overflow-hidden opacity-100 visible transition-all duration-200 shadow-blue-500/10">
           {/* Search Input inside dropdown */}
-          {showSearch && (
+          {actualShowSearch && (
             <div className="p-3 border-b border-gray-50 dark:border-slate-700">
               <div className="relative">
                 <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
