@@ -9,6 +9,7 @@ import ClaimCompanyModal from '../../../../../components/ClaimCompanyModal';
 import { trackEvent } from '../../../../../lib/gtag';
 import { createClient } from '@/utils/supabase/client';
 import { trackView, trackClick } from '../../../../../lib/tracking';
+import { getExternalLinkProps, isBrokenLink } from '../../../../../lib/seo-utils';
 
 export default function ListingPageClient({ listing, seoDescription, faqItems, related, categorySlug, categoryName }) {
   const [showPhone, setShowPhone] = useState(false);
@@ -165,8 +166,9 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
                 🏢 To moja firma (Zgłoś)
               </button>
             )}
-            {listing.olxUrl && (
-              <a href={listing.olxUrl} target="_blank" rel="noopener noreferrer" 
+            {listing.olxUrl && !isBrokenLink(listing.olxUrl) && (
+              <a href={listing.olxUrl} 
+                 {...getExternalLinkProps(listing.olxUrl)}
                  className="w-full bg-[#002f34] text-[#23e5db] font-black py-4 px-6 rounded-2xl transition-all text-center block text-lg"
                  onClick={() => {
                    trackEvent('click_olx', { listing_name: name, olx_url: listing.olxUrl });
@@ -177,13 +179,17 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
             )}
             {company.WWW && (
               <a href={company.WWW.startsWith('http') ? company.WWW : `https://${company.WWW}`} 
-                target="_blank" rel="noopener noreferrer" 
-                className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 text-gray-700 dark:text-gray-300 font-bold py-4 px-6 rounded-2xl transition-all text-center flex items-center justify-center gap-2"
-                onClick={() => {
+                {...getExternalLinkProps(company.WWW)}
+                className={`w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 text-gray-700 dark:text-gray-300 font-bold py-4 px-6 rounded-2xl transition-all text-center flex items-center justify-center gap-2 ${isBrokenLink(company.WWW) ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
+                onClick={(e) => {
+                  if (isBrokenLink(company.WWW)) {
+                    e.preventDefault();
+                    return;
+                  }
                   trackEvent('click_www', { listing_name: name, www: company.WWW });
                   trackClick(listing.ID_sprzetu, 'website');
                 }}>
-                🌐 Przejdź do strony
+                🌐 {isBrokenLink(company.WWW) ? 'Strona niedostępna' : 'Przejdź do strony'}
               </a>
             )}
           </div>

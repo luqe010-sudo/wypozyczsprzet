@@ -6,7 +6,7 @@ import Link from 'next/link';
 import ListingCard from '../../../components/ListingCard';
 import MapComponent from '../../../components/MapComponent';
 import CustomSelect from '../../../components/CustomSelect';
-import { SEO_CATEGORIES } from '../../../lib/categories';
+import { SEO_CATEGORIES, getCitySlug } from '../../../lib/categories';
 import { geocodeAddress } from '../../../lib/geocoding';
 import { sanitizeAddress } from '../../../lib/utils';
 
@@ -300,7 +300,7 @@ export default function CategoryPageClient({ category, listings, cities, otherCa
                 {cities.slice(0, 30).map((city) => (
                   <Link
                     key={city}
-                    href={`/${category.slug}/${String(city).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\u0142/g, 'l').replace(/\u0144/g, 'n').replace(/\u015b/g, 's').replace(/[\u017a\u017c]/g, 'z').replace(/\u0107/g, 'c').replace(/\u0119/g, 'e').replace(/\u00f3/g, 'o').replace(/\u0105/g, 'a').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}`}
+                    href={`/${category.slug}/${getCitySlug(city)}`}
                     className="px-3 py-1.5 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-blue-50 dark:hover:bg-slate-600 hover:text-blue-600 transition-colors"
                   >
                     📍 {city}

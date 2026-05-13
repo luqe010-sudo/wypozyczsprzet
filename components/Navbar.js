@@ -12,6 +12,7 @@ export default function Navbar({ actionUrl, actionLabel }) {
   const [mobileCatsOpen, setMobileCatsOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [user, setUser] = useState(null);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -30,6 +31,9 @@ export default function Navbar({ actionUrl, actionLabel }) {
         if (profile?.role === 'admin') {
           setIsAdmin(true);
         }
+        setUser(user);
+      } else {
+        setUser(null);
       }
     };
     checkAdmin();
@@ -168,7 +172,7 @@ export default function Navbar({ actionUrl, actionLabel }) {
 
           {/* Auth Link */}
           <Link 
-            href="/dashboard" 
+            href={user ? "/dashboard" : "/login"} 
             onClick={() => setIsOpen(false)} 
             className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
           >
@@ -176,7 +180,7 @@ export default function Navbar({ actionUrl, actionLabel }) {
           </Link>
 
           <Link
-            href="/dashboard"
+            href={user ? "/dashboard" : "/login?returnTo=/dashboard"}
             className="btn-primary"
             onClick={() => { setIsOpen(false); trackEvent('click_add_listing', { source: 'navbar' }); }}
           >
