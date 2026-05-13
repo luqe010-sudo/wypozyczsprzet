@@ -40,9 +40,9 @@ export default function CookieConsent() {
         <>
           <Script
             src="https://www.googletagmanager.com/gtag/js?id=G-02JHGY66TQ"
-            strategy="afterInteractive"
+            strategy="lazyOnload"
           />
-          <Script id="google-analytics-consent" strategy="afterInteractive">
+          <Script id="google-analytics-consent" strategy="lazyOnload">
             {`
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}

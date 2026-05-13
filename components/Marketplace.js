@@ -23,7 +23,9 @@ export default function Marketplace({ initialData }) {
   const { listings, filters } = initialData;
 
   const [showBelowFold, setShowBelowFold] = useState(false);
+  const [showMap, setShowMap] = useState(false);
   const belowFoldRef = useRef(null);
+  const mapRef = useRef(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -40,7 +42,24 @@ export default function Marketplace({ initialData }) {
       observer.observe(belowFoldRef.current);
     }
 
-    return () => observer.disconnect();
+    const mapObserver = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setShowMap(true);
+          mapObserver.disconnect();
+        }
+      },
+      { rootMargin: '100px' }
+    );
+
+    if (mapRef.current) {
+      mapObserver.observe(mapRef.current);
+    }
+
+    return () => {
+      observer.disconnect();
+      mapObserver.disconnect();
+    };
   }, []);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -277,29 +296,37 @@ export default function Marketplace({ initialData }) {
                 hasSearchCenter={!!searchCenter}
               />
 
-              <div className="hidden lg:block h-[450px] relative rounded-2xl overflow-hidden shadow-sm border border-gray-200 dark:border-slate-700">
-                  <MapComponent 
-                    listings={filteredListings} 
-                    geoCache={geoCache} 
-                    searchCenter={searchCenter} 
-                    radius={radius}
-                    onLocationShared={(coords) => setSearchCenter(coords)}
-                    isCompact={true}
-                  />
-                  <button 
-                    onClick={clearGeoCache}
-                    className={`absolute top-2 left-2 bg-white/90 dark:bg-slate-800/90 hover:bg-white dark:hover:bg-slate-700 p-1.5 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 transition-all z-10 group flex items-center gap-1.5`}
-                    title="Odśwież lokalizacje"
-                  >
-                    <svg className={`w-3.5 h-3.5 ${isGeocoding ? 'text-blue-600 animate-spin' : 'text-gray-500 dark:text-gray-400 group-hover:text-blue-600'} transition-colors`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                    {isGeocoding && (
-                      <span className="text-[9px] font-bold text-blue-600 animate-pulse">
-                        {pendingGeocodes}...
-                      </span>
-                    )}
-                  </button>
+              <div ref={mapRef} className="hidden lg:block h-[450px] relative rounded-2xl overflow-hidden shadow-sm border border-gray-200 dark:border-slate-700">
+                  {showMap ? (
+                    <>
+                      <MapComponent 
+                        listings={filteredListings} 
+                        geoCache={geoCache} 
+                        searchCenter={searchCenter} 
+                        radius={radius}
+                        onLocationShared={(coords) => setSearchCenter(coords)}
+                        isCompact={true}
+                      />
+                      <button 
+                        onClick={clearGeoCache}
+                        className={`absolute top-2 left-2 bg-white/90 dark:bg-slate-800/90 hover:bg-white dark:hover:bg-slate-700 p-1.5 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 transition-all z-10 group flex items-center gap-1.5`}
+                        title="Odśwież lokalizacje"
+                      >
+                        <svg className={`w-3.5 h-3.5 ${isGeocoding ? 'text-blue-600 animate-spin' : 'text-gray-500 dark:text-gray-400 group-hover:text-blue-600'} transition-colors`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        {isGeocoding && (
+                          <span className="text-[9px] font-bold text-blue-600 animate-pulse">
+                            {pendingGeocodes}...
+                          </span>
+                        )}
+                      </button>
+                    </>
+                  ) : (
+                    <div className="w-full h-full bg-gray-100 dark:bg-slate-800 flex items-center justify-center text-gray-400">
+                      Ładowanie mapy...
+                    </div>
+                  )}
               </div>
               
               <div className="hidden lg:block">
@@ -312,28 +339,42 @@ export default function Marketplace({ initialData }) {
           <main className="flex-1 min-w-0">
             {/* Mobile Map/CTA View */}
             <div className="lg:hidden space-y-6 mb-8">
-              <div className="relative">
-                <MapComponent 
-                  listings={filteredListings} 
-                  geoCache={geoCache} 
-                  searchCenter={searchCenter} 
-                  radius={radius}
-                  onLocationShared={(coords) => setSearchCenter(coords)}
-                />
-                <button 
-                  onClick={clearGeoCache}
-                  className={`absolute top-2 left-2 bg-white/90 dark:bg-slate-800/90 hover:bg-white dark:hover:bg-slate-700 p-1.5 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 transition-all z-10 group flex items-center gap-1.5`}
-                  title="Odśwież lokalizacje"
-                >
-                  <svg className={`w-3.5 h-3.5 ${isGeocoding ? 'text-blue-600 animate-spin' : 'text-gray-500 dark:text-gray-400 group-hover:text-blue-600'} transition-colors`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                  {isGeocoding && (
-                    <span className="text-[9px] font-bold text-blue-600 animate-pulse">
-                      {pendingGeocodes}...
-                    </span>
-                  )}
-                </button>
+              <div className="relative min-h-[300px] bg-gray-100 dark:bg-slate-800 rounded-2xl overflow-hidden border border-gray-200 dark:border-slate-700">
+                {showMap ? (
+                  <>
+                    <MapComponent 
+                      listings={filteredListings} 
+                      geoCache={geoCache} 
+                      searchCenter={searchCenter} 
+                      radius={radius}
+                      onLocationShared={(coords) => setSearchCenter(coords)}
+                    />
+                    <button 
+                      onClick={clearGeoCache}
+                      className={`absolute top-2 left-2 bg-white/90 dark:bg-slate-800/90 hover:bg-white dark:hover:bg-slate-700 p-1.5 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 transition-all z-10 group flex items-center gap-1.5`}
+                      title="Odśwież lokalizacje"
+                    >
+                      <svg className={`w-3.5 h-3.5 ${isGeocoding ? 'text-blue-600 animate-spin' : 'text-gray-500 dark:text-gray-400 group-hover:text-blue-600'} transition-colors`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      {isGeocoding && (
+                        <span className="text-[9px] font-bold text-blue-600 animate-pulse">
+                          {pendingGeocodes}...
+                        </span>
+                      )}
+                    </button>
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center justify-center p-8 gap-4">
+                    <div className="w-12 h-12 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin"></div>
+                    <button 
+                      onClick={() => setShowMap(true)}
+                      className="text-blue-600 font-bold hover:underline"
+                    >
+                      Kliknij, aby załadować mapę
+                    </button>
+                  </div>
+                )}
               </div>
               <CTASection />
             </div>

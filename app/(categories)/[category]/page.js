@@ -82,6 +82,12 @@ export default async function CategoryPage({ params }) {
     })),
   };
 
+  // Trim listings for client (don't need descriptions in the grid)
+  const trimmedListings = listings.map(l => {
+    const { Opis, ...rest } = l;
+    return rest;
+  });
+
   return (
     <>
       <script
@@ -95,7 +101,7 @@ export default async function CategoryPage({ params }) {
       <Suspense fallback={<div className="min-h-screen bg-gray-50 dark:bg-slate-900 animate-pulse" />}>
         <CategoryPageClient
           category={cat}
-          listings={listings}
+          listings={trimmedListings}
           cities={citiesInCategory}
           otherCategories={otherCategories}
         />

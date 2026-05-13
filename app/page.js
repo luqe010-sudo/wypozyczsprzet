@@ -33,13 +33,22 @@ export default async function Home() {
     }
   };
 
+  // Trim listings for marketplace (don't need descriptions in the grid)
+  const trimmedData = {
+    ...data,
+    listings: data.listings.map(l => {
+      const { Opis, ...rest } = l;
+      return rest;
+    })
+  };
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
       />
-      <Marketplace initialData={data} />
+      <Marketplace initialData={trimmedData} />
       <CategoryHubs categoryCounts={categoryCounts} />
     </>
   );

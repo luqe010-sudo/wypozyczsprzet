@@ -26,7 +26,27 @@ export default function CategoryPageClient({ category, listings, cities, otherCa
   // Map state
   const [geoCache, setGeoCache] = useState({});
   const [searchCenter, setSearchCenter] = useState(null);
+  const [showMap, setShowMap] = useState(false);
   const geocodeQueuedRef = useRef(new Set());
+  const mapRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setShowMap(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '100px' }
+    );
+
+    if (mapRef.current) {
+      observer.observe(mapRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   // Update state if URL params change
   useEffect(() => {
@@ -204,7 +224,8 @@ export default function CategoryPageClient({ category, listings, cities, otherCa
               </div>
 
               {/* Map Section */}
-              <div className="h-64 relative rounded-2xl overflow-hidden shadow-sm border border-gray-200 dark:border-slate-700">
+              <div ref={mapRef} className="h-64 relative rounded-2xl overflow-hidden shadow-sm border border-gray-200 dark:border-slate-700 bg-gray-100 dark:bg-slate-800 flex items-center justify-center">
+                {showMap ? (
                   <MapComponent 
                     listings={filteredListings} 
                     geoCache={geoCache}
@@ -212,6 +233,9 @@ export default function CategoryPageClient({ category, listings, cities, otherCa
                     radius={cityName || selectedCity ? 20 : 0}
                     isCompact={true}
                   />
+                ) : (
+                  <div className="text-gray-400 text-xs font-bold animate-pulse">Ładowanie mapy...</div>
+                )}
               </div>
 
               {/* Internal Cross-links */}
