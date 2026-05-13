@@ -4,6 +4,9 @@ import Link from 'next/link';
 export const metadata = {
   title: 'Regulamin Serwisu | Wypożycz Sprzęt',
   description: 'Zasady korzystania z serwisu Wypożycz Sprzęt. Zapoznaj się z naszym regulaminem przed dodaniem ogłoszenia.',
+  alternates: {
+    canonical: '/regulamin',
+  },
 };
 
 export default function RegulaminPage() {

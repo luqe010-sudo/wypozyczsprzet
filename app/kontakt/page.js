@@ -3,6 +3,9 @@ import React from 'react';
 export const metadata = {
   title: 'Kontakt i Współpraca - Wynajem Sprzętu',
   description: 'Skontaktuj się z nami w sprawie współpracy, reklamy lub dodania swojej firmy do bazy.',
+  alternates: {
+    canonical: '/kontakt',
+  },
 };
 
 export default function ContactPage() {

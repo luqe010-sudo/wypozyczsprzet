@@ -9,6 +9,9 @@ export async function generateMetadata({ params }) {
   return {
     title: `${article.title} - Blog WypożyczSprzęt`,
     description: article.description,
+    alternates: {
+      canonical: `/blog/${article.slug}`,
+    },
     openGraph: {
       title: article.title,
       description: article.description,

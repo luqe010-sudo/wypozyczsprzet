@@ -21,9 +21,7 @@ export const metadata = {
   title: 'WypożyczSprzęt - Największa wypożyczalnia sprzętu budowlanego w jednym miejscu',
   description: 'Znajdź koparki, minikoparki i sprzęt budowlany lokalnie. Porównaj oferty bez dzwonienia po firmach.',
   keywords: 'wynajem sprzętu budowlanego, roboty ziemne, sprzęt ogrodowy, agregaty, prace na wysokości, narzędzia, koparki, rusztowania, wypożyczalnia, wrocław',
-  alternates: {
-    canonical: 'https://wypozycz.online',
-  },
+
   openGraph: {
     title: 'Wynajem sprzętu budowlanego w jednym miejscu',
     description: 'Znajdź koparki, minikoparki i sprzęt budowlany lokalnie. Porównaj oferty bez dzwonienia po firmach.',

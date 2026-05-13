@@ -3,6 +3,12 @@ import CategoryHubs from '../components/CategoryHubs';
 import { fetchMarketplaceData } from '../lib/googleSheets';
 import { SEO_CATEGORY_SLUGS } from '../lib/categories';
 
+export const metadata = {
+  alternates: {
+    canonical: '/',
+  },
+};
+
 export default async function Home() {
   const data = await fetchMarketplaceData();
 
