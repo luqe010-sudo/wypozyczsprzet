@@ -9,7 +9,7 @@ import CategoryPageClient from '../CategoryPageClient';
 export const revalidate = 3600;
 
 export async function generateMetadata({ params }) {
-  const { category: categorySlug, city: citySlug } = params;
+  const { category: categorySlug, city: citySlug } = await params;
   const category = SEO_CATEGORIES[categorySlug];
   
   if (!category) return {};
@@ -20,7 +20,11 @@ export async function generateMetadata({ params }) {
   if (!cityName) return {};
 
   const title = `${category.name} — ${cityName} | Wynajem sprzętu | WypożyczSprzęt`;
-  const description = `Szukasz sprzętu w kategorii ${category.name.toLowerCase()} w mieście ${cityName}? Sprawdź najlepsze oferty wynajmu bez pośredników. Największa baza w Twojej okolicy!`;
+  
+  // Dynamic description with subcategories
+  const itemTypes = category.filters.slice(0, 3).map(f => f.label).join(', ');
+  const description = `${category.name} w miejscowości ${cityName} — lokalne oferty wynajmu: ${itemTypes} i sprzętu budowlanego. Sprawdź dostępność i porównaj ceny.`;
+  
   const url = `https://wypozycz.online/${categorySlug}/${citySlug}`;
 
   return {
@@ -39,7 +43,7 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function LocalHubPage({ params }) {
-  const { category: categorySlug, city: citySlug } = params;
+  const { category: categorySlug, city: citySlug } = await params;
   const category = SEO_CATEGORIES[categorySlug];
 
   if (!category) {
@@ -72,16 +76,72 @@ export default async function LocalHubPage({ params }) {
     .filter(c => getCitySlug(c) !== citySlug)
     .slice(0, 15);
 
+  const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://wypozycz.online';
+
+  // JSON-LD BreadcrumbList
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Strona główna', item: BASE_URL },
+      { '@type': 'ListItem', position: 2, name: category.name, item: `${BASE_URL}/${category.slug}` },
+      { '@type': 'ListItem', position: 3, name: cityName, item: `${BASE_URL}/${category.slug}/${citySlug}` },
+    ],
+  };
+
+  // JSON-LD ItemList
+  const itemListJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: `${category.name} w ${cityName}`,
+    description: `Lista ofert wynajmu sprzętu w kategorii ${category.name.toLowerCase()} w lokalizacji ${cityName}`,
+    numberOfItems: categoryListings.length,
+    itemListElement: categoryListings.slice(0, 20).map((listing, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      url: `${BASE_URL}/${categorySlug}/${citySlug}/${listing.slug}`,
+      name: listing['Sprzęt'] || listing.name,
+    })),
+  };
+
+  // JSON-LD LocalBusiness
+  const localBusinessJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: 'Wypozycz.online',
+    url: BASE_URL,
+    image: `${BASE_URL}/header.png`,
+    areaServed: {
+      '@type': 'City',
+      name: cityName,
+    },
+    description: `Lokalny marketplace wynajmu sprzętu budowlanego i ogrodowego w ${cityName}.`,
+  };
+
   return (
-    <Suspense fallback={<div className="min-h-screen bg-gray-50 dark:bg-slate-900 animate-pulse" />}>
-      <CategoryPageClient 
-        category={category}
-        listings={categoryListings}
-        cities={filters.cities}
-        otherCategories={otherCategories}
-        cityName={cityName}
-        otherCities={otherCities}
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
-    </Suspense>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
+      />
+      <Suspense fallback={<div className="min-h-screen bg-gray-50 dark:bg-slate-900 animate-pulse" />}>
+        <CategoryPageClient 
+          category={category}
+          listings={categoryListings}
+          cities={filters.cities}
+          otherCategories={otherCategories}
+          cityName={cityName}
+          otherCities={otherCities}
+        />
+      </Suspense>
+    </>
   );
 }

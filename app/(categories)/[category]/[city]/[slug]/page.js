@@ -22,29 +22,31 @@ export async function generateMetadata({ params }) {
   const name = listing['Sprzęt'] || 'Sprzęt budowlany';
   const cityName = listing.Miasto || '';
   const price = listing.Cena_od || '';
-  const company = listing.companyDetails?.Nazwa || '';
   const catInfo = SEO_CATEGORIES[category];
 
   const productImage = listing.Zdjecie && String(listing.Zdjecie).startsWith('http')
     ? listing.Zdjecie
     : '/header.png';
 
+  // Requested format: „{tytuł_oferty} na wynajem we {miasto}. Sprawdź dostępność i lokalne oferty.”
+  const description = `${name} na wynajem w ${cityName}. Sprawdź dostępność i lokalne oferty wynajmu od firm i osób prywatnych.`;
+
   return {
     title: `${name} – wynajem ${cityName} | od ${price} PLN | WypożyczSprzęt`,
-    description: `Wynajmij ${name} w ${cityName}. Cena od ${price} PLN za ${listing.Czas || 'dobę'}. ${company}. Szybki kontakt, bez pośredników.`,
+    description,
     keywords: `wynajem ${name}, ${name} ${cityName}, wypożyczalnia sprzętu ${cityName}, ${catInfo?.name || ''}`,
     alternates: {
       canonical: `${BASE_URL}/${category}/${city}/${slug}`,
     },
     openGraph: {
       title: `${name} – wynajem ${cityName}`,
-      description: `Wynajmij ${name} w ${cityName} od ${price} PLN/${listing.Czas || 'doba'}`,
+      description,
       images: [
         {
           url: productImage,
           width: 800,
           height: 600,
-          alt: name,
+          alt: `${name} na wynajem ${cityName}`,
         },
       ],
       type: 'website',

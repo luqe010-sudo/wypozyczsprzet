@@ -36,7 +36,7 @@ export default function ListingCard({ listing }) {
           {hasImage ? (
             <img 
               src={listing.Zdjecie} 
-              alt={listing['Sprzęt']} 
+              alt={`${listing['Sprzęt']} na wynajem ${listing.Miasto}`} 
               loading="lazy"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />

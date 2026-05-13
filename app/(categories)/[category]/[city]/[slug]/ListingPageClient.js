@@ -73,7 +73,7 @@ export default function ListingPageClient({ listing, seoDescription, faqItems, r
         {hasHeroImage ? (
           <img
             src={listing.Zdjecie}
-            alt={name}
+            alt={`${name} na wynajem ${listing.Miasto}`}
             className="absolute inset-0 w-full h-full object-cover"
           />
         ) : (
