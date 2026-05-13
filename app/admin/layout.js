@@ -47,20 +47,35 @@ export default function AdminLayout({ children }) {
               </Link>
             ))}
             
-            <div className="mt-8 pt-8 border-t border-gray-100 dark:border-slate-800">
+            <div className="mt-8 pt-8 border-t border-gray-100 dark:border-slate-800 flex flex-col gap-2">
+              <Link
+                href="/dashboard"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-800 transition-all"
+              >
+                <LayoutDashboard className="w-5 h-5" />
+                <span className="font-medium">Mój Panel</span>
+              </Link>
               <Link
                 href="/"
                 className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-800 transition-all"
               >
-                <ArrowLeft className="w-5 h-5" />
-                <span className="font-medium">Wróć do strony</span>
+                <Home className="w-5 h-5" />
+                <span className="font-medium">Strona główna</span>
               </Link>
             </div>
           </nav>
           
           {/* Mobile Top Stats/Menu Info */}
-          <div className="lg:hidden flex items-center gap-2">
+          <div className="lg:hidden flex items-center gap-2 w-full justify-between mt-2">
             <span className="text-[10px] font-bold px-2 py-1 bg-blue-100 text-blue-800 rounded uppercase">Panel Admina</span>
+            <div className="flex gap-2">
+              <Link href="/dashboard" className="p-2 bg-gray-100 dark:bg-slate-800 rounded-lg text-gray-600 dark:text-gray-400 hover:text-blue-600">
+                <LayoutDashboard className="w-4 h-4" />
+              </Link>
+              <Link href="/" className="p-2 bg-gray-100 dark:bg-slate-800 rounded-lg text-gray-600 dark:text-gray-400 hover:text-blue-600">
+                <Home className="w-4 h-4" />
+              </Link>
+            </div>
           </div>
         </div>
       </aside>

@@ -34,14 +34,14 @@ export default async function DashboardLayout({ children }) {
                 </Link>
               </div>
             </div>
-            <div className="flex items-center">
-              <span className="text-sm text-gray-500 dark:text-gray-400 mr-4">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <span className="hidden sm:inline-block text-sm text-gray-500 dark:text-gray-400 truncate max-w-[200px]">
                 {user.email}
               </span>
               <form action={signout}>
-                <button type="submit" className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Wyloguj
+                <button type="submit" className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors whitespace-nowrap">
+                  <LogOut className="w-4 h-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Wyloguj</span>
                 </button>
               </form>
             </div>
