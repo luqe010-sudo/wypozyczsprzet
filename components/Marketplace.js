@@ -249,12 +249,7 @@ export default function Marketplace({ initialData }) {
                 hasSearchCenter={!!searchCenter}
               />
 
-              <div className="hidden lg:block bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 overflow-hidden shadow-sm transition-colors">
-                <div className="p-3 border-b border-gray-100 dark:border-slate-700 flex items-center gap-2">
-                  <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A2 2 0 013 15.382V5.618a2 2 0 011.106-1.789L9 1.118l5.447 2.724A2 2 0 0115 5.618v9.764a2 2 0 01-1.106 1.789L9 20z" /></svg>
-                  <h3 className="text-[10px] font-bold text-gray-900 dark:text-white uppercase tracking-wider">Mapa ofert</h3>
-                </div>
-                <div className="h-[450px] relative">
+              <div className="hidden lg:block h-[450px] relative rounded-2xl overflow-hidden shadow-sm border border-gray-200 dark:border-slate-700">
                   <MapComponent 
                     listings={filteredListings} 
                     geoCache={geoCache} 
@@ -277,7 +272,6 @@ export default function Marketplace({ initialData }) {
                       </span>
                     )}
                   </button>
-                </div>
               </div>
               
               <div className="hidden lg:block">
