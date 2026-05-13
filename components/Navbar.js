@@ -108,12 +108,10 @@ export default function Navbar({ actionUrl, actionLabel }) {
           <div className="relative group">
             <button 
               onClick={() => setMobileCatsOpen(!mobileCatsOpen)}
-              className="dark:text-gray-300 dark:hover:text-white flex items-center justify-between md:justify-start w-full md:w-auto gap-1 font-medium group/btn"
+              className="mobile-menu-item dark:text-gray-300 dark:hover:text-white flex items-center justify-between w-full md:w-auto gap-1 font-medium group/btn"
             >
-              <span className="flex items-center gap-1">
-                Kategorie
-                <svg className={`w-3 h-3 transition-transform md:group-hover:rotate-180 ${mobileCatsOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-              </span>
+              <span>Kategorie</span>
+              <svg className={`w-4 h-4 transition-transform md:group-hover:rotate-180 ${mobileCatsOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
             </button>
             
             {/* Desktop Hover Menu */}
