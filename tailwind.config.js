@@ -22,7 +22,7 @@ module.exports = {
         '2xl': '1rem',
       },
       fontFamily: {
-        sans: ['var(--font-jakarta)', 'Inter', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
       },
     },
   },

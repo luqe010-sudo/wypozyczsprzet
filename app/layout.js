@@ -1,14 +1,14 @@
 import './globals.css';
-import { Plus_Jakarta_Sans } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import Navbar from '../components/Navbar';
 import CookieConsent from '../components/CookieConsent';
 import ToastProvider from '../components/ToastProvider';
 import Script from 'next/script';
 
-const jakarta = Plus_Jakarta_Sans({ 
+const inter = Inter({ 
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-jakarta',
+  variable: '--font-inter',
 });
 
 const publicFormUrl = process.env.NEXT_PUBLIC_FORM_URL || process.env.FORM_URL || '';
@@ -53,7 +53,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="pl" suppressHydrationWarning className={`${jakarta.variable} ${jakarta.className}`}>
+    <html lang="pl" suppressHydrationWarning className={`${inter.variable} ${inter.className}`}>
       <head>
         <link rel="icon" href="/favicon.png" />
         <link rel="preconnect" href="https://res.cloudinary.com" />
