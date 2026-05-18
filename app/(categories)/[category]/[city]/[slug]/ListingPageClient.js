@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import DynamicPlaceholder from '../../../../../components/DynamicPlaceholder';
-import ListingMap from '../../../../../components/ListingMap';
 import ClaimCompanyModal from '../../../../../components/ClaimCompanyModal';
 import { trackEvent } from '../../../../../lib/gtag';
 import { createClient } from '@/utils/supabase/client';
@@ -12,6 +12,18 @@ import { trackView, trackClick } from '../../../../../lib/tracking';
 import { getExternalLinkProps, isBrokenLink } from '../../../../../lib/seo-utils';
 import Image from 'next/image';
 import { CldImage } from 'next-cloudinary';
+
+const ListingMap = dynamic(() => import('../../../../../components/ListingMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="relative w-full h-[350px] md:h-[450px] rounded-3xl overflow-hidden shadow-lg border border-gray-100 dark:border-slate-700 bg-slate-800 flex items-center justify-center">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+        <span className="text-sm font-bold text-gray-300">Ładowanie mapy...</span>
+      </div>
+    </div>
+  )
+});
 
 export default function ListingPageClient({ listing, seoDescription, faqItems, related, categorySlug, categoryName }) {
   const [showPhone, setShowPhone] = useState(false);
