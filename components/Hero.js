@@ -39,10 +39,12 @@ export default function Hero({
         router.push(queryString ? `${url}?${queryString}` : url);
         return;
       }
-    } else if (selectedCity && selectedCity.startsWith('region:')) {
-      // If only region is selected (no category), redirect to the region landing page /dolnoslaskie
-      const regionSlug = selectedCity.replace('region:', '');
-      let url = `/${regionSlug}`;
+    } else if (selectedCity) {
+      // If only a location is selected, redirect to the city or region landing page.
+      const locationSlug = selectedCity.startsWith('region:')
+        ? selectedCity.replace('region:', '')
+        : getCitySlug(selectedCity);
+      let url = `/${locationSlug}`;
 
       const params = new URLSearchParams();
       if (searchTerm) params.set('s', searchTerm);
