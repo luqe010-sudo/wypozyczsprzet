@@ -56,32 +56,43 @@ function generateCategoriesSitemap() {
 }
 
 function generateOffersSitemap(slugData) {
-  const urls = slugData.map(item => `
+  const urls = slugData.map(item => {
+    const date = item.created_at ? new Date(item.created_at).toISOString() : new Date().toISOString();
+    return `
     <url>
       <loc>${BASE_URL}/${item.seoCategory}/${item.citySlug}/${item.slug}</loc>
-      <lastmod>${new Date().toISOString()}</lastmod>
+      <lastmod>${date}</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.8</priority>
-    </url>`).join('');
+    </url>`;
+  }).join('');
 
   return wrapInUrlset(urls);
 }
 
 function generateLocalHubsSitemap(slugData) {
-  const localHubsSet = new Set();
+  const localHubsMap = new Map();
   slugData.forEach(item => {
     if (item.seoCategory && item.citySlug) {
-      localHubsSet.add(`${item.seoCategory}/${item.citySlug}`);
+      const key = `${item.seoCategory}/${item.citySlug}`;
+      const itemDate = item.created_at ? new Date(item.created_at) : new Date(0);
+      const existingDate = localHubsMap.get(key);
+      if (!existingDate || itemDate > existingDate) {
+        localHubsMap.set(key, itemDate);
+      }
     }
   });
 
-  const urls = Array.from(localHubsSet).map(path => `
+  const urls = Array.from(localHubsMap.entries()).map(([path, dateObj]) => {
+    const lastmod = dateObj.getTime() > 0 ? dateObj.toISOString() : new Date().toISOString();
+    return `
     <url>
       <loc>${BASE_URL}/${path}</loc>
-      <lastmod>${new Date().toISOString()}</lastmod>
+      <lastmod>${lastmod}</lastmod>
       <changefreq>daily</changefreq>
       <priority>0.85</priority>
-    </url>`).join('');
+    </url>`;
+  }).join('');
 
   return wrapInUrlset(urls);
 }
@@ -131,42 +142,56 @@ function generateUmowySitemap() {
 }
 
 function generateCitiesSitemap(slugData) {
-  const citiesSet = new Set();
+  const citiesMap = new Map();
   slugData.forEach(item => {
     if (item.citySlug) {
-      citiesSet.add(item.citySlug);
+      const itemDate = item.created_at ? new Date(item.created_at) : new Date(0);
+      const existingDate = citiesMap.get(item.citySlug);
+      if (!existingDate || itemDate > existingDate) {
+        citiesMap.set(item.citySlug, itemDate);
+      }
     }
   });
 
-  const urls = Array.from(citiesSet).map(slug => `
+  const urls = Array.from(citiesMap.entries()).map(([slug, dateObj]) => {
+    const lastmod = dateObj.getTime() > 0 ? dateObj.toISOString() : new Date().toISOString();
+    return `
     <url>
       <loc>${BASE_URL}/${slug}</loc>
-      <lastmod>${new Date().toISOString()}</lastmod>
+      <lastmod>${lastmod}</lastmod>
       <changefreq>daily</changefreq>
       <priority>0.85</priority>
-    </url>`).join('');
+    </url>`;
+  }).join('');
 
   return wrapInUrlset(urls);
 }
 
 function generateVoivodeshipsSitemap(slugData) {
-  const voivodeshipsSet = new Set();
+  const voivodeshipsMap = new Map();
   slugData.forEach(item => {
     if (item.citySlug) {
       const vSlug = getVoivodeshipSlugForCity(item.citySlug);
       if (vSlug) {
-        voivodeshipsSet.add(vSlug);
+        const itemDate = item.created_at ? new Date(item.created_at) : new Date(0);
+        const existingDate = voivodeshipsMap.get(vSlug);
+        if (!existingDate || itemDate > existingDate) {
+          voivodeshipsMap.set(vSlug, itemDate);
+        }
       }
     }
   });
 
-  const urls = Array.from(voivodeshipsSet).map(slug => `
+  const urls = Array.from(voivodeshipsMap.entries()).map(([slug, dateObj]) => {
+    const lastmod = dateObj.getTime() > 0 ? dateObj.toISOString() : new Date().toISOString();
+    return `
     <url>
       <loc>${BASE_URL}/${slug}</loc>
-      <lastmod>${new Date().toISOString()}</lastmod>
+      <lastmod>${lastmod}</lastmod>
       <changefreq>daily</changefreq>
       <priority>0.85</priority>
-    </url>`).join('');
+    </url>`;
+  }).join('');
 
   return wrapInUrlset(urls);
 }
