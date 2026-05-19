@@ -5,19 +5,30 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import ListingCard from '../../../components/ListingCard';
 import dynamic from 'next/dynamic';
-import CustomSelect from '../../../components/CustomSelect';
-import { SEO_CATEGORIES, getCitySlug } from '../../../lib/categories';
+import { getCitySlug } from '../../../lib/categories';
 import { geocodeAddress } from '../../../lib/geocoding';
 import { sanitizeAddress } from '../../../lib/utils';
+import { VOIVODESHIPS } from '../../../lib/regions';
 
 const MapComponent = dynamic(() => import('../../../components/MapComponent'), { 
   ssr: false,
   loading: () => <div className="w-full h-full bg-gray-100 animate-pulse flex items-center justify-center text-gray-400">Ładowanie mapy...</div>
 });
 
-export default function CategoryPageClient({ category, listings, cities, otherCategories, cityName, otherCities }) {
+export default function CategoryPageClient({ 
+  category, 
+  listings, 
+  cities, 
+  otherCategories, 
+  cityName, 
+  otherCities, 
+  nearbyListings = [],
+  isVoivodeshipPage = false,
+  isCityPage = false,
+  voivodeshipSlug = undefined,
+  activeVoivodeships = []
+}) {
   const searchParams = useSearchParams();
-  const [selectedCity, setSelectedCity] = useState(searchParams.get('city') || '');
   const [selectedFilter, setSelectedFilter] = useState('');
   const [searchTerm, setSearchTerm] = useState(searchParams.get('s') || '');
   const [currentPage, setCurrentPage] = useState(1);
@@ -29,6 +40,11 @@ export default function CategoryPageClient({ category, listings, cities, otherCa
   const [showMap, setShowMap] = useState(false);
   const geocodeQueuedRef = useRef(new Set());
   const mapRef = useRef(null);
+
+  // City pill links: show max 20 on category page, all on city page
+  const [showAllCities, setShowAllCities] = useState(false);
+  const MAX_VISIBLE_CITIES = 15;
+  const visibleCities = showAllCities ? cities : cities.slice(0, MAX_VISIBLE_CITIES);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -48,17 +64,9 @@ export default function CategoryPageClient({ category, listings, cities, otherCa
     return () => observer.disconnect();
   }, []);
 
-  // Update state if URL params change
-  useEffect(() => {
-    const city = searchParams.get('city');
-    const s = searchParams.get('s');
-    if (city) setSelectedCity(city);
-    if (s) setSearchTerm(s);
-  }, [searchParams]);
-
   // Handle City geocoding to center the map
   useEffect(() => {
-    const targetCity = cityName || selectedCity;
+    const targetCity = cityName;
     if (targetCity) {
       const cleanCity = sanitizeAddress('', targetCity);
       if (geoCache[cleanCity]) {
@@ -74,7 +82,7 @@ export default function CategoryPageClient({ category, listings, cities, otherCa
     } else {
       setSearchCenter(null);
     }
-  }, [cityName, selectedCity, geoCache]);
+  }, [cityName, geoCache]);
 
   // Background geocoding for listings
   useEffect(() => {
@@ -108,7 +116,6 @@ export default function CategoryPageClient({ category, listings, cities, otherCa
 
   const filteredListings = useMemo(() => {
     return listings.filter((item) => {
-      const matchCity = selectedCity ? item.Miasto === selectedCity : true;
       const matchFilter = selectedFilter
         ? (item.subcategory || '').toLowerCase() === selectedFilter.toLowerCase()
         : true;
@@ -117,9 +124,9 @@ export default function CategoryPageClient({ category, listings, cities, otherCa
         ? equipmentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
           (item.description || '').toLowerCase().includes(searchTerm.toLowerCase())
         : true;
-      return matchCity && matchFilter && matchSearch;
+      return matchFilter && matchSearch;
     });
-  }, [listings, selectedCity, selectedFilter, searchTerm]);
+  }, [listings, selectedFilter, searchTerm]);
 
   const totalPages = Math.ceil(filteredListings.length / itemsPerPage);
   const currentListings = filteredListings.slice(
@@ -180,48 +187,194 @@ export default function CategoryPageClient({ category, listings, cities, otherCa
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar: Filters */}
           <aside className="w-full lg:w-72 flex-shrink-0">
-            <div className="sticky top-24 space-y-6">
-              {/* City Filter */}
+            <div className="space-y-6">
+              {/* City Filter — SEO-friendly pill links */}
               <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 p-4">
-                <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Lokalizacja</h3>
-                <CustomSelect
-                  options={cities}
-                  value={selectedCity}
-                  onChange={(val) => { setSelectedCity(val); setCurrentPage(1); }}
-                  placeholder="Wszystkie miasta"
-                  variant="field"
-                />
-              </div>
+                <div className="space-y-4">
+                  {/* Voivodeships section */}
+                  <div>
+                    <h4 className="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider mb-2">Województwo</h4>
+                    <div className="flex flex-wrap gap-1.5">
+                      <Link
+                        href={isVoivodeshipPage || isCityPage ? '/' : `/${category.slug}`}
+                        className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                          !voivodeshipSlug
+                            ? 'bg-blue-600 text-white shadow-sm'
+                            : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
+                        }`}
+                      >
+                        Wszystkie
+                      </Link>
+                      {Object.values(VOIVODESHIPS)
+                        .filter(v => {
+                          const allowedVoivodeships = activeVoivodeships && activeVoivodeships.length > 0
+                            ? activeVoivodeships
+                            : Object.keys(VOIVODESHIPS);
+                          return allowedVoivodeships.includes(v.slug);
+                        })
+                        .map(v => {
+                          const isActive = voivodeshipSlug === v.slug;
+                          const targetHref = (isVoivodeshipPage || isCityPage)
+                            ? `/${v.slug}`
+                            : `/${category.slug}/${v.slug}`;
+                          return (
+                            <Link
+                              key={v.slug}
+                              href={targetHref}
+                              className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                                isActive
+                                  ? 'bg-blue-600 text-white shadow-sm font-black'
+                                  : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
+                              }`}
+                            >
+                              {v.name}
+                            </Link>
+                          );
+                        })}
+                    </div>
+                  </div>
 
-              {/* Subcategory Filters (UX only, NOT indexed) */}
-              <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 p-4">
-                <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Typ sprzętu</h3>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={() => { setSelectedFilter(''); setCurrentPage(1); }}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                      !selectedFilter
-                        ? 'bg-blue-600 text-white shadow-md'
-                        : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
-                    }`}
-                  >
-                    Wszystkie
-                  </button>
-                  {category.filters.map((filter) => (
-                    <button
-                      key={filter.value}
-                      onClick={() => { setSelectedFilter(filter.value === selectedFilter ? '' : filter.value); setCurrentPage(1); }}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                        selectedFilter === filter.value
-                          ? 'bg-blue-600 text-white shadow-md'
-                          : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
-                      }`}
-                    >
-                      {filter.label}
-                    </button>
-                  ))}
+                  {/* Cities section */}
+                  <div>
+                    <h4 className="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider mb-2">
+                      {voivodeshipSlug ? `Miasta w woj. ${VOIVODESHIPS[voivodeshipSlug]?.name}` : 'Miasto'}
+                    </h4>
+                    <div className="flex flex-wrap gap-1.5">
+                      {voivodeshipSlug && (
+                        <Link
+                          href={(isVoivodeshipPage || isCityPage) ? `/${voivodeshipSlug}` : `/${category.slug}/${voivodeshipSlug}`}
+                          className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                            isVoivodeshipPage && !isCityPage
+                              ? 'bg-blue-600 text-white shadow-sm font-black'
+                              : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
+                          }`}
+                        >
+                          Całe województwo
+                        </Link>
+                      )}
+                      {visibleCities.map((city) => {
+                        const slug = getCitySlug(city);
+                        const isActive = cityName && cityName.toLowerCase().includes(city.toLowerCase()) && !isVoivodeshipPage;
+                        const targetHref = (isVoivodeshipPage || isCityPage)
+                          ? `/${slug}`
+                          : `/${category.slug}/${slug}`;
+                        return (
+                          <Link
+                            key={city}
+                            href={targetHref}
+                            className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                              isActive
+                                ? 'bg-blue-600 text-white shadow-sm font-black'
+                                : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
+                            }`}
+                          >
+                            {city}
+                          </Link>
+                        );
+                      })}
+                      {/* Show more cities toggle */}
+                      {cities.length > MAX_VISIBLE_CITIES && !showAllCities && (
+                        <button
+                          onClick={() => setShowAllCities(true)}
+                          className="px-2.5 py-1.5 rounded-lg text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-all"
+                        >
+                          +{cities.length - MAX_VISIBLE_CITIES} więcej
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
+
+              {/* Subcategory Filters or Main Categories when on Voivodeship Landing */}
+              {(isVoivodeshipPage && category.slug === voivodeshipSlug) || isCityPage ? (
+                <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 p-4">
+                  <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Kategorie</h3>
+                  <div className="flex flex-wrap gap-2">
+                    <Link
+                      href={`/${category.slug}`}
+                      className="px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white shadow-md transition-all"
+                    >
+                      Wszystkie
+                    </Link>
+                    {otherCategories.map((cat) => (
+                      <Link
+                        key={cat.slug}
+                        href={`/${cat.slug}/${category.slug}`}
+                        className="px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600 transition-all"
+                      >
+                        {cat.name}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 p-4">
+                    <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Kategorie</h3>
+                    <div className="flex flex-wrap gap-2">
+                      <Link
+                        href={voivodeshipSlug ? `/${voivodeshipSlug}` : cityName && !isVoivodeshipPage ? `/${getCitySlug(cityName)}` : '/'}
+                        className="px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600 transition-all"
+                      >
+                        Wszystkie
+                      </Link>
+                      <span className="px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white shadow-md transition-all">
+                        {category.name}
+                      </span>
+                      {otherCategories.map((cat) => {
+                        // Maintain the current location context when switching categories
+                        let targetHref = `/${cat.slug}`;
+                        if (voivodeshipSlug && isVoivodeshipPage) {
+                          targetHref = `/${cat.slug}/${voivodeshipSlug}`;
+                        } else if (cityName && !isVoivodeshipPage) {
+                          targetHref = `/${cat.slug}/${getCitySlug(cityName)}`;
+                        }
+                        return (
+                          <Link
+                            key={cat.slug}
+                            href={targetHref}
+                            className="px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600 transition-all"
+                          >
+                            {cat.name}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {category.filters && category.filters.length > 0 && (
+                  <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 p-4">
+                    <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Typ sprzętu</h3>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => { setSelectedFilter(''); setCurrentPage(1); }}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                          !selectedFilter
+                            ? 'bg-blue-600 text-white shadow-md'
+                            : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
+                        }`}
+                      >
+                        Wszystkie
+                      </button>
+                      {category.filters.map((filter) => (
+                        <button
+                          key={filter.value}
+                          onClick={() => { setSelectedFilter(filter.value === selectedFilter ? '' : filter.value); setCurrentPage(1); }}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                            selectedFilter === filter.value
+                              ? 'bg-blue-600 text-white shadow-md'
+                              : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
+                          }`}
+                        >
+                          {filter.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                </div>
+              )}
 
               {/* Map Section */}
               <div ref={mapRef} className="h-64 relative rounded-2xl overflow-hidden shadow-sm border border-gray-200 dark:border-slate-700 bg-gray-100 dark:bg-slate-800 flex items-center justify-center">
@@ -230,7 +383,7 @@ export default function CategoryPageClient({ category, listings, cities, otherCa
                     listings={filteredListings} 
                     geoCache={geoCache}
                     searchCenter={searchCenter}
-                    radius={cityName || selectedCity ? 20 : 0}
+                    radius={cityName ? 20 : 0}
                     isCompact={true}
                   />
                 ) : (
@@ -242,16 +395,26 @@ export default function CategoryPageClient({ category, listings, cities, otherCa
               <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 p-4">
                 <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Inne kategorie</h3>
                 <div className="space-y-2">
-                  {otherCategories.map((cat) => (
-                    <Link
-                      key={cat.slug}
-                      href={`/${cat.slug}`}
-                      className="flex items-center gap-2 p-2 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
-                    >
-                      <span>{cat.icon}</span>
-                      <span>{cat.name}</span>
-                    </Link>
-                  ))}
+                  {otherCategories.map((cat) => {
+                    // Generate context-aware URL
+                    let targetHref = `/${cat.slug}`;
+                    if (cityName && !isVoivodeshipPage) {
+                      targetHref = `/${cat.slug}/${getCitySlug(cityName)}`;
+                    } else if (voivodeshipSlug) {
+                      targetHref = `/${cat.slug}/${voivodeshipSlug}`;
+                    }
+
+                    return (
+                      <Link
+                        key={cat.slug}
+                        href={targetHref}
+                        className="flex items-center gap-2 p-2 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+                      >
+                        <span>{cat.icon}</span>
+                        <span>{cat.name}</span>
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -312,12 +475,55 @@ export default function CategoryPageClient({ category, listings, cities, otherCa
                   Nie znaleziono ofert w tej kategorii dla wybranych filtrów.
                 </p>
                 <button
-                  onClick={() => { setSelectedCity(''); setSelectedFilter(''); }}
+                  onClick={() => { setSelectedFilter(''); }}
                   className="bg-blue-600 text-white hover:bg-blue-700 font-bold py-2 px-6 rounded-xl transition-colors"
                 >
                   Wyczyść filtry
                 </button>
               </div>
+            )}
+
+            {/* ═══ Nearby Listings Section ═══ */}
+            {nearbyListings && nearbyListings.length > 0 && (
+              <section className="mt-12">
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-800 rounded-2xl border border-blue-200 dark:border-slate-700 p-6 md:p-8 shadow-sm">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/40 rounded-xl flex items-center justify-center">
+                      <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                        Podobne oferty w pobliżu
+                      </h2>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        {isVoivodeshipPage 
+                          ? `${category.name} dostępne poza tym województwem`
+                          : `${category.name} dostępne w promieniu 30 km od ${cityName}`}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6 mt-6">
+                    {nearbyListings.map((listing) => (
+                      <div key={listing.ID_sprzetu || listing.slug} className="relative">
+                        <ListingCard listing={listing} />
+                        {/* Distance badge */}
+                        {listing._distance !== undefined && (
+                          <div className="absolute top-2 right-2 z-10 bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-md flex items-center gap-1">
+                            <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                            </svg>
+                            ~{listing._distance} km
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
             )}
 
             {/* Local Hubs Section (Internal Linking) */}

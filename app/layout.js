@@ -1,9 +1,11 @@
 import './globals.css';
 import { Inter } from 'next/font/google';
 import Navbar from '../components/Navbar';
-import CookieConsent from '../components/CookieConsent';
+import dynamic from 'next/dynamic';
 import ToastProvider from '../components/ToastProvider';
 import Script from 'next/script';
+
+const CookieConsent = dynamic(() => import('../components/CookieConsent'), { ssr: false });
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -62,15 +64,19 @@ export default function RootLayout({ children }) {
         {process.env.NEXT_PUBLIC_SUPABASE_URL && (
           <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL} />
         )}
-        <script dangerouslySetInnerHTML={{
-          __html: `
-            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-              document.documentElement.classList.add('dark')
-            } else {
-              document.documentElement.classList.remove('dark')
-            }
-          `
-        }} />
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark')
+              } else {
+                document.documentElement.classList.remove('dark')
+              }
+            `
+          }}
+        />
       </head>
       <body>
         <ToastProvider />

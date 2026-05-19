@@ -1,5 +1,7 @@
+import { useMemo } from 'react';
 import CustomSelect from './CustomSelect';
 import { SEO_CATEGORIES } from '../lib/categories';
+import { VOIVODESHIPS } from '../lib/regions';
 
 export default function FiltersSidebar({
   availableCities,
@@ -18,6 +20,7 @@ export default function FiltersSidebar({
 }) {
   const activeCategory = availableCategories.find(c => c.value === selectedCategory);
   const subcategories = activeCategory ? SEO_CATEGORIES[activeCategory.seoSlug]?.filters : [];
+
   return (
     <div className="w-full">
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 p-3 md:p-4 transition-colors">
@@ -44,8 +47,9 @@ export default function FiltersSidebar({
               options={availableCities}
               value={selectedCity}
               onChange={setSelectedCity}
-              placeholder="Wszystkie miasta"
+              placeholder="Wszystkie lokalizacje"
               variant="field"
+              isLocation={true}
             />
           </div>
 

@@ -23,8 +23,13 @@ export default function Hero({
         let url = `/${catConfig.seoSlug}`;
         
         if (selectedCity) {
-          const citySlug = getCitySlug(selectedCity);
-          url = `${url}/${citySlug}`;
+          if (selectedCity.startsWith('region:')) {
+            const regionSlug = selectedCity.replace('region:', '');
+            url = `${url}/${regionSlug}`;
+          } else {
+            const citySlug = getCitySlug(selectedCity);
+            url = `${url}/${citySlug}`;
+          }
         }
 
         const params = new URLSearchParams();
@@ -34,9 +39,20 @@ export default function Hero({
         router.push(queryString ? `${url}?${queryString}` : url);
         return;
       }
+    } else if (selectedCity && selectedCity.startsWith('region:')) {
+      // If only region is selected (no category), redirect to the region landing page /dolnoslaskie
+      const regionSlug = selectedCity.replace('region:', '');
+      let url = `/${regionSlug}`;
+
+      const params = new URLSearchParams();
+      if (searchTerm) params.set('s', searchTerm);
+
+      const queryString = params.toString();
+      router.push(queryString ? `${url}?${queryString}` : url);
+      return;
     }
 
-    // Fallback: if no category, just scroll to marketplace on homepage
+    // Fallback: if no category and no region redirect, just scroll to marketplace on homepage
     window.scrollTo({
       top: document.querySelector('main')?.offsetTop - 80 || 600,
       behavior: 'smooth'
@@ -108,6 +124,7 @@ export default function Hero({
               onChange={setSelectedCity}
               placeholder="Wszystkie miasta"
               variant="field"
+              isLocation={true}
             />
           </div>
 

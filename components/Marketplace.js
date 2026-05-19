@@ -8,6 +8,7 @@ import dynamic from 'next/dynamic';
 import { trackEvent } from '../lib/gtag';
 import { sanitizeAddress } from '../lib/utils';
 import CustomSelect from './CustomSelect';
+import { getVoivodeshipSlugForCity } from '../lib/regions';
 
 const MapComponent = dynamic(() => import('./MapComponent'), { 
   ssr: false,
@@ -132,7 +133,11 @@ export default function Marketplace({ initialData }) {
           String(item.subcategory || '').toLowerCase().includes(searchValue)
         : true;
 
-      const matchCity = selectedCity ? item.Miasto === selectedCity : true;
+      const matchCity = selectedCity
+        ? (selectedCity.startsWith('region:')
+            ? getVoivodeshipSlugForCity(item.Miasto) === selectedCity.replace('region:', '')
+            : item.Miasto === selectedCity)
+        : true;
       const matchCategory = selectedCategory ? item._rawCategory === selectedCategory : true;
       const matchSubcategory = selectedSubcategory ? item.subcategory === selectedSubcategory : true;
       const rawPrice = String(item.Cena_od || '').replace(/[^\d.,]/g, '').replace(',', '.');
@@ -167,14 +172,20 @@ export default function Marketplace({ initialData }) {
   // Track queued geocoding requests to prevent infinite loop
   const geocodeQueuedRef = useRef(new Set());
 
-  // Geocode all listings (caching results)
+  // Ref to track geoCache without causing re-renders in the effect
+  const geoCacheRef = useRef(geoCache);
+  useEffect(() => { geoCacheRef.current = geoCache; }, [geoCache]);
+
+  // Geocode all listings (caching results) — runs once on mount + when listings change
   useEffect(() => {
     const geocodeListings = async () => {
+      const currentCache = geoCacheRef.current;
+
       // 1. Unique cities
       const rawCities = [...new Set(listings.map(l => l.Miasto).filter(Boolean))];
       const citiesToGeocode = rawCities.filter(c => {
         const clean = sanitizeAddress('', c);
-        return !geoCache[clean] && !geocodeQueuedRef.current.has(clean);
+        return !currentCache[clean] && !geocodeQueuedRef.current.has(clean);
       });
 
       // 2. All addresses (only if coords are missing from DB)
@@ -182,7 +193,7 @@ export default function Marketplace({ initialData }) {
         if (l.lat && l.lng) return null; // Skip if already has coordinates
         const addr = sanitizeAddress(l.Lokalizacja, l.Miasto);
         return addr;
-      }).filter(Boolean))].filter(addr => !geoCache[addr] && !geocodeQueuedRef.current.has(addr));
+      }).filter(Boolean))].filter(addr => !currentCache[addr] && !geocodeQueuedRef.current.has(addr));
 
       const allPending = [...new Set([...citiesToGeocode.map(c => sanitizeAddress('', c)), ...addressesToGeocode])];
       
@@ -224,7 +235,7 @@ export default function Marketplace({ initialData }) {
       setPendingGeocodes(0);
     };
     geocodeListings();
-  }, [listings, geoCache]); 
+  }, [listings]); // eslint-disable-line react-hooks/exhaustive-deps 
   
   // Geocode selected city to set search center
   useEffect(() => {
