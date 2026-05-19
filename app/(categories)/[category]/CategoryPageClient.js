@@ -532,15 +532,21 @@ export default function CategoryPageClient({
                 {category.name} — inne lokalizacje
               </h2>
               <div className="flex flex-wrap gap-2">
-                {cities.slice(0, 30).map((city) => (
-                  <Link
-                    key={city}
-                    href={`/${category.slug}/${getCitySlug(city)}`}
-                    className="px-3 py-1.5 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-blue-50 dark:hover:bg-slate-600 hover:text-blue-600 transition-colors"
-                  >
-                    📍 {city}
-                  </Link>
-                ))}
+                {cities.slice(0, 30).map((city) => {
+                  const slug = getCitySlug(city);
+                  const targetHref = (isVoivodeshipPage || isCityPage)
+                    ? `/${slug}`
+                    : `/${category.slug}/${slug}`;
+                  return (
+                    <Link
+                      key={city}
+                      href={targetHref}
+                      className="px-3 py-1.5 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-blue-50 dark:hover:bg-slate-600 hover:text-blue-600 transition-colors"
+                    >
+                      📍 {city}
+                    </Link>
+                  );
+                })}
               </div>
             </section>
 
