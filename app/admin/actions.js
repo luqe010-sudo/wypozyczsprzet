@@ -6,6 +6,10 @@ import cloudinary from '@/lib/cloudinary'
 import { geocodeAddress } from '@/lib/geocoding'
 import { sanitizeAddress } from '@/lib/utils'
 
+const USER_ROLES = new Set(['user', 'admin'])
+const EQUIPMENT_STATUSES = new Set(['active', 'pending', 'inactive', 'rejected', 'incomplete'])
+const DELETABLE_TABLES = new Set(['companies', 'equipment'])
+
 async function checkAdmin() {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -23,6 +27,10 @@ async function checkAdmin() {
 
 export async function updateUserRole(userId, role) {
   try {
+    if (!USER_ROLES.has(role)) {
+      throw new Error('Invalid role')
+    }
+
     const { supabase } = await checkAdmin()
     const { error } = await supabase
       .from('profiles')
@@ -57,8 +65,7 @@ export async function updateCompanyOwner(companyId, newOwnerId) {
 export async function adminDeleteRecord(table, id) {
   try {
     const { supabase } = await checkAdmin()
-    const ALLOWED_TABLES = ['companies', 'equipment', 'company_claims', 'profiles']
-    if (!ALLOWED_TABLES.includes(table)) {
+    if (!DELETABLE_TABLES.has(table)) {
       throw new Error('Invalid table')
     }
 
@@ -251,6 +258,10 @@ export async function adminCreateEquipment(formData) {
 
 export async function updateEquipmentStatus(id, status) {
   try {
+    if (!EQUIPMENT_STATUSES.has(status)) {
+      throw new Error('Invalid status')
+    }
+
     const { supabase } = await checkAdmin()
     const { error } = await supabase
       .from('equipment')

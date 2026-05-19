@@ -26,8 +26,14 @@ CREATE POLICY "Users can insert their own claims" ON public.company_claims
     FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 -- Admin policies
--- We assume admin has access to everything via service role or we can add specific policies if needed.
--- For the dashboard, we usually use the service role client on the server side.
+DROP POLICY IF EXISTS "Admins can view all claims" ON public.company_claims;
+CREATE POLICY "Admins can view all claims" ON public.company_claims
+    FOR SELECT USING (public.is_admin());
+
+DROP POLICY IF EXISTS "Admins can update all claims" ON public.company_claims;
+CREATE POLICY "Admins can update all claims" ON public.company_claims
+    FOR UPDATE USING (public.is_admin())
+    WITH CHECK (public.is_admin());
 
 -- Trigger for updated_at
 DROP TRIGGER IF EXISTS update_company_claims_modtime ON public.company_claims;

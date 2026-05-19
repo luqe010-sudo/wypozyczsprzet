@@ -27,7 +27,9 @@ CREATE POLICY "Users can insert their own companies." ON public.companies
 -- Pozwól właścicielom aktualizować swoje firmy
 DROP POLICY IF EXISTS "Users can update their own companies." ON public.companies;
 CREATE POLICY "Users can update their own companies." ON public.companies
-  FOR UPDATE USING (auth.uid() = owner_user_id);
+  FOR UPDATE
+  USING (auth.uid() = owner_user_id)
+  WITH CHECK (auth.uid() = owner_user_id);
 
 -- Pozwól właścicielom usuwać swoje firmy
 DROP POLICY IF EXISTS "Users can delete their own companies." ON public.companies;
@@ -53,6 +55,11 @@ CREATE POLICY "Users can insert equipment to their own companies." ON public.equ
 DROP POLICY IF EXISTS "Users can update their own equipment." ON public.equipment;
 CREATE POLICY "Users can update their own equipment." ON public.equipment
   FOR UPDATE USING (
+    company_id IN (
+      SELECT id FROM public.companies WHERE owner_user_id = auth.uid()
+    )
+  )
+  WITH CHECK (
     company_id IN (
       SELECT id FROM public.companies WHERE owner_user_id = auth.uid()
     )

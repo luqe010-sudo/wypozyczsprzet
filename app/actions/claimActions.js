@@ -3,6 +3,8 @@
 import { createClient } from '@/utils/supabase/server'
 import { revalidatePath, revalidateTag } from 'next/cache'
 
+const CLAIM_ACTIONS = new Set(['approve', 'reject'])
+
 async function checkAdmin() {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -82,6 +84,10 @@ export async function getPendingClaims() {
 
 export async function handleClaimAction(claimId, action, companyId, userId) {
   try {
+    if (!CLAIM_ACTIONS.has(action)) {
+      throw new Error('Invalid claim action')
+    }
+
     const { supabase } = await checkAdmin()
 
     if (action === 'approve') {
