@@ -5,6 +5,8 @@ export async function GET() {
     'offers.xml',
     'categories.xml',
     'local-hubs.xml',
+    'cities.xml',
+    'voivodeships.xml',
     'static-pages.xml',
     'blog.xml',
     'umowy.xml',

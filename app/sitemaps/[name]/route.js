@@ -2,6 +2,7 @@ import { fetchAllSlugs } from '../../../lib/googleSheets';
 import { SEO_CATEGORY_SLUGS } from '../../../lib/categories';
 import { articles } from '../../../lib/articles';
 import { documents } from '../../../lib/umowy-data';
+import { getVoivodeshipSlugForCity } from '../../../lib/regions';
 
 const BASE_URL = 'https://wypozycz.online';
 
@@ -23,6 +24,12 @@ export async function GET(request, { params }) {
     xml = generateBlogSitemap();
   } else if (name === 'umowy.xml') {
     xml = generateUmowySitemap();
+  } else if (name === 'cities.xml') {
+    const slugData = await fetchAllSlugs();
+    xml = generateCitiesSitemap(slugData);
+  } else if (name === 'voivodeships.xml') {
+    const slugData = await fetchAllSlugs();
+    xml = generateVoivodeshipsSitemap(slugData);
   } else {
     return new Response('Not Found', { status: 404 });
   }
@@ -118,6 +125,47 @@ function generateUmowySitemap() {
       <lastmod>${new Date().toISOString()}</lastmod>
       <changefreq>monthly</changefreq>
       <priority>0.6</priority>
+    </url>`).join('');
+
+  return wrapInUrlset(urls);
+}
+
+function generateCitiesSitemap(slugData) {
+  const citiesSet = new Set();
+  slugData.forEach(item => {
+    if (item.citySlug) {
+      citiesSet.add(item.citySlug);
+    }
+  });
+
+  const urls = Array.from(citiesSet).map(slug => `
+    <url>
+      <loc>${BASE_URL}/${slug}</loc>
+      <lastmod>${new Date().toISOString()}</lastmod>
+      <changefreq>daily</changefreq>
+      <priority>0.85</priority>
+    </url>`).join('');
+
+  return wrapInUrlset(urls);
+}
+
+function generateVoivodeshipsSitemap(slugData) {
+  const voivodeshipsSet = new Set();
+  slugData.forEach(item => {
+    if (item.citySlug) {
+      const vSlug = getVoivodeshipSlugForCity(item.citySlug);
+      if (vSlug) {
+        voivodeshipsSet.add(vSlug);
+      }
+    }
+  });
+
+  const urls = Array.from(voivodeshipsSet).map(slug => `
+    <url>
+      <loc>${BASE_URL}/${slug}</loc>
+      <lastmod>${new Date().toISOString()}</lastmod>
+      <changefreq>daily</changefreq>
+      <priority>0.85</priority>
     </url>`).join('');
 
   return wrapInUrlset(urls);
