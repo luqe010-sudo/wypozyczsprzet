@@ -109,7 +109,7 @@ function generateStaticSitemap() {
   const urls = staticUrls.map(path => `
     <url>
       <loc>${BASE_URL}${path}</loc>
-      <lastmod>${new Date().toISOString()}</lastmod>
+      <lastmod>2026-05-19T20:00:00.000Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>${path === '' ? '1.0' : '0.5'}</priority>
     </url>`).join('');
@@ -133,7 +133,7 @@ function generateUmowySitemap() {
   const urls = documents.map(doc => `
     <url>
       <loc>${BASE_URL}/umowy/${doc.slug}</loc>
-      <lastmod>${new Date().toISOString()}</lastmod>
+      <lastmod>2026-05-12T22:00:00.000Z</lastmod>
       <changefreq>monthly</changefreq>
       <priority>0.6</priority>
     </url>`).join('');
