@@ -285,11 +285,11 @@ export default function Marketplace({ initialData }) {
       {/* Trust & Benefits Bar */}
       <TrustBar />
 
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
         <div className="flex flex-col lg:flex-row gap-6">
           
           {/* Left Sidebar: Filters, Map, CTA */}
-          <aside className="w-full lg:w-64 xl:w-72 flex-shrink-0">
+          <aside className="w-full lg:w-72 xl:w-80 flex-shrink-0">
             <div className="space-y-6">
               <FiltersSidebar
                 availableCities={filters.cities}

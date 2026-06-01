@@ -192,20 +192,22 @@ Wszystkie oferty na WypożyczSprzęt są weryfikowane, a kontakt z dostawcą odb
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
 
-      <div className="max-w-[960px] mx-auto px-4 py-8">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 py-6">
         {/* Breadcrumbs */}
-        <nav className="flex items-center gap-2 mb-8 text-sm text-gray-500 dark:text-gray-400 overflow-hidden" aria-label="Breadcrumb">
-          <Link href="/" className="text-blue-600 dark:text-blue-400 hover:underline flex-shrink-0">Strona główna</Link>
-          <span>/</span>
-          <Link href={`/${category}`} className="text-blue-600 dark:text-blue-400 hover:underline flex-shrink-0">
+        <nav className="flex items-center gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400 mb-8 py-2 overflow-x-auto whitespace-nowrap" aria-label="Breadcrumb">
+          <Link href="/" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors no-underline">
+            Strona główna
+          </Link>
+          <span className="text-gray-300 dark:text-gray-700">/</span>
+          <Link href={`/${category}`} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors no-underline">
             {catInfo?.name || category}
           </Link>
-          <span>/</span>
-          <Link href={`/${category}/${city}`} className="text-blue-600 dark:text-blue-400 hover:underline flex-shrink-0 truncate">
+          <span className="text-gray-300 dark:text-gray-700">/</span>
+          <Link href={`/${category}/${city}`} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors no-underline">
             {cityName}
           </Link>
-          <span>/</span>
-          <span className="text-gray-900 dark:text-white font-medium truncate">{name}</span>
+          <span className="text-gray-300 dark:text-gray-700">/</span>
+          <span className="text-gray-950 dark:text-gray-200 truncate max-w-[200px]">{name}</span>
         </nav>
 
         {/* Main content */}

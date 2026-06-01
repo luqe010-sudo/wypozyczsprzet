@@ -33,12 +33,12 @@ const benefits = [
 
 export default function TrustBar() {
   return (
-    <div className="w-full bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4">
+    <div className="w-full bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800 shadow-sm shadow-slate-200/40 dark:shadow-none transition-colors">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 md:py-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
           {benefits.map((benefit, idx) => (
-            <div key={idx} className="flex flex-col md:flex-row items-center md:items-center text-center md:text-left gap-3 md:gap-4">
-              <div className="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 bg-blue-50 dark:bg-blue-900/20 rounded-xl flex items-center justify-center text-blue-600 dark:text-blue-400">
+            <div key={idx} className="flex flex-col md:flex-row items-center md:items-center text-center md:text-left gap-3">
+              <div className="flex-shrink-0 w-11 h-11 bg-blue-50 dark:bg-blue-900/20 rounded-xl flex items-center justify-center text-blue-600 dark:text-blue-400">
                 {benefit.icon}
               </div>
               <div>

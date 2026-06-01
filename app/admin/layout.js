@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { 
   LayoutDashboard, 
   Building2, 
+  BookOpen,
   Package, 
   Users, 
   Home, 
@@ -15,6 +16,7 @@ export default function AdminLayout({ children }) {
   const menuItems = [
     { label: 'Dashboard', icon: LayoutDashboard, href: '/admin' },
     { label: 'Firmy', icon: Building2, href: '/admin/companies' },
+    { label: 'Katalog', icon: BookOpen, href: '/admin/directory' },
     { label: 'Sprzęt', icon: Package, href: '/admin/equipment' },
     { label: 'Użytkownicy', icon: Users, href: '/admin/users' },
     { label: 'Zgłoszenia', icon: Handshake, href: '/admin/claims' },

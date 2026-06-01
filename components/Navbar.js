@@ -17,29 +17,68 @@ export default function Navbar({ actionUrl, actionLabel }) {
 
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains('dark'));
-    
-    // Check if user is admin
-    const checkAdmin = async () => {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
+
+    const supabase = createClient();
+    let isMounted = true;
+    let roleRequestId = 0;
+
+    const applyUserRole = async (currentUser) => {
+      const requestId = ++roleRequestId;
+
+      if (!isMounted) return;
+      setUser(currentUser);
+      setIsAdmin(false);
+
+      if (!currentUser) return;
+
+      try {
         const { data: profile } = await supabase
           .from('profiles')
           .select('role')
-          .eq('id', user.id)
-          .single();
-        if (profile?.role === 'admin') {
-          setIsAdmin(true);
+          .eq('id', currentUser.id)
+          .maybeSingle();
+
+        if (isMounted && requestId === roleRequestId) {
+          setIsAdmin(profile?.role === 'admin');
         }
-        setUser(user);
-      } else {
-        setUser(null);
+      } catch {
+        if (isMounted && requestId === roleRequestId) {
+          setIsAdmin(false);
+        }
       }
     };
-    checkAdmin();
+
+    const checkUser = async () => {
+      const { data, error } = await supabase.auth.getUser();
+      applyUserRole(error ? null : data?.user ?? null);
+    };
+
+    checkUser();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      window.setTimeout(() => {
+        applyUserRole(session?.user ?? null);
+      }, 0);
+    });
+
+    return () => {
+      isMounted = false;
+      authListener?.subscription?.unsubscribe();
+    };
   }, []);
 
-  // Hide Navbar on admin routes
+  useEffect(() => {
+    if (!isOpen) {
+      setMobileCatsOpen(false);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!user) {
+      setIsAdmin(false);
+    }
+  }, [user]);
+
   if (pathname?.startsWith('/admin')) {
     return null;
   }
@@ -59,17 +98,16 @@ export default function Navbar({ actionUrl, actionLabel }) {
   return (
     <nav className="navbar dark:bg-slate-900 transition-colors">
       <div className="navbar-container">
-        <Link href="/" className="flex items-center group">
+        <Link href="/" className="nav-brand group">
           <span className="text-xl font-black tracking-tight text-gray-900 dark:text-white">
             Wypozycz<span className="text-blue-600">.Online</span>
           </span>
         </Link>
 
-        <div className="flex items-center gap-4">
-          {/* Facebook Link */}
-          <a 
-            href="https://www.facebook.com/profile.php?id=61561285692729" 
-            target="_blank" 
+        <div className="nav-tools">
+          <a
+            href="https://www.facebook.com/profile.php?id=61561285692729"
+            target="_blank"
             rel="noopener noreferrer"
             className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors text-gray-500 dark:text-gray-400"
             aria-label="Facebook Fanpage"
@@ -79,8 +117,7 @@ export default function Navbar({ actionUrl, actionLabel }) {
             </svg>
           </a>
 
-          {/* Dark Mode Toggle */}
-          <button 
+          <button
             onClick={toggleDarkMode}
             className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors text-gray-500 dark:text-gray-400"
             aria-label="Toggle Dark Mode"
@@ -92,8 +129,7 @@ export default function Navbar({ actionUrl, actionLabel }) {
             )}
           </button>
 
-          {/* Hamburger Icon */}
-          <button 
+          <button
             className="mobile-menu-toggle dark:text-white"
             onClick={() => setIsOpen(!isOpen)}
             aria-label="Toggle menu"
@@ -104,22 +140,19 @@ export default function Navbar({ actionUrl, actionLabel }) {
           </button>
         </div>
 
-        {/* Links */}
         <div className={`nav-links ${isOpen ? 'active' : ''} dark:bg-slate-900`}>
-          <Link href="/" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">{'Strona główna'}</Link>
-          
-          {/* Categories Dropdown (Desktop) / Toggle (Mobile) */}
+          <Link href="/" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">Strona główna</Link>
+
           <div className="relative group">
-            <button 
+            <button
               onClick={() => setMobileCatsOpen(!mobileCatsOpen)}
-              className="mobile-menu-item dark:text-gray-300 dark:hover:text-white flex items-center justify-between w-full md:w-auto gap-1 font-medium group/btn"
+              className="mobile-menu-item dark:text-gray-300 dark:hover:text-white flex items-center justify-between w-full gap-1 font-medium group/btn"
             >
               <span>Kategorie</span>
-              <svg className={`w-4 h-4 transition-transform md:group-hover:rotate-180 ${mobileCatsOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+              <svg className={`w-4 h-4 transition-transform group-hover:rotate-180 ${mobileCatsOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
             </button>
-            
-            {/* Desktop Hover Menu */}
-            <div className="absolute top-full left-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-200 dark:border-slate-700 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 hidden md:block">
+
+            <div className="nav-category-desktop absolute top-full left-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-200 dark:border-slate-700 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
               {Object.values(SEO_CATEGORIES).map((cat) => (
                 <Link
                   key={cat.slug}
@@ -133,9 +166,8 @@ export default function Navbar({ actionUrl, actionLabel }) {
               ))}
             </div>
 
-            {/* Mobile Expandable Menu */}
             {mobileCatsOpen && (
-              <div className="md:hidden overflow-hidden transition-all duration-300">
+              <div className="nav-category-mobile overflow-hidden transition-all duration-300">
                 <div className="space-y-1 bg-gray-50 dark:bg-slate-800/50 rounded-xl p-2 mt-2">
                   {Object.values(SEO_CATEGORIES).map((cat) => (
                     <Link
@@ -153,28 +185,27 @@ export default function Navbar({ actionUrl, actionLabel }) {
             )}
           </div>
 
+          <Link href="/blog" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">Poradniki</Link>
+          <Link href="/katalog" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">Katalog firm</Link>
+          <Link href="/umowy" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">Umowy</Link>
+          <Link href="/regulamin" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">Regulamin</Link>
+          <Link href="/kontakt" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">Kontakt</Link>
 
-          <Link href="/blog" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">{'Poradniki'}</Link>
-          <Link href="/umowy" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">{'Umowy'}</Link>
-          <Link href="/regulamin" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">{'Regulamin'}</Link>
-          <Link href="/kontakt" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">{'Kontakt'}</Link>
-          
-          {isAdmin && (
-            <Link 
-              href="/admin" 
-              onClick={() => setIsOpen(false)} 
-              className="flex items-center gap-2 font-bold text-red-600 dark:text-red-400 hover:text-red-700 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-xl transition-colors"
+          {user && isAdmin && (
+            <Link
+              href="/admin"
+              onClick={() => setIsOpen(false)}
+              className="admin-nav-link flex items-center gap-2 font-bold text-red-600 dark:text-red-400 hover:text-red-700 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-xl transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
               Panel Admina
             </Link>
           )}
 
-          {/* Auth Link */}
-          <Link 
-            href={user ? "/dashboard" : "/login"} 
-            onClick={() => setIsOpen(false)} 
-            className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+          <Link
+            href={user ? "/dashboard" : "/login"}
+            onClick={() => setIsOpen(false)}
+            className="btn-secondary-panel"
           >
             Mój Panel
           </Link>

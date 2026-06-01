@@ -5,6 +5,8 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 import cloudinary from '@/lib/cloudinary'
 import { geocodeAddress } from '@/lib/geocoding'
 import { sanitizeAddress } from '@/lib/utils'
+import { slugify, citySlug, voivodeshipSlug } from '@/lib/slugify'
+import { createSupabaseAdminClient } from '@/lib/supabaseAdmin'
 
 const USER_ROLES = new Set(['user', 'admin'])
 const EQUIPMENT_STATUSES = new Set(['active', 'pending', 'inactive', 'rejected', 'incomplete'])
@@ -23,6 +25,63 @@ async function checkAdmin() {
 
   if (profile?.role !== 'admin') throw new Error('Unauthorized')
   return { supabase, user }
+}
+
+async function checkAdminWithServiceRole() {
+  const { user } = await checkAdmin()
+  const supabase = createSupabaseAdminClient()
+
+  if (!supabase) {
+    throw new Error('Brak konfiguracji SUPABASE_SERVICE_ROLE_KEY dla zapisu katalogu')
+  }
+
+  return { supabase, user }
+}
+
+async function fetchDirectoryCompanyWithBranches(supabase, companyId) {
+  const [{ data: company }, { data: branches }] = await Promise.all([
+    supabase
+      .from('company_directory')
+      .select('*')
+      .eq('id', companyId)
+      .maybeSingle(),
+    supabase
+      .from('company_directory_branches')
+      .select('*')
+      .eq('company_id', companyId),
+  ])
+
+  if (!company) return null
+  return { ...company, branches: branches || [] }
+}
+
+function revalidateDirectoryPaths(company) {
+  revalidatePath('/admin/directory')
+  revalidatePath('/katalog')
+  revalidatePath('/sitemaps/katalog')
+
+  if (!company) return
+
+  const companySlug = company.slug || slugify(company.name)
+  const seen = new Set()
+
+  for (const branch of company.branches || []) {
+    if (branch.city) {
+      const path = `/katalog/${citySlug(branch.city)}/${companySlug}`
+      if (!seen.has(path)) {
+        revalidatePath(path)
+        seen.add(path)
+      }
+    }
+
+    if (branch.voivodeship) {
+      const path = `/katalog/woj/${voivodeshipSlug(branch.voivodeship)}/${companySlug}`
+      if (!seen.has(path)) {
+        revalidatePath(path)
+        seen.add(path)
+      }
+    }
+  }
 }
 
 export async function updateUserRole(userId, role) {
@@ -271,6 +330,248 @@ export async function updateEquipmentStatus(id, status) {
     if (error) throw error
     revalidatePath('/admin/equipment')
     revalidateTag('listings')
+    return { success: true }
+  } catch (error) {
+    return { error: error.message }
+  }
+}
+
+// ─── Company Directory CRUD ──────────────────────────────────────────────────
+
+async function uploadLogoToCloudinary(file) {
+  if (!file || file.size === 0) return null
+  const arrayBuffer = await file.arrayBuffer()
+  const buffer = Buffer.from(arrayBuffer)
+
+  const result = await new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: 'company_logos' },
+      (error, result) => {
+        if (error) reject(error)
+        else resolve(result)
+      }
+    )
+    stream.end(buffer)
+  })
+  return result.secure_url
+}
+
+export async function adminCreateDirectoryCompany(formData) {
+  try {
+    const { supabase } = await checkAdminWithServiceRole()
+
+    const name = formData.get('name')
+    if (!name) throw new Error('Nazwa firmy jest wymagana')
+
+    let logoUrl = null
+    const logoFile = formData.get('logo')
+    if (logoFile && logoFile.size > 0) {
+      logoUrl = await uploadLogoToCloudinary(logoFile)
+    }
+
+    const rawData = {
+      name,
+      slug: slugify(name),
+      description: formData.get('description') || null,
+      category: formData.get('category') || null,
+      logo_url: logoUrl,
+      rating: formData.get('rating') ? parseFloat(formData.get('rating')) : null,
+      review_count: formData.get('review_count') ? parseInt(formData.get('review_count'), 10) : null,
+    }
+
+    const { data, error } = await supabase
+      .from('company_directory')
+      .insert([rawData])
+      .select()
+      .single()
+
+    if (error) throw error
+    revalidateDirectoryPaths({ ...data, branches: [] })
+    return { success: true, id: data.id }
+  } catch (error) {
+    return { error: error.message }
+  }
+}
+
+export async function adminUpdateDirectoryCompany(id, formData) {
+  try {
+    const { supabase } = await checkAdminWithServiceRole()
+
+    const name = formData.get('name')
+    if (!name) throw new Error('Nazwa firmy jest wymagana')
+    const previousCompany = await fetchDirectoryCompanyWithBranches(supabase, id)
+
+    const rawData = {
+      name,
+      slug: slugify(name),
+      description: formData.get('description') || null,
+      category: formData.get('category') || null,
+      rating: formData.get('rating') ? parseFloat(formData.get('rating')) : null,
+      review_count: formData.get('review_count') ? parseInt(formData.get('review_count'), 10) : null,
+    }
+
+    // Handle logo upload (only if new file provided)
+    const logoFile = formData.get('logo')
+    if (logoFile && logoFile.size > 0) {
+      rawData.logo_url = await uploadLogoToCloudinary(logoFile)
+    }
+
+    const { data, error } = await supabase
+      .from('company_directory')
+      .update(rawData)
+      .eq('id', id)
+      .select('*')
+      .single()
+
+    if (error) throw error
+    if (!data) throw new Error('Nie znaleziono firmy w katalogu')
+
+    const branches = previousCompany?.branches || []
+    revalidateDirectoryPaths(previousCompany)
+    revalidateDirectoryPaths({ ...data, branches })
+    return { success: true }
+  } catch (error) {
+    return { error: error.message }
+  }
+}
+
+export async function adminDeleteDirectoryCompany(id) {
+  try {
+    const { supabase } = await checkAdminWithServiceRole()
+    const previousCompany = await fetchDirectoryCompanyWithBranches(supabase, id)
+
+    // Branches are deleted via cascade (FK constraint) or manually
+    const { error: branchError } = await supabase
+      .from('company_directory_branches')
+      .delete()
+      .eq('company_id', id)
+
+    if (branchError) throw branchError
+
+    const { data, error } = await supabase
+      .from('company_directory')
+      .delete()
+      .eq('id', id)
+      .select('id')
+      .single()
+
+    if (error) throw error
+    if (!data) throw new Error('Nie znaleziono firmy w katalogu')
+    revalidateDirectoryPaths(previousCompany)
+    return { success: true }
+  } catch (error) {
+    return { error: error.message }
+  }
+}
+
+// ─── Company Directory Branches CRUD ─────────────────────────────────────────
+
+export async function adminCreateDirectoryBranch(companyId, formData) {
+  try {
+    const { supabase } = await checkAdminWithServiceRole()
+
+    const rawData = {
+      company_id: companyId,
+      city: formData.get('city') || null,
+      voivodeship: formData.get('voivodeship') || null,
+      address: formData.get('address') || null,
+      phone: formData.get('phone') || null,
+      email: formData.get('email') || null,
+      website: formData.get('website') || null,
+      nip: formData.get('nip') || null,
+      regon: formData.get('regon') || null,
+      krs: formData.get('krs') || null,
+      vat_status: formData.get('vat_status') || null,
+      google_maps_url: formData.get('google_maps_url') || null,
+    }
+
+    const { data, error } = await supabase
+      .from('company_directory_branches')
+      .insert([rawData])
+      .select()
+      .single()
+
+    if (error) throw error
+    const company = await fetchDirectoryCompanyWithBranches(supabase, companyId)
+    revalidateDirectoryPaths(company)
+    return { success: true, id: data.id }
+  } catch (error) {
+    return { error: error.message }
+  }
+}
+
+export async function adminUpdateDirectoryBranch(branchId, formData) {
+  try {
+    const { supabase } = await checkAdminWithServiceRole()
+    const { data: previousBranch } = await supabase
+      .from('company_directory_branches')
+      .select('company_id')
+      .eq('id', branchId)
+      .maybeSingle()
+    const previousCompany = previousBranch?.company_id
+      ? await fetchDirectoryCompanyWithBranches(supabase, previousBranch.company_id)
+      : null
+
+    const rawData = {
+      city: formData.get('city') || null,
+      voivodeship: formData.get('voivodeship') || null,
+      address: formData.get('address') || null,
+      phone: formData.get('phone') || null,
+      email: formData.get('email') || null,
+      website: formData.get('website') || null,
+      nip: formData.get('nip') || null,
+      regon: formData.get('regon') || null,
+      krs: formData.get('krs') || null,
+      vat_status: formData.get('vat_status') || null,
+      google_maps_url: formData.get('google_maps_url') || null,
+    }
+
+    const { data, error } = await supabase
+      .from('company_directory_branches')
+      .update(rawData)
+      .eq('id', branchId)
+      .select('id, company_id')
+      .single()
+
+    if (error) throw error
+    if (!data) throw new Error('Nie znaleziono oddzialu firmy')
+    const company = await fetchDirectoryCompanyWithBranches(supabase, data.company_id)
+    revalidateDirectoryPaths(previousCompany)
+    revalidateDirectoryPaths(company)
+    if (previousBranch?.company_id && previousBranch.company_id !== data.company_id) {
+      const previousOwnerCompany = await fetchDirectoryCompanyWithBranches(supabase, previousBranch.company_id)
+      revalidateDirectoryPaths(previousOwnerCompany)
+    }
+    return { success: true }
+  } catch (error) {
+    return { error: error.message }
+  }
+}
+
+export async function adminDeleteDirectoryBranch(branchId) {
+  try {
+    const { supabase } = await checkAdminWithServiceRole()
+    const { data: previousBranch } = await supabase
+      .from('company_directory_branches')
+      .select('company_id')
+      .eq('id', branchId)
+      .maybeSingle()
+    const previousCompany = previousBranch?.company_id
+      ? await fetchDirectoryCompanyWithBranches(supabase, previousBranch.company_id)
+      : null
+
+    const { data, error } = await supabase
+      .from('company_directory_branches')
+      .delete()
+      .eq('id', branchId)
+      .select('id, company_id')
+      .single()
+
+    if (error) throw error
+    if (!data) throw new Error('Nie znaleziono oddzialu firmy')
+    const company = await fetchDirectoryCompanyWithBranches(supabase, previousBranch?.company_id || data.company_id)
+    revalidateDirectoryPaths(previousCompany)
+    revalidateDirectoryPaths(company)
     return { success: true }
   } catch (error) {
     return { error: error.message }

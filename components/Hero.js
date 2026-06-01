@@ -76,9 +76,9 @@ export default function Hero({
         />
       </div>
       {/* Dark overlay */}
-      <div className="absolute inset-0 bg-black/50 dark:bg-black/70"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/45 to-black/30 dark:from-black/80 dark:via-black/65 dark:to-black/45"></div>
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10 lg:py-12 text-center flex flex-col items-center">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14 lg:py-16 text-center flex flex-col items-center">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white text-xs font-medium mb-4">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
           Największa baza sprzętu w Twojej okolicy
@@ -97,7 +97,7 @@ export default function Hero({
         </div>
 
         {/* Search Bar */}
-        <div className="w-full max-w-4xl bg-white dark:bg-slate-800 p-2 rounded-2xl md:rounded-full shadow-2xl flex flex-col md:flex-row items-center gap-2 md:gap-0 transition-colors">
+        <div className="w-full max-w-4xl bg-white dark:bg-slate-800 p-2 rounded-2xl shadow-2xl border border-white/10 dark:border-slate-700 flex flex-col md:flex-row items-center gap-2 md:gap-0 transition-colors">
 
           {/* Search Input */}
           <div className="flex-1 w-full flex items-center px-4 py-2 border-b md:border-b-0 md:border-r border-gray-200 dark:border-slate-700">
