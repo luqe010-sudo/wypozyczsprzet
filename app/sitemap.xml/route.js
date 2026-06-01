@@ -10,7 +10,6 @@ export async function GET() {
     'static-pages.xml',
     'blog.xml',
     'umowy.xml',
-    'katalog',
   ];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

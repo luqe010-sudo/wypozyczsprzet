@@ -10,28 +10,34 @@ export async function GET(request, { params }) {
   const { name } = params;
   let xml = '';
 
-  if (name === 'categories.xml') {
-    xml = generateCategoriesSitemap();
-  } else if (name === 'offers.xml') {
-    const slugData = await fetchAllSlugs();
-    xml = generateOffersSitemap(slugData);
-  } else if (name === 'local-hubs.xml') {
-    const slugData = await fetchAllSlugs();
-    xml = generateLocalHubsSitemap(slugData);
-  } else if (name === 'static-pages.xml') {
-    xml = generateStaticSitemap();
-  } else if (name === 'blog.xml') {
-    xml = generateBlogSitemap();
-  } else if (name === 'umowy.xml') {
-    xml = generateUmowySitemap();
-  } else if (name === 'cities.xml') {
-    const slugData = await fetchAllSlugs();
-    xml = generateCitiesSitemap(slugData);
-  } else if (name === 'voivodeships.xml') {
-    const slugData = await fetchAllSlugs();
-    xml = generateVoivodeshipsSitemap(slugData);
-  } else {
-    return new Response('Not Found', { status: 404 });
+  try {
+    if (name === 'categories.xml') {
+      xml = generateCategoriesSitemap();
+    } else if (name === 'offers.xml') {
+      const slugData = await fetchAllSlugs();
+      xml = generateOffersSitemap(slugData);
+    } else if (name === 'local-hubs.xml') {
+      const slugData = await fetchAllSlugs();
+      xml = generateLocalHubsSitemap(slugData);
+    } else if (name === 'static-pages.xml') {
+      xml = generateStaticSitemap();
+    } else if (name === 'blog.xml') {
+      xml = generateBlogSitemap();
+    } else if (name === 'umowy.xml') {
+      xml = generateUmowySitemap();
+    } else if (name === 'cities.xml') {
+      const slugData = await fetchAllSlugs();
+      xml = generateCitiesSitemap(slugData);
+    } else if (name === 'voivodeships.xml') {
+      const slugData = await fetchAllSlugs();
+      xml = generateVoivodeshipsSitemap(slugData);
+    } else {
+      return new Response('Not Found', { status: 404 });
+    }
+  } catch (error) {
+    console.error(`[Sitemap] Error generating ${name}:`, error);
+    // Return a valid but empty sitemap so Google doesn't mark it as "failed to fetch"
+    xml = wrapInUrlset('');
   }
 
   return new Response(xml, {
