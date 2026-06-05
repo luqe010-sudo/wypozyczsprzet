@@ -6,22 +6,47 @@ import { toast } from 'react-hot-toast'
 import { ArrowLeft, Package } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { FORM_CATEGORIES, SEO_CATEGORIES } from '../../../../lib/categories'
 import CustomSelect from '../../../../components/CustomSelect'
 
-export default function AdminNewEquipmentForm({ companies }) {
+export default function AdminNewEquipmentForm({ companies = [], categories = [], subcategories = [], branches = [] }) {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   
-  const [category, setCategory] = useState('earthmoving')
-  const [subcategory, setSubcategory] = useState('')
+  const [companyId, setCompanyId] = useState('')
+  const [categoryId, setCategoryId] = useState('')
+  const [subcategoryId, setSubcategoryId] = useState('')
+  const [branchId, setBranchId] = useState('')
   const [availability, setAvailability] = useState('immediately')
   const [rentalPeriod, setRentalPeriod] = useState('day')
-  const [companyId, setCompanyId] = useState('')
+
+  const handleCompanyChange = (val) => {
+    setCompanyId(val)
+    // Find branches for selected company and set main branch by default
+    const companyBranches = branches.filter(b => b.company_id === val)
+    const mainBranch = companyBranches.find(b => b.is_main) || companyBranches[0]
+    setBranchId(mainBranch ? mainBranch.id : '')
+  }
+
+  const handleCategoryChange = (val) => {
+    setCategoryId(val)
+    setSubcategoryId('')
+  }
+
+  const selectedCategory = categories.find(c => c.id === categoryId)
+  const selectedSubcategory = subcategories.find(s => s.id === subcategoryId)
+  const categoryDbKey = selectedCategory ? selectedCategory.db_key : ''
+  const subcategorySlug = selectedSubcategory ? selectedSubcategory.slug : ''
+
+  const filteredSubcategories = subcategories.filter(s => s.category_id === categoryId)
+  const filteredBranches = branches.filter(b => b.company_id === companyId)
 
   async function handleSubmit(formData) {
     if (!formData.get('company_id')) {
       toast.error('Musisz wybrać firmę!')
+      return
+    }
+    if (!formData.get('branch_id')) {
+      toast.error('Musisz wybrać oddział dla wybranej firmy!')
       return
     }
 
@@ -54,16 +79,26 @@ export default function AdminNewEquipmentForm({ companies }) {
         </div>
         
         <form action={handleSubmit} className="p-6 space-y-6">
+          {/* Hidden fields for FK and legacy compatibility */}
+          <input type="hidden" name="company_id" value={companyId} />
+          <input type="hidden" name="category_id" value={categoryId} />
+          <input type="hidden" name="category" value={categoryDbKey} />
+          <input type="hidden" name="subcategory_id" value={subcategoryId} />
+          <input type="hidden" name="subcategory" value={subcategorySlug} />
+          <input type="hidden" name="branch_id" value={branchId} />
+          <input type="hidden" name="availability" value={availability} />
+          <input type="hidden" name="rental_period" value={rentalPeriod} />
+
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Przypisz do firmy <span className="text-red-500">*</span></label>
               <CustomSelect
-                options={companies.map(c => ({ value: c.id, label: `${c.name} (${c.city})` }))}
+                options={companies.map(c => ({ value: c.id, label: c.name }))}
                 value={companyId}
-                onChange={setCompanyId}
+                onChange={handleCompanyChange}
+                placeholder="Wybierz firmę..."
                 variant="field"
               />
-              <input type="hidden" name="company_id" value={companyId} />
             </div>
 
             <div className="sm:col-span-2">
@@ -75,32 +110,40 @@ export default function AdminNewEquipmentForm({ companies }) {
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kategoria <span className="text-red-500">*</span></label>
               <CustomSelect
-                options={FORM_CATEGORIES}
-                value={category}
-                onChange={(val) => {
-                  setCategory(val);
-                  setSubcategory('');
-                }}
+                options={categories.map(c => ({ value: c.id, label: c.name }))}
+                value={categoryId}
+                onChange={handleCategoryChange}
                 placeholder="Wybierz kategorię..."
                 variant="field"
               />
-              <input type="hidden" name="category" value={category} />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Podkategoria</label>
               <CustomSelect
-                options={(() => {
-                  const fc = FORM_CATEGORIES.find(c => c.value === category);
-                  const seoSlug = fc?.seoSlug;
-                  return seoSlug && SEO_CATEGORIES[seoSlug] ? SEO_CATEGORIES[seoSlug].filters : [];
-                })()}
-                value={subcategory}
-                onChange={setSubcategory}
+                options={filteredSubcategories.map(s => ({ value: s.id, label: s.name }))}
+                value={subcategoryId}
+                onChange={setSubcategoryId}
                 placeholder="Wybierz typ..."
                 variant="field"
+                disabled={!categoryId}
               />
-              <input type="hidden" name="subcategory" value={subcategory} />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Oddział Firmy <span className="text-red-500">*</span></label>
+              <CustomSelect
+                options={filteredBranches.map(b => ({ 
+                  value: b.id, 
+                  label: b.name ? `${b.name} (${b.city})` : `${b.city}, ${b.address}` 
+                }))}
+                value={branchId}
+                onChange={setBranchId}
+                placeholder={companyId ? "Wybierz oddział..." : "Najpierw wybierz firmę"}
+                variant="field"
+                disabled={!companyId}
+              />
+              <p className="mt-1 text-xs text-gray-500 italic">Lokalizacja sprzętu pochodzi z wybranego oddziału firmy.</p>
             </div>
 
             <div>
@@ -114,7 +157,6 @@ export default function AdminNewEquipmentForm({ companies }) {
                 onChange={setAvailability}
                 variant="field"
               />
-              <input type="hidden" name="availability" value={availability} />
             </div>
 
             <div>
@@ -136,7 +178,6 @@ export default function AdminNewEquipmentForm({ companies }) {
                 onChange={setRentalPeriod}
                 variant="field"
               />
-              <input type="hidden" name="rental_period" value={rentalPeriod} />
             </div>
 
             <div className="sm:col-span-2">

@@ -10,7 +10,7 @@ export default async function AdminEquipmentPage() {
   // Fetch all equipment with company details
   const { data: equipment } = await supabase
     .from('equipment')
-    .select('*, companies(name)')
+    .select('*, companies(name), company_branches(city), equipment_categories(name)')
     .order('created_at', { ascending: false })
 
   return (

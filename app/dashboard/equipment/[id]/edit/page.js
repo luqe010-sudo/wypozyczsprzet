@@ -13,16 +13,31 @@ export default async function EditEquipmentPage({ params }) {
   }
 
   // Fetch equipment and verify company ownership
-  const { data: equipment, error } = await supabase
-    .from('equipment')
-    .select('*, companies!inner(owner_user_id)')
-    .eq('id', params.id)
-    .eq('companies.owner_user_id', user.id)
-    .single()
+  const [
+    equipmentRes,
+    categoriesRes,
+    subcategoriesRes
+  ] = await Promise.all([
+    supabase.from('equipment').select('*, companies!inner(owner_user_id)').eq('id', params.id).eq('companies.owner_user_id', user.id).single(),
+    supabase.from('equipment_categories').select('*').eq('status', 'active').order('sort_order'),
+    supabase.from('equipment_subcategories').select('*').eq('status', 'active').order('sort_order')
+  ])
+
+  const equipment = equipmentRes.data
+  const error = equipmentRes.error
+  const categories = categoriesRes.data
+  const subcategories = subcategoriesRes.data
 
   if (error || !equipment) {
     redirect('/dashboard')
   }
+
+  // Fetch branches for this company
+  const { data: branches } = await supabase
+    .from('company_branches')
+    .select('*')
+    .eq('company_id', equipment.company_id)
+    .order('is_main', { ascending: false })
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -38,7 +53,12 @@ export default async function EditEquipmentPage({ params }) {
           <h3 className="text-lg leading-6 font-bold text-gray-900 dark:text-white mb-5">
             Edytuj dane sprzętu
           </h3>
-          <EditEquipmentForm equipment={equipment} />
+          <EditEquipmentForm 
+            equipment={equipment} 
+            categories={categories || []}
+            subcategories={subcategories || []}
+            branches={branches || []}
+          />
         </div>
       </div>
     </div>

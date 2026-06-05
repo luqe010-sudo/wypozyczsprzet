@@ -6,11 +6,13 @@ export default async function AdminEditCompanyPage({ params }) {
   const { id } = params
   const supabase = createClient()
 
-  const { data: company } = await supabase
-    .from('companies')
-    .select('*')
-    .eq('id', id)
-    .single()
+  const [
+    { data: company },
+    { data: branches }
+  ] = await Promise.all([
+    supabase.from('companies').select('*').eq('id', id).single(),
+    supabase.from('company_branches').select('*').eq('company_id', id).order('is_main', { ascending: false }).order('created_at')
+  ])
 
   if (!company) {
     notFound()
@@ -18,7 +20,7 @@ export default async function AdminEditCompanyPage({ params }) {
 
   return (
     <div className="py-6">
-      <AdminEditCompanyForm company={company} />
+      <AdminEditCompanyForm company={company} branches={branches || []} />
     </div>
   )
 }

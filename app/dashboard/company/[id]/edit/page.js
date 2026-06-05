@@ -12,19 +12,24 @@ export default async function EditCompanyPage({ params }) {
     redirect('/login')
   }
 
-  const { data: company, error } = await supabase
-    .from('companies')
-    .select('*')
-    .eq('id', params.id)
-    .eq('owner_user_id', user.id)
-    .single()
+  const [
+    companyRes,
+    branchesRes
+  ] = await Promise.all([
+    supabase.from('companies').select('*').eq('id', params.id).eq('owner_user_id', user.id).single(),
+    supabase.from('company_branches').select('*').eq('company_id', params.id).order('is_main', { ascending: false }).order('created_at')
+  ])
+
+  const company = companyRes.data
+  const error = companyRes.error
+  const branches = branchesRes.data
 
   if (error || !company) {
     redirect('/dashboard')
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-5xl mx-auto">
       <div className="mb-6 flex items-center">
         <Link href={`/dashboard/company/${company.id}`} className="text-sm font-medium text-blue-600 hover:text-blue-500 flex items-center">
           <ArrowLeft className="w-4 h-4 mr-1" />
@@ -32,14 +37,7 @@ export default async function EditCompanyPage({ params }) {
         </Link>
       </div>
       
-      <div className="bg-white dark:bg-slate-800 shadow-sm rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden transition-colors">
-        <div className="px-4 py-5 sm:p-6">
-          <h3 className="text-lg leading-6 font-bold text-gray-900 dark:text-white mb-5">
-            Edytuj dane firmy
-          </h3>
-          <EditCompanyForm company={company} />
-        </div>
-      </div>
+      <EditCompanyForm company={company} branches={branches || []} />
     </div>
   )
 }

@@ -4,24 +4,41 @@ import { useState } from 'react'
 import { updateEquipment, deleteEquipment } from '../../actions'
 import { toast } from 'react-hot-toast'
 import { Trash2 } from 'lucide-react'
-import { FORM_CATEGORIES, SEO_CATEGORIES } from '../../../../../lib/categories'
 import CustomSelect from '../../../../../components/CustomSelect'
 
-export default function EditEquipmentForm({ equipment }) {
+export default function EditEquipmentForm({ equipment, categories = [], subcategories = [], branches = [] }) {
   const [isLoading, setIsLoading] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   
-  // Robust category initialization: find the DB key ('earthmoving') even if the input is a label ('Roboty ziemne')
-  const initialCategoryValue = (() => {
-    const raw = equipment.category || equipment.Kategoria || '';
-    const found = FORM_CATEGORIES.find(c => c.value === raw || c.label === raw);
-    return found ? found.value : 'tools'; // fallback to tools
-  })();
+  // Find initial DB IDs based on current equipment fields (with fallback for legacy records)
+  const initialCategoryId = (() => {
+    if (equipment.category_id) return equipment.category_id
+    const found = categories.find(c => c.db_key === equipment.category || c.name === equipment.category)
+    return found ? found.id : ''
+  })()
 
-  const [category, setCategory] = useState(initialCategoryValue)
-  const [availability, setAvailability] = useState(equipment.availability || equipment.Dostępność)
-  const [rentalPeriod, setRentalPeriod] = useState(equipment.rental_period || equipment.Czas)
-  const [subcategory, setSubcategory] = useState(equipment.subcategory || '')
+  const initialSubcategoryId = (() => {
+    if (equipment.subcategory_id) return equipment.subcategory_id
+    const found = subcategories.find(s => s.slug === equipment.subcategory || s.name === equipment.subcategory)
+    return found ? found.id : ''
+  })()
+
+  const initialBranchId = equipment.branch_id || (branches.find(b => b.is_main)?.id || branches[0]?.id || '')
+
+  const [categoryId, setCategoryId] = useState(initialCategoryId)
+  const [subcategoryId, setSubcategoryId] = useState(initialSubcategoryId)
+  const [branchId, setBranchId] = useState(initialBranchId)
+  const [availability, setAvailability] = useState(equipment.availability || 'immediately')
+  const [rentalPeriod, setRentalPeriod] = useState(equipment.rental_period || 'day')
+
+  const selectedCategory = categories.find(c => c.id === categoryId)
+  const selectedSubcategory = subcategories.find(s => s.id === subcategoryId)
+
+  const categoryDbKey = selectedCategory ? selectedCategory.db_key : ''
+  const subcategorySlug = selectedSubcategory ? selectedSubcategory.slug : ''
+
+  // Filter subcategories based on selected category_id
+  const filteredSubcategories = subcategories.filter(s => s.category_id === categoryId)
 
   async function handleSubmit(formData) {
     setIsLoading(true)
@@ -49,6 +66,15 @@ export default function EditEquipmentForm({ equipment }) {
   return (
     <div>
       <form action={handleSubmit} className="space-y-6">
+        {/* Hidden fields for FK and legacy compatibility */}
+        <input type="hidden" name="category_id" value={categoryId} />
+        <input type="hidden" name="category" value={categoryDbKey} />
+        <input type="hidden" name="subcategory_id" value={subcategoryId} />
+        <input type="hidden" name="subcategory" value={subcategorySlug} />
+        <input type="hidden" name="branch_id" value={branchId} />
+        <input type="hidden" name="availability" value={availability} />
+        <input type="hidden" name="rental_period" value={rentalPeriod} />
+
         <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
           <div className="sm:col-span-6">
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -56,7 +82,7 @@ export default function EditEquipmentForm({ equipment }) {
             </label>
             <div className="mt-1">
               <input type="text" name="name" id="name" required defaultValue={equipment.name || equipment.Sprzęt}
-                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border" />
+                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border outline-none" />
             </div>
           </div>
 
@@ -65,16 +91,15 @@ export default function EditEquipmentForm({ equipment }) {
               Kategoria <span className="text-red-500">*</span>
             </label>
             <CustomSelect
-              options={FORM_CATEGORIES}
-              value={category}
+              options={categories.map(c => ({ value: c.id, label: c.name }))}
+              value={categoryId}
               onChange={(val) => {
-                setCategory(val);
-                setSubcategory('');
+                setCategoryId(val);
+                setSubcategoryId('');
               }}
               placeholder="Wybierz kategorię..."
               variant="field"
             />
-            <input type="hidden" name="category" value={category} />
           </div>
 
           <div className="sm:col-span-3">
@@ -82,17 +107,30 @@ export default function EditEquipmentForm({ equipment }) {
               Podkategoria
             </label>
             <CustomSelect
-              options={(() => {
-                const fc = FORM_CATEGORIES.find(c => c.value === category);
-                const seoSlug = fc?.seoSlug;
-                return seoSlug && SEO_CATEGORIES[seoSlug] ? SEO_CATEGORIES[seoSlug].filters : [];
-              })()}
-              value={subcategory}
-              onChange={setSubcategory}
+              options={filteredSubcategories.map(s => ({ value: s.id, label: s.name }))}
+              value={subcategoryId}
+              onChange={setSubcategoryId}
               placeholder="Wybierz typ..."
               variant="field"
+              disabled={!categoryId}
             />
-            <input type="hidden" name="subcategory" value={subcategory} />
+          </div>
+
+          <div className="sm:col-span-6">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Lokalizacja / Oddział Firmy <span className="text-red-500">*</span>
+            </label>
+            <CustomSelect
+              options={branches.map(b => ({ 
+                value: b.id, 
+                label: b.name ? `${b.name} (${b.city})` : `${b.city}, ${b.address}` 
+              }))}
+              value={branchId}
+              onChange={setBranchId}
+              placeholder="Wybierz oddział..."
+              variant="field"
+            />
+            <p className="mt-1 text-xs text-gray-500 italic">Lokalizacja sprzętu pochodzi z wybranego oddziału firmy.</p>
           </div>
 
           <div className="sm:col-span-3">
@@ -108,7 +146,6 @@ export default function EditEquipmentForm({ equipment }) {
               onChange={setAvailability}
               variant="field"
             />
-            <input type="hidden" name="availability" value={availability} />
           </div>
 
           <div className="sm:col-span-3">
@@ -116,7 +153,7 @@ export default function EditEquipmentForm({ equipment }) {
               Cena (PLN) <span className="text-red-500">*</span>
             </label>
             <input type="number" name="price_from" id="price_from" required min="0" step="0.01" defaultValue={equipment.price_from || equipment.Cena_od}
-              className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border" />
+              className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border outline-none" />
           </div>
 
           <div className="sm:col-span-3">
@@ -134,7 +171,6 @@ export default function EditEquipmentForm({ equipment }) {
               onChange={setRentalPeriod}
               variant="field"
             />
-            <input type="hidden" name="rental_period" value={rentalPeriod} />
           </div>
 
           <div className="sm:col-span-6">
@@ -143,7 +179,7 @@ export default function EditEquipmentForm({ equipment }) {
             </label>
             <div className="mt-1">
               <input type="url" name="external_olx_url" id="external_olx_url" defaultValue={equipment.external_olx_url} placeholder="https://olx.pl/..."
-                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border" />
+                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border outline-none" />
             </div>
           </div>
 
@@ -171,7 +207,7 @@ export default function EditEquipmentForm({ equipment }) {
             </label>
             <div className="mt-1">
               <textarea name="description" id="description" rows={4} defaultValue={equipment.description || equipment.Opis}
-                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border" />
+                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border outline-none" />
             </div>
           </div>
 

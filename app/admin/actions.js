@@ -10,7 +10,7 @@ import { createSupabaseAdminClient } from '@/lib/supabaseAdmin'
 
 const USER_ROLES = new Set(['user', 'admin'])
 const EQUIPMENT_STATUSES = new Set(['active', 'pending', 'inactive', 'rejected', 'incomplete'])
-const DELETABLE_TABLES = new Set(['companies', 'equipment'])
+const DELETABLE_TABLES = new Set(['companies', 'equipment', 'company_branches'])
 
 async function checkAdmin() {
   const supabase = createClient()
@@ -145,21 +145,29 @@ export async function adminDeleteRecord(table, id) {
 export async function adminUpdateCompany(id, formData) {
   try {
     const { supabase } = await checkAdmin()
-    const address = formData.get('address')
-    const city = formData.get('city')
-    const sanitized = sanitizeAddress(address, city)
-    const coords = await geocodeAddress(sanitized)
 
     const rawData = {
       name: formData.get('company_name'),
       phone: formData.get('phone'),
       email: formData.get('email'),
       website: formData.get('website'),
-      zip_code: formData.get('postal_code'),
-      city: city,
-      address: address,
-      lat: coords?.lat || null,
-      lng: coords?.lng || null,
+    }
+
+    // Also update deprecated columns for backward compatibility
+    const city = formData.get('city')
+    const address = formData.get('address')
+    if (city) rawData.city = city
+    if (address) rawData.address = address
+    const zipCode = formData.get('postal_code')
+    if (zipCode) rawData.zip_code = zipCode
+
+    if (city || address) {
+      const sanitized = sanitizeAddress(address, city)
+      const coords = await geocodeAddress(sanitized)
+      if (coords) {
+        rawData.lat = coords.lat
+        rawData.lng = coords.lng
+      }
     }
 
     const { error } = await supabase
@@ -204,6 +212,9 @@ export async function adminUpdateEquipment(id, formData) {
       name: formData.get('name'),
       category: formData.get('category'),
       subcategory: formData.get('subcategory') || null,
+      category_id: formData.get('category_id') || null,
+      subcategory_id: formData.get('subcategory_id') || null,
+      branch_id: formData.get('branch_id') || null,
       price_from: parseFloat(formData.get('price_from')),
       rental_period: formData.get('rental_period'),
       availability: formData.get('availability'),
@@ -240,6 +251,7 @@ export async function adminCreateCompany(formData) {
       phone: formData.get('phone'),
       email: formData.get('email'),
       website: formData.get('website'),
+      // Deprecated but kept for backward compatibility
       zip_code: formData.get('postal_code'),
       city: city,
       address: address,
@@ -255,6 +267,24 @@ export async function adminCreateCompany(formData) {
       .select()
 
     if (error) throw error
+
+    // Create main branch
+    const branchData = {
+      company_id: data[0].id,
+      name: 'Siedziba główna',
+      city: city,
+      zip_code: formData.get('postal_code'),
+      address: address,
+      lat: coords?.lat || null,
+      lng: coords?.lng || null,
+      phone: formData.get('phone'),
+      email: formData.get('email'),
+      is_main: true,
+      source: 'admin',
+    }
+
+    await supabase.from('company_branches').insert([branchData])
+
     revalidatePath('/admin/companies')
     revalidateTag('listings')
     return { success: true, id: data[0].id }
@@ -292,6 +322,9 @@ export async function adminCreateEquipment(formData) {
       name: formData.get('name'),
       category: formData.get('category'),
       subcategory: formData.get('subcategory') || null,
+      category_id: formData.get('category_id') || null,
+      subcategory_id: formData.get('subcategory_id') || null,
+      branch_id: formData.get('branch_id') || null,
       price_from: parseFloat(formData.get('price_from')),
       rental_period: formData.get('rental_period'),
       availability: formData.get('availability'),
@@ -572,6 +605,125 @@ export async function adminDeleteDirectoryBranch(branchId) {
     const company = await fetchDirectoryCompanyWithBranches(supabase, previousBranch?.company_id || data.company_id)
     revalidateDirectoryPaths(previousCompany)
     revalidateDirectoryPaths(company)
+    return { success: true }
+  } catch (error) {
+    return { error: error.message }
+  }
+}
+
+// ─── Marketplace Company Branches CRUD ───────────────────────────────────────
+
+export async function adminCreateCompanyBranch(companyId, formData) {
+  try {
+    const { supabase } = await checkAdmin()
+    const address = formData.get('address')
+    const city = formData.get('city')
+    const sanitized = sanitizeAddress(address, city)
+    const coords = await geocodeAddress(sanitized)
+
+    const rawData = {
+      company_id: companyId,
+      name: formData.get('branch_name') || null,
+      city: city,
+      zip_code: formData.get('postal_code') || null,
+      address: address,
+      lat: coords?.lat || null,
+      lng: coords?.lng || null,
+      phone: formData.get('phone') || null,
+      email: formData.get('email') || null,
+      is_main: formData.get('is_main') === 'true',
+      source: 'admin',
+    }
+
+    const { data, error } = await supabase
+      .from('company_branches')
+      .insert([rawData])
+      .select()
+      .single()
+
+    if (error) throw error
+    revalidatePath('/admin/companies')
+    revalidatePath(`/admin/companies/${companyId}/edit`)
+    revalidateTag('listings')
+    return { success: true, id: data.id }
+  } catch (error) {
+    return { error: error.message }
+  }
+}
+
+export async function adminUpdateCompanyBranch(branchId, formData) {
+  try {
+    const { supabase } = await checkAdmin()
+    const address = formData.get('address')
+    const city = formData.get('city')
+    const sanitized = sanitizeAddress(address, city)
+    const coords = await geocodeAddress(sanitized)
+
+    const rawData = {
+      name: formData.get('branch_name') || null,
+      city: city,
+      zip_code: formData.get('postal_code') || null,
+      address: address,
+      lat: coords?.lat || null,
+      lng: coords?.lng || null,
+      phone: formData.get('phone') || null,
+      email: formData.get('email') || null,
+      is_main: formData.get('is_main') === 'true',
+    }
+
+    const { data, error } = await supabase
+      .from('company_branches')
+      .update(rawData)
+      .eq('id', branchId)
+      .select('id, company_id')
+      .single()
+
+    if (error) throw error
+    revalidatePath('/admin/companies')
+    if (data?.company_id) revalidatePath(`/admin/companies/${data.company_id}/edit`)
+    revalidateTag('listings')
+    return { success: true }
+  } catch (error) {
+    return { error: error.message }
+  }
+}
+
+export async function adminDeleteCompanyBranch(branchId) {
+  try {
+    const { supabase } = await checkAdmin()
+
+    const { data, error } = await supabase
+      .from('company_branches')
+      .delete()
+      .eq('id', branchId)
+      .select('id, company_id')
+      .single()
+
+    if (error) throw error
+    if (!data) throw new Error('Nie znaleziono oddziału')
+    revalidatePath('/admin/companies')
+    revalidatePath(`/admin/companies/${data.company_id}/edit`)
+    revalidateTag('listings')
+    return { success: true }
+  } catch (error) {
+    return { error: error.message }
+  }
+}
+
+// ─── Directory ↔ Marketplace Linking ─────────────────────────────────────────
+
+export async function adminLinkDirectoryCompany(directoryCompanyId, linkedCompanyId) {
+  try {
+    const { supabase } = await checkAdminWithServiceRole()
+
+    const { error } = await supabase
+      .from('company_directory')
+      .update({ linked_company_id: linkedCompanyId || null })
+      .eq('id', directoryCompanyId)
+
+    if (error) throw error
+    revalidatePath('/admin/directory')
+    revalidatePath(`/admin/directory/${directoryCompanyId}/edit`)
     return { success: true }
   } catch (error) {
     return { error: error.message }

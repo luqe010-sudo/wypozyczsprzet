@@ -19,10 +19,19 @@ export default function CompaniesTable({ initialCompanies, users }) {
   const [companies, setCompanies] = useState(initialCompanies)
   const [searchTerm, setSearchTerm] = useState('')
 
-  const filteredCompanies = companies.filter(c => 
-    c.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.city?.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const getMainBranch = (company) => {
+    if (!company.company_branches || company.company_branches.length === 0) return null
+    return company.company_branches.find(b => b.is_main) || company.company_branches[0]
+  }
+
+  const filteredCompanies = companies.filter(c => {
+    const nameMatch = c.name?.toLowerCase().includes(searchTerm.toLowerCase())
+    const branchMatch = c.company_branches?.some(b => 
+      b.city?.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    const oldCityMatch = c.city?.toLowerCase().includes(searchTerm.toLowerCase())
+    return nameMatch || branchMatch || oldCityMatch
+  })
 
   const handleDelete = async (id) => {
     if (confirm('Czy na pewno chcesz usunąć tę firmę? Spowoduje to również usunięcie całego przypisanego sprzętu.')) {
@@ -97,16 +106,35 @@ export default function CompaniesTable({ initialCompanies, users }) {
                       {company.equipment?.[0]?.count || 0} ogłoszeń
                     </Link>
                   </td>
-                  <td className="px-6 py-4">
+                   <td className="px-6 py-4">
                     <div className="flex items-center gap-1.5 text-gray-700 dark:text-gray-300">
                       <MapPin className="w-3.5 h-3.5 text-gray-400" />
-                      {company.city}
+                      {(() => {
+                        const mainBranch = getMainBranch(company)
+                        if (mainBranch) {
+                          const branchCount = company.company_branches?.length || 1
+                          return (
+                            <span>
+                              {mainBranch.city}
+                              {branchCount > 1 && (
+                                <span className="ml-1.5 text-xs px-1.5 py-0.5 bg-gray-100 dark:bg-slate-700 rounded-full text-gray-500">
+                                  +{branchCount - 1}
+                                </span>
+                              )}
+                            </span>
+                          )
+                        }
+                        return company.city || 'Brak lokalizacji'
+                      })()}
                     </div>
                   </td>
                   <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
                     <div className="flex items-center gap-1.5">
                       <Phone className="w-3.5 h-3.5 text-gray-400" />
-                      {company.phone}
+                      {(() => {
+                        const mainBranch = getMainBranch(company)
+                        return mainBranch?.phone || company.phone || '-'
+                      })()}
                     </div>
                   </td>
                   <td className="px-6 py-4">

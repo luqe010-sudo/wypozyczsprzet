@@ -11,7 +11,7 @@ export default async function AdminCompaniesPage() {
     { data: companies },
     { data: users }
   ] = await Promise.all([
-    supabase.from('companies').select('*, equipment(count)').order('name'),
+    supabase.from('companies').select('*, company_branches(*), equipment(count)').order('name'),
     supabase.from('profiles').select('id, role').order('role')
   ])
 

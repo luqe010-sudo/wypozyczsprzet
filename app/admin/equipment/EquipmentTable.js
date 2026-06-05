@@ -25,11 +25,12 @@ export default function EquipmentTable({ initialEquipment }) {
   const searchParams = useSearchParams()
   const companyFilter = searchParams.get('company')
 
-  const categories = [...new Set(equipment.map(e => e.category))].filter(Boolean)
+  const categories = [...new Set(equipment.map(e => e.equipment_categories?.name || e.category))].filter(Boolean)
 
   const filteredEquipment = equipment.filter(e => {
     const matchesSearch = e.name?.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = filterCategory === 'all' || e.category === filterCategory
+    const itemCategoryName = e.equipment_categories?.name || e.category
+    const matchesCategory = filterCategory === 'all' || itemCategoryName === filterCategory
     const matchesCompany = !companyFilter || e.company_id === companyFilter
     return matchesSearch && matchesCategory && matchesCompany
   })
@@ -122,10 +123,20 @@ export default function EquipmentTable({ initialEquipment }) {
 
             <div className="p-4 flex-1 flex flex-col gap-3">
               <div>
-                <h4 className="font-bold text-gray-900 dark:text-white line-clamp-1">{item.name}</h4>
-                <div className="flex items-center gap-1.5 text-xs text-gray-500 mt-1">
-                  <Building className="w-3 h-3" />
-                  <span className="truncate">{item.companies?.name || 'Nieznana firma'}</span>
+                <h4 className="font-bold text-gray-900 dark:text-white line-clamp-1" title={item.name}>{item.name}</h4>
+                <div className="flex flex-col gap-1.5 mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center gap-1.5">
+                    <Building className="w-3.5 h-3.5 shrink-0 text-gray-400" />
+                    <span className="truncate font-medium">{item.companies?.name || 'Nieznana firma'}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-semibold text-gray-400">Kategoria:</span>
+                    <span>{item.equipment_categories?.name || item.category || 'Brak'}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-semibold text-gray-400">Oddział/Miasto:</span>
+                    <span>{item.company_branches?.city || 'Brak'}</span>
+                  </div>
                 </div>
               </div>
 

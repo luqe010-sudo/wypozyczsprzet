@@ -11,6 +11,7 @@ export default async function DashboardPage() {
     .from('companies')
     .select(`
       *,
+      company_branches(*),
       equipment(count)
     `)
     .eq('owner_user_id', user.id)
@@ -48,7 +49,12 @@ export default async function DashboardPage() {
                     </h3>
                     <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-1">
                       <MapPin className="flex-shrink-0 mr-1.5 h-4 w-4" />
-                      <span className="truncate">{company.miasto || company.city || 'Brak miasta'}</span>
+                      <span className="truncate">
+                        {(() => {
+                          const mainBranch = company.company_branches?.find(b => b.is_main) || company.company_branches?.[0];
+                          return mainBranch?.city || company.city || 'Brak lokalizacji';
+                        })()}
+                      </span>
                     </div>
                   </div>
                 </div>

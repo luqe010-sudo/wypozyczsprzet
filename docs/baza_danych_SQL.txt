@@ -1,0 +1,114 @@
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE public.companies (
+  name text NOT NULL,
+  phone text,
+  email text,
+  website text,
+  zip_code text,
+  city text,
+  address text,
+  lat double precision,
+  lng double precision,
+  status text DEFAULT 'active'::text,
+  description text,
+  created_at timestamp with time zone DEFAULT now(),
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  owner_user_id uuid,
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT companies_pkey PRIMARY KEY (id),
+  CONSTRAINT companies_owner_user_id_fkey FOREIGN KEY (owner_user_id) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.equipment (
+  category text,
+  name text NOT NULL,
+  price_from text,
+  rental_period text DEFAULT 'doba'::text,
+  availability text,
+  priority integer DEFAULT 1,
+  description text,
+  image_url text,
+  status text DEFAULT 'active'::text,
+  promotion text,
+  external_olx_url text,
+  created_at timestamp with time zone DEFAULT now(),
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  company_id uuid,
+  updated_at timestamp with time zone DEFAULT now(),
+  subcategory text,
+  CONSTRAINT equipment_pkey PRIMARY KEY (id),
+  CONSTRAINT equipment_company_id_fkey FOREIGN KEY (company_id) REFERENCES public.companies(id)
+);
+CREATE TABLE public.profiles (
+  id uuid NOT NULL,
+  role text DEFAULT 'user'::text CHECK (role = ANY (ARRAY['user'::text, 'admin'::text])),
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT profiles_pkey PRIMARY KEY (id),
+  CONSTRAINT profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
+);
+CREATE TABLE public.company_claims (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  company_id uuid NOT NULL,
+  user_id uuid NOT NULL,
+  email text NOT NULL,
+  phone text NOT NULL,
+  message text,
+  status text DEFAULT 'pending'::text CHECK (status = ANY (ARRAY['pending'::text, 'approved'::text, 'rejected'::text])),
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT company_claims_pkey PRIMARY KEY (id),
+  CONSTRAINT company_claims_company_id_fkey FOREIGN KEY (company_id) REFERENCES public.companies(id),
+  CONSTRAINT company_claims_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.equipment_stats (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  equipment_id uuid NOT NULL UNIQUE,
+  views_count integer DEFAULT 0,
+  phone_clicks integer DEFAULT 0,
+  website_clicks integer DEFAULT 0,
+  olx_clicks integer DEFAULT 0,
+  favorites_count integer DEFAULT 0,
+  updated_at timestamp with time zone DEFAULT now(),
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT equipment_stats_pkey PRIMARY KEY (id),
+  CONSTRAINT equipment_stats_equipment_id_fkey FOREIGN KEY (equipment_id) REFERENCES public.equipment(id)
+);
+CREATE TABLE public.company_directory (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  category text,
+  cleaned_category text,
+  description text,
+  rating real,
+  review_count integer,
+  confidence real DEFAULT 0,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  logo_url text,
+  slug text NOT NULL,
+  CONSTRAINT company_directory_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.company_directory_branches (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  company_id uuid NOT NULL,
+  city text,
+  voivodeship text,
+  address text,
+  phone text,
+  email text,
+  website text,
+  latitude double precision,
+  longitude double precision,
+  google_maps_url text,
+  source text DEFAULT 'google_maps'::text,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone,
+  nip numeric,
+  regon numeric,
+  krs numeric,
+  vat_status smallint,
+  CONSTRAINT company_directory_branches_pkey PRIMARY KEY (id),
+  CONSTRAINT company_branches_company_id_fkey FOREIGN KEY (company_id) REFERENCES public.company_directory(id)
+);

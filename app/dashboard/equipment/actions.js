@@ -59,6 +59,9 @@ export async function createEquipment(companyId, formData) {
     external_olx_url: formData.get('external_olx_url'),
     image_url: imageUrl,
     promotion: formData.get('promotion') === 'on',
+    category_id: formData.get('category_id') || null,
+    subcategory_id: formData.get('subcategory_id') || null,
+    branch_id: formData.get('branch_id') || null,
     status: 'active',
   }
 
@@ -128,6 +131,9 @@ export async function updateEquipment(id, companyId, formData) {
     external_olx_url: formData.get('external_olx_url'),
     image_url: imageUrl,
     promotion: formData.get('promotion') === 'on',
+    category_id: formData.get('category_id') || null,
+    subcategory_id: formData.get('subcategory_id') || null,
+    branch_id: formData.get('branch_id') || null,
   }
 
   const { error } = await supabase

@@ -26,7 +26,7 @@ export default async function AdminDashboardPage() {
     supabase.from('profiles').select('*', { count: 'exact', head: true }),
     supabase.from('companies').select('*', { count: 'exact', head: true }),
     supabase.from('equipment').select('*', { count: 'exact', head: true }),
-    supabase.from('companies').select('*').order('created_at', { ascending: false }).limit(5),
+    supabase.from('companies').select('*, company_branches(*)').order('created_at', { ascending: false }).limit(5),
     supabase.from('equipment_stats').select('*, equipment(name, category)').order('views_count', { ascending: false }).limit(5),
     supabase.from('equipment_stats').select('views_count, phone_clicks, website_clicks, olx_clicks')
   ])
@@ -82,7 +82,12 @@ export default async function AdminDashboardPage() {
               <div key={company.id} className="p-4 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors flex items-center justify-between">
                 <div>
                   <p className="font-medium text-gray-900 dark:text-white">{company.name}</p>
-                  <p className="text-xs text-gray-500">{company.city} • {new Date(company.created_at).toLocaleDateString()}</p>
+                  <p className="text-xs text-gray-500">
+                    {(() => {
+                      const mainBranch = company.company_branches?.find(b => b.is_main) || company.company_branches?.[0];
+                      return mainBranch?.city || company.city || 'Brak lokalizacji';
+                    })()} • {new Date(company.created_at).toLocaleDateString()}
+                  </p>
                 </div>
                 <span className={`text-[10px] uppercase font-bold px-2 py-1 rounded ${company.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
                   {company.status}
