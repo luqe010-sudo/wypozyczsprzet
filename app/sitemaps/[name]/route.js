@@ -63,7 +63,7 @@ function generateCategoriesSitemap() {
 
 function generateOffersSitemap(slugData) {
   const urls = slugData.map(item => {
-    const date = item.created_at ? new Date(item.created_at).toISOString() : new Date().toISOString();
+    const date = item.updated_at || item.created_at ? new Date(item.updated_at || item.created_at).toISOString() : new Date().toISOString();
     return `
     <url>
       <loc>${BASE_URL}/${item.seoCategory}/${item.citySlug}/${item.slug}</loc>
@@ -81,7 +81,7 @@ function generateLocalHubsSitemap(slugData) {
   slugData.forEach(item => {
     if (item.seoCategory && item.citySlug) {
       const key = `${item.seoCategory}/${item.citySlug}`;
-      const itemDate = item.created_at ? new Date(item.created_at) : new Date(0);
+      const itemDate = item.updated_at || item.created_at ? new Date(item.updated_at || item.created_at) : new Date(0);
       const existingDate = localHubsMap.get(key);
       if (!existingDate || itemDate > existingDate) {
         localHubsMap.set(key, itemDate);
@@ -151,7 +151,7 @@ function generateCitiesSitemap(slugData) {
   const citiesMap = new Map();
   slugData.forEach(item => {
     if (item.citySlug) {
-      const itemDate = item.created_at ? new Date(item.created_at) : new Date(0);
+      const itemDate = item.updated_at || item.created_at ? new Date(item.updated_at || item.created_at) : new Date(0);
       const existingDate = citiesMap.get(item.citySlug);
       if (!existingDate || itemDate > existingDate) {
         citiesMap.set(item.citySlug, itemDate);
@@ -176,10 +176,10 @@ function generateCitiesSitemap(slugData) {
 function generateVoivodeshipsSitemap(slugData) {
   const voivodeshipsMap = new Map();
   slugData.forEach(item => {
-    if (item.citySlug) {
-      const vSlug = getVoivodeshipSlugForCity(item.citySlug);
+    if (item.cityName || item.citySlug) {
+      const vSlug = getVoivodeshipSlugForCity(item.cityName || item.citySlug);
       if (vSlug) {
-        const itemDate = item.created_at ? new Date(item.created_at) : new Date(0);
+        const itemDate = item.updated_at || item.created_at ? new Date(item.updated_at || item.created_at) : new Date(0);
         const existingDate = voivodeshipsMap.get(vSlug);
         if (!existingDate || itemDate > existingDate) {
           voivodeshipsMap.set(vSlug, itemDate);

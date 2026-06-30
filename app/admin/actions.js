@@ -59,6 +59,7 @@ function revalidateDirectoryPaths(company) {
   revalidatePath('/admin/directory')
   revalidatePath('/katalog')
   revalidatePath('/sitemaps/katalog')
+  revalidateTag('directory')
 
   if (!company) return
 

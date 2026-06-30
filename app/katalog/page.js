@@ -1,4 +1,4 @@
-import { fetchAllCompanies, getAllCities, getAllVoivodeships } from '../../lib/supabaseDirectory';
+import { getDirectoryIndexData } from '../../lib/supabaseDirectory';
 import CatalogClient from './CatalogClient';
 
 export const metadata = {
@@ -25,11 +25,7 @@ export const metadata = {
 };
 
 export default async function CatalogPage() {
-  const [companies, cities, voivodeships] = await Promise.all([
-    fetchAllCompanies(),
-    getAllCities(),
-    getAllVoivodeships(),
-  ]);
+  const { companies, cities, voivodeships } = await getDirectoryIndexData();
 
   // JSON-LD ItemList
   const jsonLd = {
