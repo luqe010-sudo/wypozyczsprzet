@@ -2,9 +2,9 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getArticleBySlug, articles } from '../../../lib/articles';
 
-export async function generateMetadata({ params: routeParams }) {
-  const params = await routeParams;
-const article = getArticleBySlug(params.slug);
+export async function generateMetadata({ params }) {
+  const { slug } = await params;
+  const article = getArticleBySlug(slug);
   if (!article) return { title: 'Nie znaleziono artykułu' };
 
   return {
@@ -36,8 +36,9 @@ export async function generateStaticParams() {
   }));
 }
 
-export default function ArticlePage({ params }) {
-  const article = getArticleBySlug(params.slug);
+export default async function ArticlePage({ params }) {
+  const { slug } = await params;
+  const article = getArticleBySlug(slug);
   if (!article) notFound();
 
   // Basic markdown-to-html converter for the blog content
