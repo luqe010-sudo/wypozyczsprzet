@@ -1,14 +1,8 @@
-import Link from 'next/link'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
-import { Building2, Inbox, LogOut, Settings } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import { signout } from '@/app/login/actions'
-
-const links = [
-  { href: '/dashboard', label: 'Moje firmy', icon: Building2 },
-  { href: '/dashboard/inquiries', label: 'Zapytania', icon: Inbox },
-  { href: '/dashboard/settings', label: 'Ustawienia', icon: Settings },
-]
+import DashboardNav from '@/components/dashboard/DashboardNav'
 
 export default async function DashboardLayout({ children }) {
   const supabase = await createClient()
@@ -26,11 +20,7 @@ export default async function DashboardLayout({ children }) {
           <p className="mt-1 truncate text-xs text-slate-600 dark:text-slate-400" title={user.email}>{user.email}</p>
         </div>
         <nav aria-label="Panel wynajmującego" className="flex flex-wrap gap-1 lg:flex-col">
-          {links.map(({ href, label, icon: Icon }) => (
-            <Link key={href} href={href} className="flex min-h-11 items-center gap-2 rounded-lg px-2.5 text-sm font-semibold text-slate-800 hover:bg-amber-100 dark:text-slate-200 dark:hover:bg-slate-700">
-              <Icon size={17} aria-hidden="true" /> {label}
-            </Link>
-          ))}
+          <DashboardNav />
           <form action={signout}>
             <button type="submit" className="flex min-h-11 w-full items-center gap-2 rounded-lg px-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700">
               <LogOut size={17} aria-hidden="true" /> Wyloguj

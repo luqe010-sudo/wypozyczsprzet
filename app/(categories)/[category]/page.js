@@ -37,7 +37,7 @@ export async function generateMetadata({ params }) {
   if (!hub) return {};
 
   const url = `${SITE_URL}/${slug}`;
-  const thin = hub.kind !== 'category' && hub.items.length < MIN_LISTINGS_FOR_INDEXING;
+  const thin = hub.items.length < MIN_LISTINGS_FOR_INDEXING && (hub.kind !== 'category' || hub.category.minListingsForIndexing);
   const robots = thin ? { index: false, follow: true } : undefined;
 
   if (hub.kind === 'category') {
@@ -46,6 +46,7 @@ export async function generateMetadata({ params }) {
     return {
       title: hub.category.title,
       description,
+      robots,
       alternates: { canonical: url },
       openGraph: { title: hub.category.title, description, url, siteName: SITE_NAME, type: 'website', locale: 'pl_PL' },
     };

@@ -63,7 +63,7 @@ export function ListingDetailsFields({ listing = {} }) {
 }
 
 /** Uploads directly to Cloudinary and passes the resulting URLs to the form as JSON. */
-export function GalleryField({ initialImages = [] }) {
+export function GalleryField({ initialImages = [], onUploadingChange }) {
   const [images, setImages] = useState(initialImages.filter(Boolean));
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
@@ -74,6 +74,7 @@ export function GalleryField({ initialImages = [] }) {
     if (files.length === 0) return;
 
     setUploading(true);
+    onUploadingChange?.(true);
     setError('');
     try {
       for (const file of files) {
@@ -100,6 +101,7 @@ export function GalleryField({ initialImages = [] }) {
       setError(uploadError.message);
     } finally {
       setUploading(false);
+      onUploadingChange?.(false);
     }
   }
 

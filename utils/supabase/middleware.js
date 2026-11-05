@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
+import { returnPath } from '@/lib/returnPath'
 
 export async function updateSession(request) {
   let supabaseResponse = NextResponse.next({
@@ -51,6 +52,9 @@ export async function updateSession(request) {
   if (request.nextUrl.pathname.startsWith('/dashboard') && !user) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
+    if (request.nextUrl.pathname === '/dashboard/ogloszenia') {
+      url.searchParams.set('returnTo', '/dashboard/ogloszenia')
+    }
     return NextResponse.redirect(url)
   }
 
@@ -78,9 +82,7 @@ export async function updateSession(request) {
 
   // Przekierowanie zalogowanych z /login do /dashboard
   if (request.nextUrl.pathname === '/login' && user) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
-    return NextResponse.redirect(url)
+    return NextResponse.redirect(new URL(returnPath(request.nextUrl.searchParams.get('returnTo')), request.url))
   }
 
   return supabaseResponse

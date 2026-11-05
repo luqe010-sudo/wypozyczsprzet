@@ -1,10 +1,10 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, Check, ChevronDown, HardHat, MapPin, PhoneCall, Search, Wrench } from 'lucide-react';
+import { ArrowRight, ChevronDown, HardHat, MapPin, PhoneCall, Wrench } from 'lucide-react';
 import BrowseListings from '../components/browse/BrowseListings';
 import CategoryHubs from '../components/CategoryHubs';
+import RentalSteps from '../components/RentalSteps';
 import { fetchMarketplaceData, toCard } from '../lib/listings';
-import { SEO_CATEGORY_SLUGS } from '../lib/categories';
 import { cityLinks } from '../lib/hubs';
 import { offersLabel } from '../lib/format';
 import { MIN_LISTINGS_FOR_INDEXING, SITE_NAME, SITE_URL } from '../lib/site';
@@ -14,12 +14,6 @@ export const revalidate = 3600;
 export const metadata = {
   alternates: { canonical: '/' },
 };
-
-const HOW_IT_WORKS = [
-  { icon: Search, title: 'Znajdź sprzęt', text: 'Wpisz, czego potrzebujesz, i wybierz miejscowość. Wyniki ułożymy od najbliższych.' },
-  { icon: PhoneCall, title: 'Skontaktuj się', text: 'Zadzwoń albo wyślij zapytanie z terminem. Rozmawiasz bezpośrednio z wynajmującym.' },
-  { icon: Check, title: 'Ustal warunki', text: 'Cenę, kaucję i transport uzgadniasz z firmą. Serwis nie pobiera prowizji od wynajmu.' },
-];
 
 const BENEFITS = [
   { icon: MapPin, title: 'Wynajem lokalnie', text: 'Sprzęt blisko Twojej inwestycji' },
@@ -50,11 +44,6 @@ const FAQ = [
 
 export default async function Home() {
   const { listings, filters } = await fetchMarketplaceData();
-
-  const categoryCounts = {};
-  SEO_CATEGORY_SLUGS.forEach((slug) => {
-    categoryCounts[slug] = listings.filter((l) => l.seoCategory === slug).length;
-  });
 
   const popularCities = cityLinks(listings, { minListings: MIN_LISTINGS_FOR_INDEXING });
 
@@ -90,12 +79,12 @@ export default async function Home() {
             <div className="home-hero-photo" aria-hidden="true">
               <Image src="/header.png" alt="" fill preload sizes="100vw" quality={75} className="object-cover object-[88%_center] lg:object-[center_58%]" />
             </div>
-            <div className="relative max-w-xl pb-28 pt-10 sm:pb-36 sm:pt-14 lg:max-w-[41rem] lg:pb-9 lg:pt-16">
+            <div className="relative max-w-xl pb-28 pt-7 sm:pb-36 sm:pt-10 lg:max-w-[41rem] lg:pb-8 lg:pt-12">
               <p className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-slate-950/55 px-3 py-1.5 text-xs font-semibold text-white">
                 <MapPin size={14} className="text-amber-400" aria-hidden="true" /> Dolny Śląsk
               </p>
-              <h1 className="text-[clamp(2rem,5vw,3.8rem)] font-extrabold leading-[1.06] tracking-[-0.045em] text-white">
-                Wynajmij maszyny, sprzęt i narzędzia <span className="block text-amber-400">w swojej okolicy</span>
+              <h1 className="text-[clamp(1.9rem,5vw,3.5rem)] font-extrabold leading-[1.06] tracking-[-0.045em] text-white">
+                Wynajmij maszyny, sprzęt i narzędzia <span className="block text-market-yellow">w swojej okolicy</span>
               </h1>
               <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-200 sm:text-base">
                 {listings.length > 0 && <>{offersLabel(listings.length)} w {filters.cities.length} {filters.cities.length === 1 ? 'miejscowości' : 'miejscowościach'}. </>}
@@ -106,7 +95,7 @@ export default async function Home() {
         )}
         beforeResults={(
           <>
-            <div className="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+            <div className="hidden border-b border-border bg-card sm:block">
               <ul className="mx-auto grid max-w-7xl grid-cols-2 gap-x-4 gap-y-5 px-4 py-5 sm:px-6 lg:grid-cols-4">
                 {BENEFITS.map(({ icon: Icon, title, text }) => (
                   <li key={title} className="flex items-start gap-2.5">
@@ -119,7 +108,7 @@ export default async function Home() {
                 ))}
               </ul>
             </div>
-            <CategoryHubs categoryCounts={categoryCounts} />
+            <CategoryHubs listings={listings} />
           </>
         )}
       />
@@ -142,18 +131,7 @@ export default async function Home() {
 
       <section id="jak-to-dziala" className="mx-auto max-w-7xl scroll-mt-20 px-4 pb-10 sm:px-6">
         <h2 className="market-heading mb-5">Jak to działa?</h2>
-        <ol className="grid gap-3 md:grid-cols-3">
-          {HOW_IT_WORKS.map(({ icon: Icon, title, text }, index) => (
-            <li key={title} className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800">
-              <div className="mb-4 flex items-center justify-between">
-                <span className="grid size-10 place-items-center rounded-lg bg-amber-100 text-amber-900 dark:bg-amber-400/15 dark:text-amber-300"><Icon size={20} aria-hidden="true" /></span>
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Krok {index + 1}</span>
-              </div>
-              <h3 className="font-bold text-slate-900 dark:text-white">{title}</h3>
-              <p className="mt-1 text-sm leading-relaxed text-slate-600 dark:text-slate-400">{text}</p>
-            </li>
-          ))}
-        </ol>
+        <RentalSteps />
       </section>
 
       <section className="mx-auto max-w-7xl px-4 pb-10 sm:px-6">
@@ -179,13 +157,13 @@ export default async function Home() {
       </section>
 
       <section id="dla-wynajmujacych" className="mx-auto max-w-7xl scroll-mt-20 px-4 pb-12 sm:px-6">
-        <div className="flex flex-col items-start justify-between gap-5 rounded-2xl bg-slate-950 p-6 sm:p-9 md:flex-row md:items-center">
+        <div className="flex flex-col items-start justify-between gap-5 rounded-xl bg-market-navy p-6 sm:p-8 md:flex-row md:items-center">
           <div className="max-w-xl">
             <p className="mb-2 text-xs font-bold uppercase tracking-widest text-amber-400">Dla wynajmujących</p>
             <h2 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">Masz sprzęt na wynajem?</h2>
             <p className="mt-2 text-sm leading-relaxed text-slate-300">Dodaj ogłoszenie za darmo. Zapytania klientów trafią bezpośrednio do Ciebie.</p>
           </div>
-          <Link href="/dashboard" className="market-action shrink-0">
+          <Link href="/dashboard/ogloszenia#dodaj" className="market-action shrink-0">
             Dodaj ogłoszenie <ArrowRight size={17} aria-hidden="true" />
           </Link>
         </div>

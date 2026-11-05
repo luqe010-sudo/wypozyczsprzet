@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -9,6 +9,7 @@ import ClaimCompanyModal from '../../../../../components/ClaimCompanyModal';
 import InquiryForm from '../../../../../components/listing/InquiryForm';
 import ListingGallery from '../../../../../components/listing/ListingGallery';
 import ListingCard from '../../../../../components/ListingCard';
+import FavoriteButton from '../../../../../components/FavoriteButton';
 import { trackEvent } from '../../../../../lib/gtag';
 import { trackClick, trackView } from '../../../../../lib/tracking';
 import { getExternalLinkProps, isBrokenLink } from '../../../../../lib/seo-utils';
@@ -23,6 +24,28 @@ const ListingMap = dynamic(() => import('../../../../../components/ListingMap'),
 
 const secondaryButton = 'flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-800 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-700';
 
+function ListingLocation({ listing }) {
+  const container = useRef(null);
+  const [nearViewport, setNearViewport] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setNearViewport(true);
+        observer.disconnect();
+      }
+    }, { rootMargin: '280px' });
+    observer.observe(container.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={container} className="min-h-[320px] rounded-xl bg-slate-100 dark:bg-slate-900">
+      {nearViewport && <ListingMap listing={listing} />}
+    </div>
+  );
+}
+
 export default function ListingPageClient({ listing, description, related, categorySlug, categoryName }) {
   const router = useRouter();
   const [showPhone, setShowPhone] = useState(false);
@@ -33,7 +56,8 @@ export default function ListingPageClient({ listing, description, related, categ
   const company = listing.companyDetails || {};
   const phone = String(company.Telefon || '').trim();
   const telHref = `tel:${phone.replace(/\s/g, '')}`;
-  const facts = listingFacts(listing);
+  const facts = listingFacts(listing).filter((fact) => fact.label !== 'Dostępność');
+  const availability = listing['Dostępność'];
   const websiteUsable = company.WWW && !isBrokenLink(company.WWW);
   const olxUsable = listing.olxUrl && !isBrokenLink(listing.olxUrl);
   const paragraphs = String(description || '').split(/\r?\n\s*\r?\n/).filter((p) => p.trim());
@@ -79,166 +103,179 @@ export default function ListingPageClient({ listing, description, related, categ
 
   return (
     <>
-      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:gap-x-6">
-        <div className="min-w-0">
-          <ListingGallery key={listing.ID_sprzetu} images={listing.gallery} name={name} city={listing.Miasto} category={listing.Kategoria} />
-        </div>
-
-        <div className="listing-panel">
-          <header className="mb-4">
-            {listing.isVerified && (
-              <p className="mb-2.5 inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-950 dark:bg-amber-400/20 dark:text-amber-200">
-                <ShieldCheck size={15} aria-hidden="true" /> Zweryfikowany wynajmujący
-              </p>
-            )}
-            <h1 className="break-words text-2xl font-extrabold leading-tight tracking-tight text-slate-950 dark:text-white sm:text-3xl">{name}</h1>
-            <p className="mt-2 flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-400">
-              <MapPin size={16} aria-hidden="true" /> {listing.Miasto}
-            </p>
-          </header>
-
-          <div className="mb-3 rounded-lg bg-slate-100 px-4 py-3 dark:bg-slate-900">
-            <p className="text-xl font-extrabold tracking-tight text-slate-950 dark:text-white sm:text-2xl">{priceText(listing)}</p>
+      <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)] lg:items-start lg:gap-6">
+        <div className="contents lg:block lg:min-w-0 lg:space-y-4">
+          <div className="order-1">
+            <ListingGallery key={listing.ID_sprzetu} images={listing.gallery} name={name} city={listing.Miasto} category={listing.Kategoria} />
           </div>
 
-          <div className="space-y-2">
-            <a href="#zapytanie" className="market-action w-full">
-              <Mail size={17} aria-hidden="true" /> Wyślij zapytanie
-            </a>
-            {phone && (
-              showPhone ? (
-                <a href={telHref} className={secondaryButton}>
-                  <Phone className="h-4 w-4" aria-hidden="true" />
-                  {phone}
-                </a>
+          <nav aria-label="Sekcje ogłoszenia" className="order-3 flex flex-wrap gap-x-4 border-b border-border">
+            <a href="#opis" className="listing-section-link">Opis</a>
+            {facts.length > 0 && <a href="#parametry" className="listing-section-link">Parametry</a>}
+            {listing.lat != null && listing.lng != null && <a href="#lokalizacja" className="listing-section-link">Lokalizacja</a>}
+            <a href="#wynajmujacy" className="listing-section-link">Wynajmujący</a>
+            <a href="#zapytanie" className="listing-section-link">Zapytanie</a>
+          </nav>
+
+          <div className="order-4 min-w-0 space-y-4">
+            <section id="opis" aria-labelledby="description-heading" className="listing-panel scroll-mt-24">
+              <h2 id="description-heading" className="market-heading mb-3">Opis sprzętu</h2>
+              {paragraphs.length > 0 ? (
+                <div className="space-y-3 text-base leading-relaxed text-slate-700 dark:text-slate-300">
+                  {paragraphs.map((paragraph, index) => (
+                    <p key={index} className="whitespace-pre-line">{paragraph.trim()}</p>
+                  ))}
+                </div>
               ) : (
-                <button type="button" onClick={revealPhone} className={secondaryButton}>
-                  <Phone className="h-4 w-4" aria-hidden="true" />
-                  Pokaż numer telefonu
-                </button>
-              )
+                <p className="text-sm text-slate-600 dark:text-slate-400">Wynajmujący nie dodał opisu. Szczegóły ustalisz bezpośrednio z nim.</p>
+              )}
+            </section>
+
+            {facts.length > 0 && (
+              <section id="parametry" aria-labelledby="facts-heading" className="listing-panel scroll-mt-24">
+                <h2 id="facts-heading" className="market-heading mb-3">Parametry i warunki</h2>
+                <dl className="grid grid-cols-1 divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white dark:divide-slate-700 dark:border-slate-700 dark:bg-slate-800 sm:grid-cols-2 sm:divide-y-0">
+                  {facts.map((fact) => (
+                    <div key={fact.label} className="flex justify-between gap-4 px-4 py-3 text-sm sm:border-b sm:border-slate-200 sm:dark:border-slate-700">
+                      <dt className="text-slate-600 dark:text-slate-400">{fact.label}</dt>
+                      <dd className="text-right font-medium text-slate-900 dark:text-white">{fact.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </section>
             )}
-            <a href="#inquiry-from" className={secondaryButton}>
-              <CalendarDays size={17} aria-hidden="true" /> Zapytaj o termin
-            </a>
-            {olxUsable && (
-              <a
-                href={listing.olxUrl}
-                {...getExternalLinkProps(listing.olxUrl)}
-                className={secondaryButton}
-                onClick={() => {
-                  trackEvent('click_olx', { listing_name: name });
-                  trackClick(listing.ID_sprzetu, 'olx');
-                }}
-              >
-                <MessageSquare className="h-4 w-4" aria-hidden="true" />
-                Ogłoszenie na OLX
-              </a>
-            )}
-            {websiteUsable && (
-              <a
-                href={company.WWW.startsWith('http') ? company.WWW : `https://${company.WWW}`}
-                {...getExternalLinkProps(company.WWW)}
-                className={secondaryButton}
-                onClick={() => {
-                  trackEvent('click_www', { listing_name: name });
-                  trackClick(listing.ID_sprzetu, 'website');
-                }}
-              >
-                <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                Strona firmy
-              </a>
+
+            {listing.lat != null && listing.lng != null && (
+              <section id="lokalizacja" aria-labelledby="location-heading" className="listing-panel scroll-mt-24">
+                <h2 id="location-heading" className="market-heading mb-3">Lokalizacja</h2>
+                <ListingLocation listing={listing} />
+              </section>
             )}
           </div>
         </div>
 
-        <nav aria-label="Sekcje ogłoszenia" className="flex flex-wrap gap-x-4 border-b border-slate-200 dark:border-slate-700 lg:col-span-2">
-          <a href="#opis" className="listing-section-link">Opis</a>
-          {facts.length > 0 && <a href="#parametry" className="listing-section-link">Parametry</a>}
-          {listing.lat != null && listing.lng != null && <a href="#lokalizacja" className="listing-section-link">Lokalizacja</a>}
-          <a href="#wynajmujacy" className="listing-section-link">Wynajmujący</a>
-          <a href="#zapytanie" className="listing-section-link">Zapytanie</a>
-        </nav>
-
-        <div className="min-w-0 space-y-4">
-          <section id="opis" aria-labelledby="description-heading" className="listing-panel scroll-mt-24">
-            <h2 id="description-heading" className="market-heading mb-3">Opis sprzętu</h2>
-            {paragraphs.length > 0 ? (
-              <div className="space-y-3 text-base leading-relaxed text-slate-700 dark:text-slate-300">
-                {paragraphs.map((paragraph, index) => (
-                  <p key={index} className="whitespace-pre-line">{paragraph.trim()}</p>
-                ))}
+        <aside className="contents lg:block lg:min-w-0 lg:space-y-4">
+          <section className="listing-panel order-2">
+            <header className="mb-4 flex items-start gap-3">
+              <div className="min-w-0 flex-1">
+                {listing.isVerified && (
+                  <p className="mb-2 inline-flex items-center gap-1.5 rounded-lg bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-950 dark:bg-amber-400/20 dark:text-amber-200">
+                    <ShieldCheck size={15} aria-hidden="true" /> Zweryfikowany wynajmujący
+                  </p>
+                )}
+                <h1 className="break-words text-2xl font-extrabold leading-tight tracking-tight text-foreground sm:text-3xl">{name}</h1>
+                <p className="mt-2 flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-400">
+                  <MapPin size={16} aria-hidden="true" /> {listing.Miasto}
+                </p>
               </div>
-            ) : (
-              <p className="text-sm text-slate-600 dark:text-slate-400">Wynajmujący nie dodał opisu. Szczegóły ustalisz bezpośrednio z nim.</p>
-            )}
+              <FavoriteButton id={listing.ID_sprzetu} />
+            </header>
+
+            <div className="mb-3 rounded-lg bg-background px-4 py-3">
+              <p className="text-xl font-extrabold tracking-tight text-foreground sm:text-2xl">{priceText(listing)}</p>
+              {availability && availability !== 'brak danych' && (
+                <p className={`mt-1 flex items-center gap-2 text-sm font-medium ${listing.availability === 'immediately' ? 'text-green-700 dark:text-green-400' : 'text-slate-600 dark:text-slate-400'}`}>
+                  <span className="size-2 shrink-0 rounded-full bg-current" aria-hidden="true" />
+                  {availability}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <a href="#zapytanie" className="market-action w-full">
+                <Mail size={17} aria-hidden="true" /> Wyślij zapytanie
+              </a>
+              {phone && (
+                showPhone ? (
+                  <a href={telHref} className={secondaryButton}>
+                    <Phone className="h-4 w-4" aria-hidden="true" /> Zadzwoń: {phone}
+                  </a>
+                ) : (
+                  <button type="button" onClick={revealPhone} className={secondaryButton}>
+                    <Phone className="h-4 w-4" aria-hidden="true" /> Pokaż numer telefonu
+                  </button>
+                )
+              )}
+              <a href="#inquiry-from" className={secondaryButton}>
+                <CalendarDays size={17} aria-hidden="true" /> Zapytaj o termin
+              </a>
+            </div>
           </section>
 
-          {facts.length > 0 && (
-            <section id="parametry" aria-labelledby="facts-heading" className="listing-panel scroll-mt-24">
-              <h2 id="facts-heading" className="market-heading mb-3">Parametry i warunki</h2>
-              <dl className="grid grid-cols-1 divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white dark:divide-slate-700 dark:border-slate-700 dark:bg-slate-800 sm:grid-cols-2 sm:divide-y-0">
-                {facts.map((fact) => (
-                  <div key={fact.label} className="flex justify-between gap-4 px-4 py-3 text-sm sm:border-b sm:border-slate-200 sm:dark:border-slate-700">
-                    <dt className="text-slate-600 dark:text-slate-400">{fact.label}</dt>
-                    <dd className="text-right font-medium text-slate-900 dark:text-white">{fact.value}</dd>
-                  </div>
-                ))}
-              </dl>
+          <div className="order-5 space-y-4">
+            <section id="wynajmujacy" className="listing-panel scroll-mt-24">
+              <h2 className="market-heading mb-3">Wynajmujący</h2>
+              <p className="flex items-center gap-2.5 break-words font-bold text-slate-900 dark:text-white">
+                <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-slate-950 text-amber-400 dark:bg-slate-700"><Building2 size={18} aria-hidden="true" /></span>
+                {company.Nazwa}
+              </p>
+              {listing.isVerified && (
+                <p className="mt-2 flex items-center gap-1.5 text-sm font-medium text-emerald-700 dark:text-emerald-400">
+                  <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+                  Zweryfikowana firma
+                </p>
+              )}
+              {(company.address || company.city) && (
+                <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                  {company.address ? `${company.address}, ` : ''}{company.postal_code ? `${company.postal_code} ` : ''}{company.city}
+                </p>
+              )}
+              {listing.lastConfirmedAt && (
+                <p className="mt-2 text-xs text-slate-600 dark:text-slate-400">
+                  Aktualność potwierdzona: {formatDate(listing.lastConfirmedAt)}
+                </p>
+              )}
+              {(websiteUsable || olxUsable) && (
+                <div className="mt-4 flex flex-wrap gap-x-4">
+                  {websiteUsable && (
+                    <a
+                      href={company.WWW.startsWith('http') ? company.WWW : `https://${company.WWW}`}
+                      {...getExternalLinkProps(company.WWW)}
+                      className="flex min-h-11 items-center gap-1.5 text-sm font-semibold text-brand-600 hover:underline dark:text-brand-400"
+                      onClick={() => {
+                        trackEvent('click_www', { listing_name: name });
+                        trackClick(listing.ID_sprzetu, 'website');
+                      }}
+                    >
+                      <ExternalLink size={16} aria-hidden="true" /> Strona firmy
+                    </a>
+                  )}
+                  {olxUsable && (
+                    <a
+                      href={listing.olxUrl}
+                      {...getExternalLinkProps(listing.olxUrl)}
+                      className="flex min-h-11 items-center gap-1.5 text-sm font-semibold text-brand-600 hover:underline dark:text-brand-400"
+                      onClick={() => {
+                        trackEvent('click_olx', { listing_name: name });
+                        trackClick(listing.ID_sprzetu, 'olx');
+                      }}
+                    >
+                      <MessageSquare size={16} aria-hidden="true" /> Ogłoszenie na OLX
+                    </a>
+                  )}
+                </div>
+              )}
+              {!listing.isClaimed && (
+                <div className="mt-3 border-t border-slate-200 pt-3 text-xs leading-relaxed text-slate-600 dark:border-slate-700 dark:text-slate-400">
+                  <p>Dane pochodzą ze źródeł publicznych, firma ich jeszcze nie potwierdziła. Warunki ustal bezpośrednio z wynajmującym.</p>
+                  <button type="button" onClick={handleClaimClick} className="mt-2 font-medium text-brand-600 underline dark:text-brand-400">
+                    To Twoja firma? Przejmij profil
+                  </button>
+                </div>
+              )}
             </section>
-          )}
 
-          {listing.lat != null && listing.lng != null && (
-            <section id="lokalizacja" aria-labelledby="location-heading" className="listing-panel scroll-mt-24">
-              <h2 id="location-heading" className="market-heading mb-3">Lokalizacja</h2>
-              <ListingMap listing={listing} />
+            <section id="zapytanie" className="listing-panel scroll-mt-24">
+              <h2 className="mb-1 text-base font-semibold text-slate-900 dark:text-white">Zapytaj o dostępność</h2>
+              <p className="mb-4 text-sm text-slate-600 dark:text-slate-400">Bez rejestracji. Odpowiedź otrzymasz bezpośrednio od wynajmującego.</p>
+              <InquiryForm equipmentId={listing.ID_sprzetu} equipmentName={name} />
             </section>
-          )}
-        </div>
 
-        <aside className="min-w-0 space-y-4">
-          <section id="wynajmujacy" className="listing-panel scroll-mt-24">
-            <h2 className="market-heading mb-3">Wynajmujący</h2>
-            <p className="flex items-center gap-2.5 break-words font-bold text-slate-900 dark:text-white">
-              <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-slate-950 text-amber-400 dark:bg-slate-700"><Building2 size={18} aria-hidden="true" /></span>
-              {company.Nazwa}
-            </p>
-            {listing.isVerified && (
-              <p className="mt-2 flex items-center gap-1.5 text-sm font-medium text-emerald-700 dark:text-emerald-400">
-                <ShieldCheck className="h-4 w-4" aria-hidden="true" />
-                Zweryfikowana firma
-              </p>
-            )}
-            {(company.address || company.city) && (
-              <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-                {company.address ? `${company.address}, ` : ''}{company.postal_code ? `${company.postal_code} ` : ''}{company.city}
-              </p>
-            )}
-            {listing.lastConfirmedAt && (
-              <p className="mt-2 text-xs text-slate-600 dark:text-slate-400">
-                Aktualność potwierdzona: {formatDate(listing.lastConfirmedAt)}
-              </p>
-            )}
-            {!listing.isClaimed && (
-              <div className="mt-3 border-t border-slate-200 pt-3 text-xs leading-relaxed text-slate-600 dark:border-slate-700 dark:text-slate-400">
-                <p>Dane pochodzą ze źródeł publicznych, firma ich jeszcze nie potwierdziła. Warunki ustal bezpośrednio z wynajmującym.</p>
-                <button type="button" onClick={handleClaimClick} className="mt-2 font-medium text-brand-600 underline dark:text-brand-400">
-                  To Twoja firma? Przejmij profil
-                </button>
-              </div>
-            )}
-          </section>
-
-          <section id="zapytanie" className="listing-panel scroll-mt-24">
-            <h2 className="mb-1 text-base font-semibold text-slate-900 dark:text-white">Zapytaj o dostępność</h2>
-            <p className="mb-4 text-sm text-slate-600 dark:text-slate-400">Bez rejestracji. Odpowiedź otrzymasz bezpośrednio od wynajmującego.</p>
-            <InquiryForm equipmentId={listing.ID_sprzetu} equipmentName={name} />
-          </section>
-
-          <a href={reportHref} className="flex min-h-[44px] items-center justify-center gap-1.5 text-xs text-slate-600 hover:underline dark:text-slate-400">
-            <Flag className="h-3.5 w-3.5" aria-hidden="true" />
-            Zgłoś błąd lub naruszenie w ogłoszeniu
-          </a>
+            <a href={reportHref} className="flex min-h-[44px] items-center justify-center gap-1.5 text-xs text-slate-600 hover:underline dark:text-slate-400">
+              <Flag className="h-3.5 w-3.5" aria-hidden="true" />
+              Zgłoś błąd lub naruszenie w ogłoszeniu
+            </a>
+          </div>
         </aside>
       </div>
 
@@ -257,7 +294,7 @@ export default function ListingPageClient({ listing, description, related, categ
         </Link>
       </p>
 
-      <div className="fixed inset-x-0 bottom-0 z-40 flex gap-2 border-t border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900 lg:hidden" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}>
+      <div className="mobile-listing-contact fixed inset-x-0 bottom-0 z-40 flex gap-2 border-t border-border bg-card p-3 lg:hidden" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}>
         {phone && (
           <a href={telHref} onClick={() => recordPhone('sticky')} className="flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-lg border border-slate-300 font-semibold text-slate-900 dark:border-slate-600 dark:text-white">
             <Phone className="h-4 w-4" aria-hidden="true" />
@@ -266,7 +303,7 @@ export default function ListingPageClient({ listing, description, related, categ
         )}
         <a href="#zapytanie" className="market-action flex-1">
           <Mail className="h-4 w-4" aria-hidden="true" />
-          Zapytaj
+          Wyślij zapytanie
         </a>
       </div>
 

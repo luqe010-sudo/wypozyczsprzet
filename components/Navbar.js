@@ -5,13 +5,33 @@ import Link from 'next/link';
 import { trackEvent } from '../lib/gtag';
 import { usePathname } from 'next/navigation';
 import { createClient } from '../utils/supabase/client';
-import { ChevronDown, CirclePlus, House, LayoutGrid, Menu, Moon, Plus, Search, Sun, UserRound, X } from 'lucide-react';
+import { ChevronDown, CirclePlus, Heart, House, Menu, Moon, Plus, Search, Sun, UserRound, X } from 'lucide-react';
 import SiteBrand from './SiteBrand';
-import { SEO_CATEGORIES } from '../lib/categories';
+import { MARKET_CATEGORIES, SEO_CATEGORY_SLUGS } from '../lib/categories';
+
+const onboardingLinks = [
+  { href: '/jak-to-dziala', label: 'Jak to działa?' },
+  { href: '/dla-wynajmujacych', label: 'Dla wynajmujących' },
+];
+
+const primaryLinks = [
+  { href: '/katalog', label: 'Katalog firm' },
+  { href: '/umowy', label: 'Wzory umów' },
+];
+
+const resourceLinks = [
+  { href: '/blog', label: 'Poradniki' },
+  { href: '/kontakt', label: 'Pomoc i kontakt' },
+  { href: '/regulamin', label: 'Regulamin' },
+  { href: '/polityka-prywatnosci', label: 'Polityka prywatności' },
+];
+
+const navItem = 'flex min-h-11 items-center whitespace-nowrap rounded-lg px-3 hover:bg-white/10 lg:px-2 xl:px-3';
+const dropdown = 'rounded-lg bg-slate-900 p-1.5 lg:absolute lg:top-full lg:w-60 lg:border lg:border-white/10 lg:shadow-xl';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [categoriesOpen, setCategoriesOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState(null);
   const [isDark, setIsDark] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [user, setUser] = useState(null);
@@ -69,18 +89,6 @@ export default function Navbar() {
     };
   }, []);
 
-  useEffect(() => {
-    if (!isOpen) {
-      setCategoriesOpen(false);
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (!user) {
-      setIsAdmin(false);
-    }
-  }, [user]);
-
   if (pathname?.startsWith('/admin')) {
     return null;
   }
@@ -98,30 +106,35 @@ export default function Navbar() {
   };
 
   const accountHref = user ? '/dashboard' : '/login';
-  const addHref = user ? '/dashboard' : '/login?returnTo=/dashboard';
+  const addHref = user ? '/dashboard/ogloszenia#dodaj' : '/login?returnTo=/dashboard/ogloszenia';
   const closeMenu = () => {
     setIsOpen(false);
-    setCategoriesOpen(false);
+    setOpenDropdown(null);
   };
   const trackAdd = () => {
     closeMenu();
     trackEvent('click_add_listing', { source: 'navbar' });
   };
 
-  const links = [
-    { href: '/#jak-to-dziala', label: 'Jak to działa?' },
-    { href: '/#dla-wynajmujacych', label: 'Dla wynajmujących' },
-    { href: '/katalog', label: 'Katalog firm' },
-    { href: '/kontakt', label: 'Kontakt' },
+  const toggleDropdown = (name) => setOpenDropdown((current) => current === name ? null : name);
+  const pathParts = pathname?.split('/').filter(Boolean) || [];
+  const categoryPage = SEO_CATEGORY_SLUGS.includes(pathParts[0]) && pathParts.length < 3;
+  const showShortcuts = categoryPage || ['/', '/szukaj', '/ulubione'].includes(pathname);
+  const shortcuts = [
+    { href: '/', label: 'Start', icon: House, active: pathname === '/' },
+    { href: '/szukaj', label: 'Szukaj', icon: Search, active: categoryPage || pathname === '/szukaj' },
+    { href: addHref, label: 'Dodaj', icon: CirclePlus, action: trackAdd },
+    { href: '/ulubione', label: 'Ulubione', icon: Heart, active: pathname === '/ulubione' },
+    { href: accountHref, label: 'Konto', icon: UserRound },
   ];
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950 text-white" onKeyDown={(event) => { if (event.key === 'Escape') closeMenu(); }}>
-        <nav aria-label="Nawigacja główna" className="relative mx-auto flex h-16 max-w-7xl items-center justify-between gap-2 px-4 sm:px-6 lg:gap-5">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-market-navy text-white" onKeyDown={(event) => { if (event.key === 'Escape') closeMenu(); }}>
+        <nav aria-label="Nawigacja główna" className="relative mx-auto flex h-16 max-w-7xl items-center justify-between gap-2 px-4 sm:px-6 xl:gap-4">
           <button
             type="button"
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={() => isOpen ? closeMenu() : setIsOpen(true)}
             aria-label={isOpen ? 'Zamknij menu' : 'Otwórz menu'}
             aria-expanded={isOpen}
             aria-controls="site-menu"
@@ -131,35 +144,49 @@ export default function Navbar() {
           </button>
           <SiteBrand />
 
-          <div id="site-menu" className={`${isOpen ? 'flex' : 'hidden'} absolute inset-x-0 top-full max-h-[calc(100dvh-4rem)] flex-col overflow-y-auto border-b border-white/10 bg-slate-950 px-4 pb-4 pt-2 text-sm font-medium shadow-xl lg:static lg:flex lg:max-h-none lg:flex-row lg:items-center lg:gap-1 lg:overflow-visible lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none`}>
+          <div id="site-menu" className={`${isOpen ? 'flex' : 'hidden'} absolute inset-x-0 top-full max-h-[calc(100dvh-4rem)] flex-col overflow-y-auto border-b border-white/10 bg-market-navy px-4 pb-4 pt-2 text-sm font-medium shadow-xl lg:static lg:flex lg:max-h-none lg:flex-row lg:items-center lg:overflow-visible lg:border-0 lg:bg-transparent lg:p-0 lg:text-[13px] lg:shadow-none xl:gap-1 xl:text-sm`}>
             <div className="relative">
               <button
                 type="button"
-                onClick={() => setCategoriesOpen(!categoriesOpen)}
-                aria-expanded={categoriesOpen}
+                onClick={() => toggleDropdown('categories')}
+                aria-expanded={openDropdown === 'categories'}
                 aria-controls="nav-categories"
-                className="flex min-h-11 w-full items-center justify-between gap-1.5 rounded-lg px-3 hover:bg-white/10"
+                className={`${navItem} w-full justify-between gap-1.5`}
               >
-                Kategorie <ChevronDown size={15} className={categoriesOpen ? 'rotate-180' : ''} aria-hidden="true" />
+                Kategorie <ChevronDown size={15} className={openDropdown === 'categories' ? 'rotate-180' : ''} aria-hidden="true" />
               </button>
-              <div id="nav-categories" hidden={!categoriesOpen} className="rounded-lg bg-slate-900 p-1.5 lg:absolute lg:top-full lg:w-56 lg:border lg:border-white/10 lg:shadow-xl">
-                {Object.values(SEO_CATEGORIES).map((cat) => (
-                  <Link key={cat.slug} href={`/${cat.slug}`} onClick={closeMenu} className="block rounded-md px-3 py-2.5 hover:bg-white/10">
-                    {cat.name}
+              <div id="nav-categories" hidden={openDropdown !== 'categories'} className={dropdown}>
+                {MARKET_CATEGORIES.map(({ value, label, hub }) => (
+                  <Link key={value} href={`/${hub}`} onClick={closeMenu} className={navItem}>
+                    {label}
                   </Link>
                 ))}
               </div>
             </div>
 
-            {links.map(({ href, label }) => (
-              <Link key={href} href={href} onClick={closeMenu} className="flex min-h-11 items-center rounded-lg px-3 hover:bg-white/10">{label}</Link>
+            {onboardingLinks.map(({ href, label }) => (
+              <Link key={href} href={href} onClick={closeMenu} className={`${navItem} lg:hidden xl:flex`}>{label}</Link>
             ))}
-            <Link href="/blog" onClick={closeMenu} className="flex min-h-11 items-center rounded-lg px-3 hover:bg-white/10 lg:hidden">Poradniki</Link>
-            <Link href="/umowy" onClick={closeMenu} className="flex min-h-11 items-center rounded-lg px-3 hover:bg-white/10 lg:hidden">Wzory umów</Link>
+            {primaryLinks.map(({ href, label }) => (
+              <Link key={href} href={href} onClick={closeMenu} className={navItem}>{label}</Link>
+            ))}
+            <div className="relative">
+              <button type="button" onClick={() => toggleDropdown('resources')} aria-expanded={openDropdown === 'resources'} aria-controls="nav-resources" className={`${navItem} w-full justify-between gap-1.5`}>
+                Więcej <ChevronDown size={15} className={openDropdown === 'resources' ? 'rotate-180' : ''} aria-hidden="true" />
+              </button>
+              <div id="nav-resources" hidden={openDropdown !== 'resources'} className={`${dropdown} lg:right-0`}>
+                {onboardingLinks.map(({ href, label }) => (
+                  <Link key={href} href={href} onClick={closeMenu} className={`${navItem} max-lg:hidden xl:hidden`}>{label}</Link>
+                ))}
+                {resourceLinks.map(({ href, label }) => (
+                  <Link key={href} href={href} onClick={closeMenu} className={navItem}>{label}</Link>
+                ))}
+              </div>
+            </div>
             {isAdmin && (
               <Link href="/admin" onClick={closeMenu} className="flex min-h-11 items-center rounded-lg px-3 text-amber-300 hover:bg-white/10">Admin</Link>
             )}
-            <button type="button" onClick={toggleDarkMode} aria-label="Przełącz tryb ciemny" aria-pressed={isDark} className="flex min-h-11 items-center gap-2 rounded-lg px-3 hover:bg-white/10">
+            <button type="button" onClick={toggleDarkMode} aria-label="Przełącz tryb ciemny" aria-pressed={isDark} className={`${navItem} gap-2`}>
               {isDark ? <Sun size={17} /> : <Moon size={17} />}
               <span className="lg:sr-only">Tryb ciemny</span>
             </button>
@@ -167,9 +194,12 @@ export default function Navbar() {
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
+            <Link href="/ulubione" aria-label="Ulubione" className="hidden size-11 items-center justify-center rounded-lg hover:bg-white/10 lg:flex">
+              <Heart size={18} aria-hidden="true" />
+            </Link>
             <Link href={accountHref} onClick={closeMenu} aria-label={user ? 'Mój panel' : 'Zaloguj się'} className="flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-lg px-2.5 text-sm font-medium hover:bg-white/10">
               <UserRound size={18} aria-hidden="true" />
-              <span className="hidden xl:inline">{user ? 'Mój panel' : 'Zaloguj się'}</span>
+              <span className="hidden 2xl:inline">{user ? 'Mój panel' : 'Zaloguj się'}</span>
             </Link>
             <Link href={addHref} onClick={trackAdd} className="market-action hidden whitespace-nowrap lg:inline-flex">
               <Plus size={17} aria-hidden="true" /> Dodaj ogłoszenie
@@ -178,13 +208,13 @@ export default function Navbar() {
         </nav>
       </header>
 
-      {pathname === '/' && (
-        <nav aria-label="Skróty" className="mobile-market-nav fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-white/10 bg-slate-950 px-2 pb-[env(safe-area-inset-bottom)] text-white lg:hidden">
-          <Link href="/" onClick={closeMenu} className="market-shortcut text-amber-400" aria-current="page"><House size={19} aria-hidden="true" /> Start</Link>
-          <Link href="/#szukaj" onClick={closeMenu} className="market-shortcut"><Search size={19} aria-hidden="true" /> Szukaj</Link>
-          <Link href={addHref} onClick={trackAdd} className="market-shortcut"><CirclePlus size={19} aria-hidden="true" /> Dodaj</Link>
-          <Link href="/#kategorie" onClick={closeMenu} className="market-shortcut"><LayoutGrid size={19} aria-hidden="true" /> Kategorie</Link>
-          <Link href={accountHref} onClick={closeMenu} className="market-shortcut"><UserRound size={19} aria-hidden="true" /> Konto</Link>
+      {showShortcuts && (
+        <nav aria-label="Skróty" className="mobile-market-nav fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-white/10 bg-market-navy px-2 pb-[env(safe-area-inset-bottom)] text-white lg:hidden">
+          {shortcuts.map(({ href, label, icon: Icon, active, action }) => (
+            <Link key={label} href={href} onClick={action || closeMenu} className={`market-shortcut ${active ? 'text-market-yellow' : ''}`} aria-current={active ? 'page' : undefined}>
+              <Icon size={19} aria-hidden="true" /> {label}
+            </Link>
+          ))}
         </nav>
       )}
     </>

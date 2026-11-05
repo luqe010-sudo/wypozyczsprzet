@@ -25,12 +25,14 @@ async function requireOwnedCompany(supabase, companyId) {
 
 function refresh(companyId) {
   revalidatePath(`/dashboard/company/${companyId}`)
+  revalidatePath('/dashboard/ogloszenia')
   updateTag('listings')
 }
 
 export async function createEquipment(companyId, formData) {
   const supabase = await createClient()
   const company = await requireOwnedCompany(supabase, companyId)
+  if (formData.get('terms') !== 'on') return { error: 'Zaakceptuj regulamin i politykę prywatności.' }
 
   let fields
   try {
@@ -38,6 +40,11 @@ export async function createEquipment(companyId, formData) {
   } catch (error) {
     return { error: error.message }
   }
+  if (!fields.category_id) return { error: 'Wybierz kategorię sprzętu.' }
+  if (!fields.branch_id) return { error: 'Wybierz oddział, w którym znajduje się sprzęt.' }
+  const { data: branch } = await supabase.from('company_branches').select('id')
+    .eq('id', fields.branch_id).eq('company_id', companyId).maybeSingle()
+  if (!branch) return { error: 'Wybrany oddział nie jest dostępny. Wybierz oddział swojej firmy.' }
 
   const slug = await generateUniqueSlug(supabase, fields.name)
 
@@ -66,7 +73,7 @@ export async function createEquipment(companyId, formData) {
   }
 
   refresh(companyId)
-  redirect(`/dashboard/company/${companyId}`)
+  return { pending: created.status === 'pending' }
 }
 
 export async function updateEquipment(id, companyId, formData) {

@@ -117,7 +117,7 @@ export default function CookieConsent() {
           backdrop-filter: blur(12px);
           -webkit-backdrop-filter: blur(12px);
           border: 1px solid rgba(255, 255, 255, 0.3);
-          border-radius: 24px;
+          border-radius: 12px;
           box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
           z-index: 9999;
           animation: slideUp 0.5s ease-out;
@@ -129,10 +129,10 @@ export default function CookieConsent() {
         .cookie-container {
           max-width: 1200px;
           margin: 0 auto;
-          padding: 24px;
+          padding: 16px;
           display: flex;
           flex-direction: column;
-          gap: 20px;
+          gap: 12px;
         }
         @media (min-width: 768px) {
           .cookie-container {
@@ -164,19 +164,20 @@ export default function CookieConsent() {
           flex-wrap: wrap;
         }
         .btn-cookie-primary, .btn-cookie-secondary, .btn-cookie-settings {
-          padding: 10px 20px;
-          border-radius: 12px;
+          min-height: 44px;
+          padding: 8px 14px;
+          border-radius: 8px;
           font-weight: 600;
           font-size: 0.9rem;
           cursor: pointer;
           transition: all 0.2s;
         }
         .btn-cookie-primary {
-          background: #c2410c;
-          color: white;
+          background: #ffc400;
+          color: #111d2c;
           border: none;
         }
-        .btn-cookie-primary:hover { background: #9a3412; }
+        .btn-cookie-primary:hover { background: #ffd44d; }
         .btn-cookie-secondary {
           background: #e2e8f0;
           color: #334155;
@@ -186,10 +187,10 @@ export default function CookieConsent() {
         .btn-cookie-secondary:hover { background: rgba(0, 0, 0, 0.1); }
         .btn-cookie-settings {
           background: transparent;
-          color: #c2410c;
-          border: 1px solid #c2410c;
+          color: var(--foreground);
+          border: 1px solid var(--muted);
         }
-        .btn-cookie-settings:hover { background: rgba(194, 65, 12, 0.05); }
+        .btn-cookie-settings:hover { background: var(--background); }
 
         .cookie-modal-overlay {
           position: fixed;

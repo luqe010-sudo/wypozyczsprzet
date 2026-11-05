@@ -1,5 +1,5 @@
 import { fetchMarketplaceData } from '../../../lib/listings';
-import { SEO_CATEGORY_SLUGS } from '../../../lib/categories';
+import { SEO_CATEGORIES } from '../../../lib/categories';
 import { articles } from '../../../lib/articles';
 import { documents } from '../../../lib/umowy-data';
 import { getVoivodeshipSlugForCity } from '../../../lib/regions';
@@ -34,7 +34,7 @@ export async function GET(request, { params }) {
 
   try {
     if (name === 'categories.xml') {
-      xml = generateCategoriesSitemap();
+      xml = generateCategoriesSitemap(await fetchAllSlugs());
     } else if (name === 'offers.xml') {
       const slugData = await fetchAllSlugs();
       xml = generateOffersSitemap(slugData);
@@ -71,8 +71,12 @@ export async function GET(request, { params }) {
   });
 }
 
-function generateCategoriesSitemap() {
-  const urls = SEO_CATEGORY_SLUGS.map(slug => `
+function generateCategoriesSitemap(slugData) {
+  const counts = countBy(slugData, (item) => item.seoCategory);
+  const categories = Object.values(SEO_CATEGORIES).filter(({ slug, minListingsForIndexing }) => (
+    !minListingsForIndexing || (counts.get(slug) || 0) >= MIN_LISTINGS_FOR_INDEXING
+  ));
+  const urls = categories.map(({ slug }) => `
     <url>
       <loc>${BASE_URL}/${slug}</loc>
       <lastmod>${new Date().toISOString()}</lastmod>

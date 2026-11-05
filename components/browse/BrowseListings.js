@@ -1,14 +1,16 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { LayoutGrid, LocateFixed, Map as MapIcon, MapPin, Search, SlidersHorizontal, X } from 'lucide-react';
+import { CalendarDays, List, LocateFixed, Map as MapIcon, MapPin, Search, SlidersHorizontal, X } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import ListingCard from '../ListingCard';
-import { SEO_CATEGORIES, FORM_CATEGORIES } from '../../lib/categories';
+import { MARKET_CATEGORIES, SEO_CATEGORIES, matchesMarketCategory } from '../../lib/categories';
 import { getVoivodeshipSlugForCity, VOIVODESHIPS } from '../../lib/regions';
 import { haversineDistance } from '../../lib/distance';
 import { offersLabel } from '../../lib/format';
+import { rentalDates, todayInPoland } from '../../lib/rentalDates';
 
 const MapComponent = dynamic(() => import('../MapComponent'), {
   ssr: false,
@@ -26,13 +28,15 @@ const SORT_OPTIONS = [
   { value: 'price', label: 'Najniższa cena' },
   { value: 'distance', label: 'Najbliżej' },
 ];
-const DEFAULTS = { q: '', category: '', sub: '', city: '', radius: '25', maxPrice: '', delivery: '', operator: '', sort: '' };
+const DEFAULTS = {
+  q: '', category: '', sub: '', city: '', radius: '25', from: '', to: '',
+  minPrice: '', maxPrice: '', delivery: '', operator: '', availability: '', spec: '', specValue: '', sort: '',
+};
 
 const selectClass = 'h-11 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-400/40 disabled:opacity-55 dark:border-slate-600 dark:bg-slate-800 dark:text-white';
 const labelClass = 'mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400';
 
-function readUrlFilters() {
-  const params = new URLSearchParams(window.location.search);
+function readUrlFilters(params) {
   const next = { ...DEFAULTS };
   Object.keys(DEFAULTS).forEach((key) => {
     const value = params.get(key);
@@ -40,17 +44,28 @@ function readUrlFilters() {
   });
   // Links from before the search moved here used ?s=
   if (params.get('s') && !next.q) next.q = params.get('s');
-  return next;
+  return { ...next, ...rentalDates(next) };
 }
 
-function writeUrlFilters(filters, view) {
+function SearchUrlSync({ onChange }) {
+  const params = useSearchParams();
+  useEffect(() => { onChange(params); }, [onChange, params]);
+  return null;
+}
+
+function filterQuery(filters, view) {
   const params = new URLSearchParams();
   Object.entries(filters).forEach(([key, value]) => {
     if (value && value !== DEFAULTS[key]) params.set(key, value);
   });
   if (view === 'map') params.set('view', 'map');
   const query = params.toString();
-  window.history.replaceState(window.history.state, '', query ? `${window.location.pathname}?${query}` : window.location.pathname);
+  return query ? `?${query}` : '';
+}
+
+function writeUrlFilters(filters, view) {
+  const { pathname, hash } = window.location;
+  window.history.replaceState(window.history.state, '', `${pathname}${filterQuery(filters, view)}${hash}`);
 }
 
 function cityCenter(listings, city) {
@@ -62,9 +77,13 @@ function cityCenter(listings, city) {
   };
 }
 
+function normalizeText(text) {
+  return String(text || '').toLowerCase().normalize('NFD').replace(/\p{M}/gu, '').replace(/ł/g, 'l');
+}
+
 function matchesText(listing, text) {
-  const haystack = `${listing['Sprzęt']} ${listing.Kategoria} ${listing.subcategoryLabel} ${listing.companyName} ${listing.Miasto}`.toLowerCase();
-  return text.toLowerCase().split(/\s+/).filter(Boolean).every((word) => haystack.includes(word));
+  const haystack = normalizeText(`${listing['Sprzęt']} ${listing.Kategoria} ${listing.subcategoryLabel} ${listing.companyName} ${listing.Miasto}`);
+  return normalizeText(text).split(/\s+/).filter(Boolean).every((word) => haystack.includes(word));
 }
 
 /**
@@ -82,33 +101,36 @@ export default function BrowseListings({
   emptyHint = null,
   searchIntro = null,
   beforeResults = null,
+  splitMap = false,
 }) {
+  const router = useRouter();
   const [filters, setFilters] = useState(DEFAULTS);
+  const currentFilters = useRef(DEFAULTS);
   const [view, setView] = useState('list');
   const [visible, setVisible] = useState(PAGE_SIZE);
   const [userLocation, setUserLocation] = useState(null);
   const [locating, setLocating] = useState(false);
   const [locationError, setLocationError] = useState('');
   const filterDialog = useRef(null);
+  const dateDialog = useRef(null);
   const resultsRef = useRef(null);
 
-  useEffect(() => {
-    const syncUrl = () => {
-      setFilters(readUrlFilters());
-      setView(new URLSearchParams(window.location.search).get('view') === 'map' ? 'map' : 'list');
+  const syncUrl = useCallback((params) => {
+    const next = readUrlFilters(params);
+    if (filterQuery(next, 'list') !== filterQuery(currentFilters.current, 'list')) {
+      currentFilters.current = next;
+      setFilters(next);
       setVisible(PAGE_SIZE);
-    };
-    syncUrl();
-    window.addEventListener('popstate', syncUrl);
-    return () => window.removeEventListener('popstate', syncUrl);
+      if (next.city) setUserLocation(null);
+    }
+    setView(params.get('view') === 'map' ? 'map' : 'list');
   }, []);
 
   const update = useCallback((patch) => {
-    setFilters((current) => {
-      const next = { ...current, ...patch };
-      writeUrlFilters(next, view);
-      return next;
-    });
+    const next = { ...currentFilters.current, ...patch };
+    currentFilters.current = next;
+    setFilters(next);
+    writeUrlFilters(next, view);
     setVisible(PAGE_SIZE);
   }, [view]);
 
@@ -139,9 +161,27 @@ export default function BrowseListings({
 
   const subcategories = useMemo(() => {
     if (fixedSubcategories) return fixedSubcategories;
-    const category = FORM_CATEGORIES.find((c) => c.value === filters.category);
-    return category ? SEO_CATEGORIES[category.seoSlug]?.filters || [] : [];
-  }, [filters.category, fixedSubcategories]);
+    if (!filters.category) return [];
+    const category = MARKET_CATEGORIES.find((item) => item.value === filters.category);
+    const fallback = SEO_CATEGORIES[category?.hub]?.filters || [];
+    const options = new Map(fallback.map(({ value, label }) => [value, label]));
+    listings.forEach((listing) => {
+      if (!listing.subcategory || !matchesMarketCategory(listing, filters.category)) return;
+      if (listing.subcategoryLabel) options.set(listing.subcategory, listing.subcategoryLabel);
+    });
+    return [...options].map(([value, label]) => ({ value, label })).sort((a, b) => a.label.localeCompare(b.label, 'pl'));
+  }, [filters.category, fixedSubcategories, listings]);
+
+  const availableSpecs = useMemo(() => {
+    if (!filters.category && !lockCategory) return [];
+    const names = new Set();
+    listings.forEach((listing) => {
+      if (filters.category && !matchesMarketCategory(listing, filters.category)) return;
+      if (filters.sub && listing.subcategory !== filters.sub) return;
+      Object.keys(listing.specs || {}).forEach((name) => names.add(name));
+    });
+    return [...names].sort((a, b) => a.localeCompare(b, 'pl'));
+  }, [filters.category, filters.sub, listings, lockCategory]);
 
   const center = useMemo(() => {
     if (userLocation) return userLocation;
@@ -150,8 +190,10 @@ export default function BrowseListings({
   }, [userLocation, filters.city, listings]);
 
   const results = useMemo(() => {
+    const minPrice = Number(filters.minPrice);
     const maxPrice = Number(filters.maxPrice);
     const radius = Number(filters.radius);
+    const specValue = normalizeText(filters.specValue).trim();
 
     const matched = listings
       .map((listing) => {
@@ -160,11 +202,17 @@ export default function BrowseListings({
       })
       .filter((listing) => {
         if (filters.q && !matchesText(listing, filters.q)) return false;
-        if (filters.category && listing._rawCategory !== filters.category) return false;
+        if (filters.category && !matchesMarketCategory(listing, filters.category)) return false;
         if (filters.sub && listing.subcategory !== filters.sub) return false;
         if (filters.delivery && listing.deliveryAvailable !== true) return false;
         if (filters.operator && listing.withOperator !== true) return false;
-        if (filters.maxPrice && listing.priceType === 'fixed' && listing.priceAmount > maxPrice) return false;
+        if (filters.availability && listing.availability !== filters.availability) return false;
+        if (filters.spec && (!Object.hasOwn(listing.specs || {}, filters.spec) || !normalizeText(listing.specs[filters.spec]).includes(specValue))) return false;
+        if (filters.minPrice || filters.maxPrice) {
+          if (listing.priceType !== 'fixed' || listing.priceAmount == null) return false;
+          if (filters.minPrice && listing.priceAmount < minPrice) return false;
+          if (filters.maxPrice && listing.priceAmount > maxPrice) return false;
+        }
         if (center) {
           if (radius > 0) {
             if (listing._distance == null) return listing.Miasto === filters.city;
@@ -184,6 +232,15 @@ export default function BrowseListings({
     }
     return matched;
   }, [listings, filters, center]);
+
+  const dateParams = new URLSearchParams();
+  const dates = rentalDates(filters);
+  const today = todayInPoland();
+  if (dates.from) dateParams.set('from', dates.from);
+  if (dates.to) dateParams.set('to', dates.to);
+  const rentalQuery = dateParams.size ? `?${dateParams}` : '';
+  const filterPriceError = filters.minPrice && filters.maxPrice && Number(filters.minPrice) > Number(filters.maxPrice);
+  const hasAvailability = listings.some((listing) => listing.availability === 'immediately');
 
   const locate = () => {
     if (!navigator.geolocation) {
@@ -206,12 +263,12 @@ export default function BrowseListings({
     );
   };
 
-  const activeCount = ['category', 'sub', 'city', 'maxPrice', 'delivery', 'operator'].filter((key) => filters[key]).length
+  const activeCount = ['category', 'sub', 'city', 'minPrice', 'maxPrice', 'delivery', 'operator', 'availability', 'spec'].filter((key) => filters[key]).length
     + (userLocation ? 1 : 0);
 
-  const citySelect = (id, className = selectClass) => (
+  const citySelect = (id, className = selectClass, placeholder = 'Wszystkie miejscowości') => (
     <select id={id} className={className} value={filters.city} onChange={(event) => { setUserLocation(null); update({ city: event.target.value }); }}>
-      <option value="">Wszystkie miejscowości</option>
+      <option value="">{placeholder}</option>
       {cityOptions.map(([group, cities]) => (
         <optgroup key={group} label={group}>
           {cities.map((city) => <option key={city} value={city}>{city}</option>)}
@@ -227,14 +284,30 @@ export default function BrowseListings({
     </select>
   );
 
+  const dateControls = (idPrefix) => (
+    <div>
+      <div className="grid grid-cols-2 gap-2">
+        <div className="min-w-0">
+          <label htmlFor={idPrefix + '-from'} className={labelClass}>Wynajem od</label>
+          <input id={idPrefix + '-from'} type="date" min={today} className={selectClass} value={filters.from} onInput={(e) => update(rentalDates({ ...currentFilters.current, from: e.currentTarget.value }))} />
+        </div>
+        <div className="min-w-0">
+          <label htmlFor={idPrefix + '-to'} className={labelClass}>Wynajem do</label>
+          <input id={idPrefix + '-to'} type="date" min={filters.from || today} className={selectClass} value={filters.to} onInput={(e) => update(rentalDates({ ...currentFilters.current, to: e.currentTarget.value }))} />
+        </div>
+      </div>
+      <p className="mt-2 text-xs text-slate-600 dark:text-slate-400">Termin przeniesiemy do zapytania. Potwierdzi go wynajmujący.</p>
+    </div>
+  );
+
   const filterControls = (idPrefix) => (
     <div className="grid gap-4">
       {!lockCategory && (
         <div>
           <label htmlFor={idPrefix + '-category'} className={labelClass}>Kategoria</label>
-          <select id={idPrefix + '-category'} className={selectClass} value={filters.category} onChange={(e) => update({ category: e.target.value, sub: '' })}>
+          <select id={idPrefix + '-category'} className={selectClass} value={filters.category} onChange={(e) => update({ category: e.target.value, sub: '', spec: '', specValue: '' })}>
             <option value="">Wszystkie kategorie</option>
-            {FORM_CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+            {MARKET_CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
           </select>
         </div>
       )}
@@ -242,7 +315,7 @@ export default function BrowseListings({
       {subcategories.length > 0 && (
         <div>
           <label htmlFor={idPrefix + '-sub'} className={labelClass}>Typ sprzętu</label>
-          <select id={idPrefix + '-sub'} className={selectClass} value={filters.sub} onChange={(e) => update({ sub: e.target.value })}>
+          <select id={idPrefix + '-sub'} className={selectClass} value={filters.sub} onChange={(e) => update({ sub: e.target.value, spec: '', specValue: '' })}>
             <option value="">Dowolny typ</option>
             {subcategories.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
@@ -263,20 +336,36 @@ export default function BrowseListings({
         </div>
       )}
 
-      <div>
-        <label htmlFor={idPrefix + '-price'} className={labelClass}>Cena do (zł)</label>
-        <input
-          id={idPrefix + '-price'}
-          type="number"
-          min="0"
-          step="10"
-          inputMode="numeric"
-          placeholder="Dowolna"
-          className={selectClass}
-          value={filters.maxPrice}
-          onChange={(e) => update({ maxPrice: e.target.value })}
-        />
-      </div>
+      <fieldset>
+        <legend className={labelClass}>Cena w ofercie (zł)</legend>
+        <div className="grid grid-cols-2 gap-2">
+          {[['minPrice', 'Od'], ['maxPrice', 'Do']].map(([key, label]) => (
+            <div key={key} className="min-w-0">
+              <label className="sr-only" htmlFor={idPrefix + '-' + key}>Cena {label.toLowerCase()} (zł)</label>
+              <input id={idPrefix + '-' + key} type="number" min="0" step="any" inputMode="decimal" placeholder={label} aria-invalid={filterPriceError ? true : undefined} className={selectClass} value={filters[key]} onChange={(e) => update({ [key]: e.target.value })} />
+            </div>
+          ))}
+        </div>
+        {filterPriceError && <p role="alert" className="mt-1 text-xs text-red-700 dark:text-red-400">Cena maksymalna musi być większa lub równa minimalnej.</p>}
+      </fieldset>
+
+      {availableSpecs.length > 0 && (
+        <div className="space-y-2">
+          <div>
+            <label htmlFor={idPrefix + '-spec'} className={labelClass}>Parametr sprzętu</label>
+            <select id={idPrefix + '-spec'} className={selectClass} value={filters.spec} onChange={(e) => update({ spec: e.target.value, specValue: '' })}>
+              <option value="">Dowolny parametr</option>
+              {availableSpecs.map((name) => <option key={name} value={name}>{name}</option>)}
+            </select>
+          </div>
+          {filters.spec && (
+            <div>
+              <label htmlFor={idPrefix + '-spec-value'} className={labelClass}>Wartość parametru</label>
+              <input id={idPrefix + '-spec-value'} className={selectClass} value={filters.specValue} onChange={(e) => update({ specValue: e.target.value })} />
+            </div>
+          )}
+        </div>
+      )}
 
       <div>
         <label htmlFor={idPrefix + '-sort'} className={labelClass}>Sortowanie</label>
@@ -286,6 +375,12 @@ export default function BrowseListings({
       </div>
 
       <div className="flex flex-col items-start">
+        {hasAvailability && (
+          <label className="flex min-h-11 cursor-pointer items-center gap-2 text-sm text-slate-800 dark:text-slate-200">
+            <input type="checkbox" className="size-4 accent-brand-600" checked={filters.availability === 'immediately'} onChange={(e) => update({ availability: e.target.checked ? 'immediately' : '' })} />
+            Dostępny od ręki
+          </label>
+        )}
         <label className="flex min-h-[44px] cursor-pointer items-center gap-2 text-sm text-slate-800 dark:text-slate-200">
           <input type="checkbox" className="h-4 w-4 accent-brand-600" checked={Boolean(filters.delivery)} onChange={(e) => update({ delivery: e.target.checked ? '1' : '' })} />
           Z dostawą
@@ -307,6 +402,7 @@ export default function BrowseListings({
         )}
       </div>
       {locationError && <p role="alert" className="text-sm text-red-700 dark:text-red-400">{locationError}</p>}
+      {splitMap && dateControls(idPrefix)}
     </div>
   );
 
@@ -317,8 +413,8 @@ export default function BrowseListings({
       <input
         id="filter-q"
         type="search"
-        placeholder="Czego szukasz? Np. minikoparka"
-        className={`${selectClass} pl-10`}
+        placeholder="Np. minikoparka"
+        className={`${selectClass} pl-10 text-base sm:text-sm`}
         value={filters.q}
         onChange={(event) => update({ q: event.target.value })}
       />
@@ -336,27 +432,27 @@ export default function BrowseListings({
     <div id="oferty" ref={resultsRef} tabIndex={-1} className="min-w-0 scroll-mt-20 focus:outline-none">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          {heading || <h2 className="market-heading">Oferty wynajmu</h2>}
+          {heading || <h2 className="market-heading">{searchIntro ? 'Oferty w Twojej okolicy' : 'Wyniki wyszukiwania'}</h2>}
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-400" aria-live="polite">{offersLabel(results.length)}</p>
         </div>
         <div className="flex items-center gap-2">
           {searchIntro && filtersButton}
           <div className="flex rounded-lg border border-slate-300 bg-white p-0.5 dark:border-slate-600 dark:bg-slate-800" aria-label="Widok wyników" role="group">
             <button type="button" aria-label="Lista" aria-pressed={view === 'list'} onClick={() => changeView('list')} className="market-view-button">
-              <LayoutGrid size={16} aria-hidden="true" /><span className="hidden sm:inline">Lista</span>
+              <List size={16} aria-hidden="true" /><span>Lista</span>
             </button>
             <button type="button" aria-label="Mapa" aria-pressed={view === 'map'} onClick={() => changeView('map')} className="market-view-button">
-              <MapIcon size={16} aria-hidden="true" /><span className="hidden sm:inline">Mapa</span>
+              <MapIcon size={16} aria-hidden="true" /><span>Mapa</span>
             </button>
           </div>
         </div>
       </div>
 
-      {view === 'map' ? (
-        <div className={`grid overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800 ${searchIntro && results.length > 0 ? 'lg:grid-cols-[20rem_minmax(0,1fr)]' : ''}`}>
-          {searchIntro && results.length > 0 && (
-            <div className="hidden h-[34rem] space-y-2 overflow-y-auto border-r border-slate-200 p-3 dark:border-slate-700 lg:block">
-              {results.slice(0, visible).map((listing) => <ListingCard key={listing.ID_sprzetu} listing={listing} layout="compact" />)}
+      {view === 'map' && results.length > 0 ? (
+        <div className={`grid overflow-hidden rounded-xl border border-border bg-card ${searchIntro ? 'lg:grid-cols-[19rem_minmax(0,1fr)]' : splitMap ? 'xl:grid-cols-[16rem_minmax(0,1fr)]' : ''}`}>
+          {(searchIntro || splitMap) && (
+            <div className={`hidden h-[34rem] space-y-2 overflow-y-auto border-r border-border p-2 ${searchIntro ? 'lg:block' : 'xl:block'}`}>
+              {results.slice(0, visible).map((listing) => <ListingCard key={listing.ID_sprzetu} listing={listing} layout="compact" rentalQuery={rentalQuery} />)}
               {results.length > visible && (
                 <button type="button" onClick={() => setVisible((count) => count + PAGE_SIZE)} className="min-h-11 w-full rounded-lg border border-slate-300 text-sm font-semibold hover:bg-slate-100 dark:border-slate-600 dark:hover:bg-slate-700">
                   Pokaż więcej ({results.length - visible})
@@ -365,14 +461,14 @@ export default function BrowseListings({
             </div>
           )}
           <div className="relative h-[65vh] min-h-[22rem] lg:h-[34rem]">
-            <MapComponent listings={results} searchCenter={center} radius={center ? Number(filters.radius) : 0} isCompact />
+            <MapComponent listings={results} searchCenter={center} radius={center ? Number(filters.radius) : 0} rentalQuery={rentalQuery} isCompact />
           </div>
         </div>
       ) : results.length > 0 ? (
         <>
-          <div className={searchIntro ? 'grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 xl:grid-cols-4' : 'grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1'}>
+          <div className={searchIntro ? 'grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 md:gap-4 xl:grid-cols-4' : 'grid grid-cols-1 gap-3'}>
             {results.slice(0, visible).map((listing) => (
-              <ListingCard key={listing.ID_sprzetu} listing={listing} layout={searchIntro ? 'grid' : 'row'} />
+              <ListingCard key={listing.ID_sprzetu} listing={listing} layout={searchIntro ? 'grid' : 'row'} rentalQuery={rentalQuery} />
             ))}
           </div>
           {results.length > visible && (
@@ -386,12 +482,16 @@ export default function BrowseListings({
       ) : (
         <div className="rounded-xl border border-slate-200 bg-white p-6 text-center dark:border-slate-700 dark:bg-slate-800 sm:p-8">
           <Search size={24} className="mx-auto mb-3 text-slate-500 dark:text-slate-400" aria-hidden="true" />
-          <h3 className="mb-2 font-bold text-slate-900 dark:text-white">Brak ofert dla wybranych filtrów</h3>
+          <h3 className="mb-2 font-bold text-slate-900 dark:text-white">{lockCategory && listings.length === 0 ? 'Brak ogłoszeń w tej kategorii' : 'Brak ofert dla wybranych filtrów'}</h3>
           <p className="mx-auto mb-5 max-w-md text-sm text-slate-600 dark:text-slate-400">
             {emptyHint || 'Zmień kryteria lub sprawdź wypożyczalnie w katalogu firm. Często mają więcej sprzętu niż w ogłoszeniach.'}
           </p>
           <div className="flex flex-wrap justify-center gap-3">
-            <button type="button" onClick={reset} className="market-action">Wyczyść filtry</button>
+            {lockCategory && listings.length === 0 ? (
+              <Link href="/szukaj" className="market-action">Zobacz wszystkie oferty</Link>
+            ) : (
+              <button type="button" onClick={reset} className="market-action">Wyczyść filtry</button>
+            )}
             <Link href="/katalog" className="flex min-h-11 items-center rounded-lg border border-slate-300 px-5 text-sm font-semibold text-slate-800 dark:border-slate-600 dark:text-slate-200">Katalog firm</Link>
           </div>
         </div>
@@ -401,27 +501,38 @@ export default function BrowseListings({
 
   return (
     <section aria-label="Wyszukiwarka ofert">
+      <Suspense><SearchUrlSync onChange={syncUrl} /></Suspense>
       {searchIntro ? (
         <>
-          <div id="szukaj" className="relative isolate scroll-mt-16 overflow-hidden bg-slate-950">
-            <div className="relative mx-auto max-w-7xl px-4 pb-5 sm:px-6 sm:pb-8 lg:pb-10">
+          <div id="szukaj" className="relative isolate scroll-mt-16 overflow-hidden bg-market-navy">
+            <div className="relative mx-auto max-w-7xl px-4 pb-5 sm:px-6 sm:pb-6 lg:pb-8">
               {searchIntro}
               <form onSubmit={(event) => {
                 event.preventDefault();
-                resultsRef.current?.focus({ preventScroll: true });
-                resultsRef.current?.scrollIntoView({ block: 'start' });
-              }} className="relative grid gap-2 rounded-xl border border-slate-200 bg-white p-2 shadow-xl dark:border-slate-700 dark:bg-slate-900 lg:grid-cols-[minmax(0,2.2fr)_minmax(0,1.25fr)_minmax(0,1fr)_auto]">
+                if (userLocation) {
+                  resultsRef.current?.focus({ preventScroll: true });
+                  resultsRef.current?.scrollIntoView({ block: 'start' });
+                } else {
+                  router.push(`/szukaj${filterQuery(currentFilters.current, view)}`);
+                }
+              }} className="relative grid gap-2 rounded-xl border border-border bg-card p-2 shadow-xl lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1.35fr)_minmax(0,.75fr)_minmax(0,1fr)_auto]">
                 {searchField}
-                <div className="relative min-w-0">
-                  <MapPin className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-slate-500 dark:text-slate-400" aria-hidden="true" />
-                  <label htmlFor="hero-city" className="sr-only">Miejscowość</label>
-                  {citySelect('hero-city', `${selectClass} pl-10`)}
+                <div className="grid min-w-0 grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] gap-2 lg:contents">
+                  <div className="relative min-w-0">
+                    <MapPin className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-500 dark:text-slate-400" aria-hidden="true" />
+                    <label htmlFor="hero-city" className="sr-only">Miejscowość</label>
+                    {citySelect('hero-city', `${selectClass} pl-9`, 'Miejscowość')}
+                  </div>
+                  <div className="relative min-w-0">
+                    <LocateFixed className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-500 dark:text-slate-400" aria-hidden="true" />
+                    <label htmlFor="hero-radius" className="sr-only">Promień wyszukiwania</label>
+                    {radiusSelect('hero-radius', `${selectClass} pl-9`)}
+                  </div>
                 </div>
-                <div className="relative min-w-0">
-                  <LocateFixed className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-slate-500 dark:text-slate-400" aria-hidden="true" />
-                  <label htmlFor="hero-radius" className="sr-only">Promień wyszukiwania</label>
-                  {radiusSelect('hero-radius', `${selectClass} pl-10`)}
-                </div>
+                <button type="button" onClick={() => dateDialog.current?.showModal()} className={`${selectClass} flex items-center gap-2 text-left`}>
+                  <CalendarDays size={17} className="shrink-0 text-slate-500 dark:text-slate-400" aria-hidden="true" />
+                  <span className="truncate">{rentalQuery ? 'Termin wybrany' : 'Termin wynajmu'}</span>
+                </button>
                 <button type="submit" className="market-action px-6"><Search size={17} aria-hidden="true" /> Szukaj</button>
               </form>
             </div>
@@ -442,7 +553,20 @@ export default function BrowseListings({
         </>
       )}
 
-      <dialog ref={filterDialog} aria-labelledby="filters-heading" className="fixed inset-x-0 bottom-0 top-auto m-0 max-h-[85dvh] w-full max-w-none overflow-y-auto rounded-t-2xl bg-white p-5 text-slate-900 shadow-xl backdrop:bg-slate-950/60 dark:bg-slate-900 dark:text-white sm:inset-0 sm:m-auto sm:max-w-md sm:rounded-2xl">
+      {searchIntro && (
+        <dialog ref={dateDialog} aria-labelledby="rental-period-heading" className="market-dialog">
+          <div className="mb-4 flex items-center justify-between gap-4">
+            <h2 id="rental-period-heading" className="text-lg font-bold">Termin wynajmu</h2>
+            <button type="button" aria-label="Zamknij wybór terminu" className="grid size-11 place-items-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800" onClick={() => dateDialog.current?.close()}>
+              <X size={20} aria-hidden="true" />
+            </button>
+          </div>
+          {dateControls('hero-date')}
+          <button type="button" onClick={() => dateDialog.current?.close()} className="market-action mt-4 w-full">Gotowe</button>
+        </dialog>
+      )}
+
+      <dialog ref={filterDialog} aria-labelledby="filters-heading" className="market-dialog">
         <div className="mb-4 flex items-center justify-between gap-4">
           <h2 id="filters-heading" className="text-lg font-bold">Filtry</h2>
           <button type="button" aria-label="Zamknij filtry" className="grid size-11 place-items-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800" onClick={() => filterDialog.current?.close()}>

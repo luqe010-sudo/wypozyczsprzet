@@ -1,17 +1,31 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { CheckCircle2 } from 'lucide-react';
 import { submitInquiry } from '@/app/actions/inquiryActions';
 import { trackEvent } from '../../lib/gtag';
+import { rentalDates, todayInPoland } from '../../lib/rentalDates';
 
 const inputClass = 'w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-base text-slate-900 outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20 dark:border-slate-600 dark:bg-slate-900 dark:text-white md:text-sm';
 const labelClass = 'mb-1 block text-sm font-medium text-slate-800 dark:text-slate-200';
 
 export default function InquiryForm({ equipmentId, equipmentName }) {
   const [state, setState] = useState({ status: 'idle', error: '' });
-  const today = new Date().toISOString().slice(0, 10);
+  const fromInput = useRef(null);
+  const toInput = useRef(null);
+  const today = todayInPoland();
+
+  useEffect(() => {
+    if (!fromInput.current || !toInput.current) return;
+    const params = new URLSearchParams(window.location.search);
+    const from = params.get('from');
+    const to = params.get('to');
+    const dates = rentalDates({ from: from >= today ? from : '', to: to >= today ? to : '' });
+    fromInput.current.value = dates.from;
+    toInput.current.value = dates.to;
+    toInput.current.min = dates.from || today;
+  }, [equipmentId, today]);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -66,13 +80,13 @@ export default function InquiryForm({ equipmentId, equipmentName }) {
         <input id="inquiry-email" name="customer_email" type="email" maxLength={150} autoComplete="email" className={inputClass} />
       </div>
       <div className="grid grid-cols-2 gap-3">
-        <div>
+        <div className="min-w-0">
           <label htmlFor="inquiry-from" className={labelClass}>Od kiedy</label>
-          <input id="inquiry-from" name="date_from" type="date" min={today} className={`${inputClass} scroll-mt-24`} />
+          <input ref={fromInput} id="inquiry-from" name="date_from" type="date" min={today} onInput={(e) => { toInput.current.min = e.currentTarget.value || today; }} className={`${inputClass} scroll-mt-24`} />
         </div>
-        <div>
+        <div className="min-w-0">
           <label htmlFor="inquiry-to" className={labelClass}>Do kiedy</label>
-          <input id="inquiry-to" name="date_to" type="date" min={today} className={inputClass} />
+          <input ref={toInput} id="inquiry-to" name="date_to" type="date" min={today} className={inputClass} />
         </div>
       </div>
       <div>

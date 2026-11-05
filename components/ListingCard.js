@@ -1,20 +1,21 @@
 import Link from 'next/link';
 import { MapPin, ShieldCheck, Truck, UserRound } from 'lucide-react';
 import ListingImage from './listing/ListingImage';
+import FavoriteButton from './FavoriteButton';
 import { priceText } from '../lib/format';
 
-export default function ListingCard({ listing, layout = 'grid' }) {
-  const href = `/${listing.seoCategory}/${listing.citySlug}/${listing.slug}`;
+export default function ListingCard({ listing, layout = 'grid', rentalQuery = '' }) {
+  const href = `/${listing.seoCategory}/${listing.citySlug}/${listing.slug}${rentalQuery}`;
   const name = listing['Sprzęt'];
   const hasFixedPrice = listing.priceType === 'fixed';
   const isGrid = layout === 'grid';
   const isCompact = layout === 'compact';
   const isRow = layout === 'row';
   const imageClass = isGrid
-    ? 'aspect-[4/3] w-full'
+    ? 'aspect-[16/10] w-full'
     : isCompact ? 'w-24' : 'w-[35%] sm:w-36 lg:w-44';
   const imageSizes = isGrid
-    ? '(max-width: 640px) 50vw, (max-width: 1200px) 33vw, 300px'
+    ? '(max-width: 639px) 100vw, (max-width: 1200px) 50vw, 300px'
     : isCompact ? '96px' : '(max-width: 640px) 35vw, 176px';
 
   return (
@@ -35,7 +36,11 @@ export default function ListingCard({ listing, layout = 'grid' }) {
         )}
       </div>
 
-      <div className={`flex min-w-0 flex-1 flex-col gap-1.5 p-3 ${isRow ? 'sm:p-4 lg:grid lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-x-5' : ''}`}>
+      {!isCompact && (
+        <FavoriteButton id={listing.ID_sprzetu} className="absolute right-2 top-2 z-10" />
+      )}
+
+      <div className={`flex min-w-0 flex-1 flex-col gap-1.5 p-3 ${isRow ? 'pr-14 sm:py-4 lg:grid lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-x-5' : ''}`}>
         <h3 className={`text-sm font-bold leading-snug text-slate-900 dark:text-white ${isCompact ? '' : 'sm:text-base'} ${isRow ? 'lg:col-start-1' : ''}`}>
           <Link href={href} className="after:absolute after:inset-0 hover:underline">
             <span className="line-clamp-2">{name}</span>
@@ -55,6 +60,13 @@ export default function ListingCard({ listing, layout = 'grid' }) {
         >
           {priceText(listing)}
         </p>
+
+        {!isCompact && listing['Dostępność'] && listing['Dostępność'] !== 'brak danych' && (
+          <p className={`flex items-center gap-1.5 text-xs font-medium ${listing.availability === 'immediately' ? 'text-green-700 dark:text-green-400' : 'text-slate-600 dark:text-slate-400'} ${isRow ? 'lg:col-start-1' : ''}`}>
+            <span className="size-1.5 shrink-0 rounded-full bg-current" aria-hidden="true" />
+            {listing['Dostępność']}
+          </p>
+        )}
 
         {!isCompact && (listing.deliveryAvailable || listing.withOperator || listing.isVerified) && (
           <ul className={`mt-auto flex flex-wrap gap-x-3 gap-y-1 pt-1 text-xs text-slate-600 dark:text-slate-400 ${isRow ? 'lg:col-start-1' : ''}`}>

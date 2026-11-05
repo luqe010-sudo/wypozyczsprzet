@@ -4,11 +4,11 @@
 
 @layer components {
   .market-action {
-    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-amber-400 px-4 py-2 text-sm font-bold text-slate-950 transition-colors hover:bg-amber-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500 disabled:opacity-60;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-market-yellow px-4 py-2 text-sm font-bold text-market-navy transition-colors hover:bg-amber-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 dark:focus-visible:outline-market-yellow disabled:opacity-60;
   }
 
   .market-heading {
-    @apply text-xl font-extrabold leading-tight tracking-tight text-slate-950 dark:text-white sm:text-2xl;
+    @apply text-xl font-extrabold leading-tight tracking-tight text-foreground sm:text-2xl;
   }
 
   .market-shortcut {
@@ -20,15 +20,19 @@
   }
 
   .market-view-button[aria-pressed='true'] {
-    @apply bg-slate-950 text-white dark:bg-amber-400 dark:text-slate-950;
+    @apply bg-market-navy text-white dark:bg-market-yellow dark:text-market-navy;
   }
 
   .listing-panel {
-    @apply rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800 sm:p-5;
+    @apply rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5;
   }
 
   .listing-section-link {
     @apply flex min-h-11 items-center border-b-2 border-transparent px-1 text-sm font-semibold text-slate-700 hover:border-amber-400 hover:text-slate-950 dark:text-slate-300 dark:hover:text-white;
+  }
+
+  .market-dialog {
+    @apply fixed inset-x-0 bottom-0 top-auto m-0 max-h-[85dvh] w-full max-w-none overflow-y-auto rounded-t-xl bg-card p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-foreground shadow-xl backdrop:bg-slate-950/60 sm:inset-0 sm:m-auto sm:max-w-md sm:rounded-xl;
   }
 }
 
@@ -37,11 +41,17 @@
   inset: 0 calc(50% - 50vw);
 }
 
+.market-category-art {
+  background-image: url('/category-equipment.webp');
+  background-size: 400% 200%;
+  background-repeat: no-repeat;
+}
+
 .home-hero-photo::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, #020617 0%, rgb(2 6 23 / 75%) 36%, rgb(2 6 23 / 12%) 67%, #020617 100%);
+  background: linear-gradient(180deg, #111d2c 0%, rgb(17 29 44 / 78%) 30%, rgb(17 29 44 / 12%) 66%, #111d2c 100%);
 }
 
 .market-map-popup .maplibregl-popup-content {
@@ -62,8 +72,8 @@
 @media (min-width: 1024px) {
   .home-hero-photo::after {
     background:
-      linear-gradient(90deg, #020617 0%, rgb(2 6 23 / 87%) 29%, rgb(2 6 23 / 8%) 74%),
-      linear-gradient(0deg, rgb(2 6 23 / 70%), transparent 50%);
+      linear-gradient(90deg, #111d2c 0%, rgb(17 29 44 / 90%) 26%, rgb(17 29 44 / 8%) 73%),
+      linear-gradient(0deg, rgb(17 29 44 / 72%), transparent 46%);
   }
 }
 
@@ -71,19 +81,22 @@
   body:has(.mobile-market-nav) > footer {
     margin-bottom: calc(3.5rem + env(safe-area-inset-bottom));
   }
+  body:has(.mobile-listing-contact) > footer {
+    margin-bottom: calc(4.5rem + env(safe-area-inset-bottom));
+  }
 }
 
 :root {
-  --primary: #c2410c;
-  --primary-hover: #9a3412;
-  --primary-light: #fff7ed;
-  --background: #f8fafc;
-  --foreground: #111827;
+  --primary: #805700;
+  --primary-hover: #684700;
+  --primary-light: #fffbeb;
+  --background: #f5f7fa;
+  --foreground: #17212f;
   --muted: #64748b;
   --muted-foreground: #94a3b8;
   --card: #ffffff;
   --border: #e2e8f0;
-  --radius: 16px;
+  --radius: 12px;
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
@@ -92,8 +105,8 @@
 }
 
 .dark {
-  --primary: #c2410c;
-  --primary-hover: #ea580c;
+  --primary: #ffc400;
+  --primary-hover: #ffd44d;
   --background: #0f172a;
   --foreground: #f8fafc;
   --muted: #94a3b8;
@@ -107,6 +120,11 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 body {

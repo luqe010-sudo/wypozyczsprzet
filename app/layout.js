@@ -63,7 +63,7 @@ export default function RootLayout({ children }) {
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
-              if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+              if (localStorage.theme === 'dark') {
                 document.documentElement.classList.add('dark')
               } else {
                 document.documentElement.classList.remove('dark')
@@ -76,8 +76,8 @@ export default function RootLayout({ children }) {
         <ToastProvider />
         <CookieConsent />
         <Navbar />
-        <main className="min-h-screen bg-slate-50 transition-colors dark:bg-slate-900">{children}</main>
-        <footer className="border-t border-white/10 bg-slate-950 text-slate-300">
+        <main className="min-h-screen bg-background">{children}</main>
+        <footer className="border-t border-white/10 bg-market-navy text-slate-300">
           <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
             <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
               <SiteBrand />

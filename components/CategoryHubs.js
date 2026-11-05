@@ -1,40 +1,29 @@
 import Link from 'next/link';
-import { ArrowRight, Cable, Construction, Drill, Sprout, Tractor } from 'lucide-react';
-import { SEO_CATEGORIES } from '../lib/categories';
+import { ArrowRight } from 'lucide-react';
+import { MARKET_CATEGORIES, matchesMarketCategory } from '../lib/categories';
 import { offersLabel } from '../lib/format';
 
-const categoryIcons = {
-  'roboty-ziemne': Tractor,
-  'sprzet-ogrodowy': Sprout,
-  'agregaty-i-zasilanie': Cable,
-  'prace-na-wysokosci': Construction,
-  narzedzia: Drill,
-};
-
-export default function CategoryHubs({ categoryCounts = {} }) {
+export default function CategoryHubs({ listings }) {
   return (
-    <section id="kategorie" className="mx-auto max-w-7xl scroll-mt-20 px-4 pt-8 sm:px-6 sm:pt-10">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <h2 className="market-heading">Kategorie sprzętu</h2>
-        <a href="#oferty" className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-700 hover:underline dark:text-slate-300">
-          Zobacz oferty <ArrowRight size={16} aria-hidden="true" />
-        </a>
+    <section id="kategorie" className="mx-auto max-w-7xl scroll-mt-20 px-4 pt-6 sm:px-6 lg:pt-8">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-x-4">
+        <h2 className="market-heading">Popularne kategorie</h2>
+        <Link href="/szukaj" className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-foreground hover:underline">
+          Zobacz wszystkie oferty <ArrowRight size={16} aria-hidden="true" />
+        </Link>
       </div>
-      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-5 sm:gap-3">
-        {Object.values(SEO_CATEGORIES).map((category) => {
-          const Icon = categoryIcons[category.slug];
-          return (
-            <Link key={category.slug} href={`/${category.slug}`} className="group flex min-w-0 flex-col items-center rounded-xl border border-slate-200 bg-white px-2 py-4 text-center transition hover:border-amber-500 hover:shadow-md dark:border-slate-700 dark:bg-slate-800 dark:hover:border-amber-400 sm:px-3">
-              <span className="mb-2.5 grid size-12 place-items-center rounded-xl bg-slate-100 text-slate-900 transition-colors group-hover:bg-amber-200 dark:bg-slate-700 dark:text-amber-300 dark:group-hover:bg-amber-400/20">
-                <Icon size={25} strokeWidth={1.8} aria-hidden="true" />
-              </span>
-              <h3 className="text-sm font-bold leading-snug text-slate-900 dark:text-white">{category.name}</h3>
-              {categoryCounts[category.slug] !== undefined && (
-                <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">{offersLabel(categoryCounts[category.slug])}</p>
-              )}
-            </Link>
-          );
-        })}
+      <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 lg:grid-cols-8">
+        {MARKET_CATEGORIES.map(({ value, label, hub }, index) => (
+          <Link key={value} href={`/${hub}`} className="group flex min-w-0 flex-col overflow-hidden rounded-xl border border-border bg-card text-center shadow-sm transition hover:border-brand-500 hover:shadow-md">
+            <div className="grid place-items-center overflow-hidden bg-[#ebf0f5]">
+              <span aria-hidden="true" className="market-category-art h-[76px] w-[66px] sm:h-[96px] sm:w-[86px]" style={{ backgroundPosition: `${index % 4 / 3 * 100}% ${index < 4 ? '0%' : '100%'}` }} />
+            </div>
+            <div className="flex flex-1 flex-col px-1.5 py-2 sm:px-2">
+              <h3 className="flex-1 text-xs font-bold leading-tight text-foreground sm:text-sm">{label}</h3>
+              <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">{offersLabel(listings.filter((item) => matchesMarketCategory(item, value)).length)}</p>
+            </div>
+          </Link>
+        ))}
       </div>
     </section>
   );

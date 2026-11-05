@@ -1,18 +1,17 @@
 /** @type {import('tailwindcss').Config} */
 
-// Safety orange: a single accent for the whole product. Shade 600 keeps 5:1 contrast with white text.
 const brand = {
-  50: '#fff7ed',
-  100: '#ffedd5',
-  200: '#fed7aa',
-  300: '#fdba74',
-  400: '#fb923c',
-  500: '#ea580c',
-  600: '#c2410c',
-  700: '#9a3412',
-  800: '#7c2d12',
-  900: '#5f2410',
-  950: '#431407',
+  50: '#fffbeb',
+  100: '#fff1bf',
+  200: '#ffe489',
+  300: '#ffd44d',
+  400: '#ffc400',
+  500: '#966600',
+  600: '#805700',
+  700: '#684700',
+  800: '#513700',
+  900: '#3d2900',
+  950: '#261a00',
 };
 
 module.exports = {
@@ -25,6 +24,8 @@ module.exports = {
     extend: {
       colors: {
         brand,
+        'market-navy': '#111d2c',
+        'market-yellow': '#ffc400',
         // Older screens still use blue-*/indigo-* classes; both resolve to the brand colour.
         blue: brand,
         indigo: brand,

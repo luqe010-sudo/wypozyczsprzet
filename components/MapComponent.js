@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import Map, { Marker, Popup, NavigationControl, FullscreenControl, GeolocateControl } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import maplibregl from '../lib/mapLibre';
@@ -46,28 +46,10 @@ function createCircle(center, radiusInKm) {
   };
 }
 
-export default function MapComponent({ listings, searchCenter, radius, onLocationShared, isCompact = false }) {
-  const [isDark, setIsDark] = useState(false);
+export default function MapComponent({ listings, searchCenter, radius, onLocationShared, rentalQuery = '', isCompact = false }) {
   const mapRef = useRef(null);
   const prevCenterRef = useRef(null);
-
-  // Detect theme changes
-  useEffect(() => {
-    setIsDark(document.documentElement.classList.contains('dark'));
-
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.attributeName === 'class') {
-          setIsDark(document.documentElement.classList.contains('dark'));
-        }
-      });
-    });
-
-    observer.observe(document.documentElement, { attributes: true });
-    return () => observer.disconnect();
-  }, []);
-
-  const [popupInfo, setPopupInfo] = useState(null);
+  const [activeMarkerId, setActiveMarkerId] = useState(null);
 
   // Fly to search center only when it actually changes (not on every render)
   useEffect(() => {
@@ -86,7 +68,6 @@ export default function MapComponent({ listings, searchCenter, radius, onLocatio
         center: [searchCenter.lng, searchCenter.lat],
         zoom: radius > 50 ? 8 : 10,
         duration: 800,
-        essential: true,
       });
     }
   }, [searchCenter, radius]);
@@ -117,6 +98,7 @@ export default function MapComponent({ listings, searchCenter, radius, onLocatio
       return null;
     }).filter(Boolean);
   }, [listings]);
+  const popupInfo = markers.find((marker) => marker.id === activeMarkerId);
 
   const circleGeoJSON = useMemo(() => {
     if (!searchCenter || !radius) return null;
@@ -174,7 +156,6 @@ export default function MapComponent({ listings, searchCenter, radius, onLocatio
         ref={mapRef}
         mapLib={maplibregl}
         initialViewState={searchCenter ? { latitude: searchCenter.lat, longitude: searchCenter.lng, zoom: 9 } : DEFAULT_VIEWPORT}
-        onMove={evt => {}}
         style={{ width: '100%', height: '100%' }}
         mapStyle={mapStyle}
       >
@@ -223,8 +204,8 @@ export default function MapComponent({ listings, searchCenter, radius, onLocatio
             <button
               type="button"
               aria-label={marker['Sprzęt']}
-              onClick={(event) => { event.stopPropagation(); setPopupInfo(marker); }}
-              className="grid size-10 place-items-center rounded-full border-2 border-white bg-amber-400 text-slate-950 shadow-lg hover:bg-amber-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-slate-950 dark:border-slate-800"
+              onClick={(event) => { event.stopPropagation(); setActiveMarkerId(marker.id); }}
+              className="grid size-10 place-items-center rounded-full border-2 border-white bg-market-yellow text-market-navy shadow-lg hover:bg-amber-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-slate-950 dark:border-slate-800"
             >
               <MapPin size={19} aria-hidden="true" />
             </button>
@@ -236,7 +217,7 @@ export default function MapComponent({ listings, searchCenter, radius, onLocatio
             anchor="top"
             latitude={popupInfo.latitude}
             longitude={popupInfo.longitude}
-            onClose={() => setPopupInfo(null)}
+            onClose={() => setActiveMarkerId(null)}
             className="market-map-popup z-50"
           >
             <div className="p-3 max-w-[200px] dark:bg-slate-800 rounded-lg">
@@ -259,7 +240,7 @@ export default function MapComponent({ listings, searchCenter, radius, onLocatio
                 {popupInfo.Miasto}
               </p>
               <a 
-                href={`/${popupInfo.seoCategory}/${popupInfo.citySlug}/${popupInfo.slug}`}
+                href={`/${popupInfo.seoCategory}/${popupInfo.citySlug}/${popupInfo.slug}${rentalQuery}`}
                 className="market-action mt-2 w-full"
               >
                 Zobacz ogłoszenie

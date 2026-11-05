@@ -8,17 +8,13 @@ import { createSupabaseAdminClient } from '@/lib/supabaseAdmin';
 import { adminEmail, sendEmail } from '@/lib/email';
 import { getCitySlug } from '@/lib/categories';
 import { CONTACT_EMAIL, SITE_URL } from '@/lib/site';
+import { isRentalDate } from '@/lib/rentalDates';
 
 const MAX_INQUIRIES_PER_HOUR = 5;
 const STATUSES = new Set(['new', 'contacted', 'closed', 'spam']);
 
 function clean(value, maxLength) {
   return String(value ?? '').trim().slice(0, maxLength);
-}
-
-function validDate(value) {
-  const raw = String(value ?? '');
-  return /^\d{4}-\d{2}-\d{2}$/.test(raw) ? raw : null;
 }
 
 async function hashedIp() {
@@ -57,11 +53,16 @@ export async function submitInquiry(formData) {
   const customerPhone = clean(formData.get('customer_phone'), 30);
   const customerEmail = clean(formData.get('customer_email'), 150);
   const equipmentId = clean(formData.get('equipment_id'), 40);
+  const from = String(formData.get('date_from') || '').trim();
+  const to = String(formData.get('date_to') || '').trim();
 
   if (!customerName) return { error: 'Podaj imię lub nazwę firmy.' };
   if (customerPhone.replace(/\D/g, '').length < 9) return { error: 'Podaj poprawny numer telefonu.' };
   if (customerEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) return { error: 'Podaj poprawny adres e-mail.' };
   if (formData.get('consent') !== 'on') return { error: 'Zaznacz zgodę na przekazanie danych wynajmującemu.' };
+  if ((from && !isRentalDate(from)) || (to && !isRentalDate(to)) || (from && to && to < from)) {
+    return { error: 'Podaj poprawny termin wynajmu.' };
+  }
 
   const admin = createSupabaseAdminClient();
   if (!admin) return { error: 'Formularz jest chwilowo niedostępny. Skorzystaj z telefonu.' };
@@ -93,8 +94,8 @@ export async function submitInquiry(formData) {
     customer_phone: customerPhone,
     customer_email: customerEmail || null,
     message: clean(formData.get('message'), 1500) || null,
-    date_from: validDate(formData.get('date_from')),
-    date_to: validDate(formData.get('date_to')),
+    date_from: from || null,
+    date_to: to || null,
     job_location: clean(formData.get('job_location'), 150) || null,
     ip_hash: ipHash,
   };

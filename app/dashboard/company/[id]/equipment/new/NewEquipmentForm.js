@@ -1,230 +1,211 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { createEquipment } from '../../../../equipment/actions'
-import { toast } from 'react-hot-toast'
 import Link from 'next/link'
-import { ArrowLeft, PackagePlus } from 'lucide-react'
-import CustomSelect from '../../../../../../components/CustomSelect'
-import { ListingDetailsFields, GalleryField } from '../../../../../../components/dashboard/ListingDetailsFields'
+import { useRouter } from 'next/navigation'
+import { ArrowLeft, ArrowRight, Check, MapPin } from 'lucide-react'
+import { toast } from 'react-hot-toast'
+import { ListingDetailsFields, GalleryField } from '@/components/dashboard/ListingDetailsFields'
+import ListingGallery from '@/components/listing/ListingGallery'
+import { priceText } from '@/lib/format'
+
+const steps = ['Sprzęt i lokalizacja', 'Zdjęcia i warunki', 'Podgląd']
+const periods = { hour: 'godzina', day: 'doba', week: 'tydzień', month: 'miesiąc' }
+const field = 'min-h-11 w-full rounded-lg border border-slate-300 bg-card px-3 py-2 text-base text-foreground sm:text-sm dark:border-slate-600'
+const label = 'mb-1 block text-sm font-semibold text-foreground'
 
 export default function NewEquipmentForm({ companyId, companyName, categories = [], subcategories = [], branches = [] }) {
+  const router = useRouter()
+  const [step, setStep] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
-  
+  const [uploading, setUploading] = useState(false)
   const [categoryId, setCategoryId] = useState('')
   const [subcategoryId, setSubcategoryId] = useState('')
-  const [branchId, setBranchId] = useState(branches.find(b => b.is_main)?.id || branches[0]?.id || '')
-  const [availability, setAvailability] = useState('immediately')
-  const [rentalPeriod, setRentalPeriod] = useState('day')
+  const [preview, setPreview] = useState(null)
+  const [error, setError] = useState('')
+  const stepTitle = useRef(null)
+  const groups = useRef([])
 
-  const handleCategoryChange = (val) => {
-    setCategoryId(val)
-    setSubcategoryId('')
+  const category = categories.find((item) => item.id === categoryId)
+  const subcategory = subcategories.find((item) => item.id === subcategoryId)
+  const filteredSubcategories = subcategories.filter((item) => item.category_id === categoryId)
+
+  function showStep(index) {
+    setError('')
+    setStep(index)
+    requestAnimationFrame(() => stepTitle.current?.focus())
   }
 
-  const selectedCategory = categories.find(c => c.id === categoryId)
-  const selectedSubcategory = subcategories.find(s => s.id === subcategoryId)
-  const categoryDbKey = selectedCategory ? selectedCategory.db_key : ''
-  const subcategorySlug = selectedSubcategory ? selectedSubcategory.slug : ''
+  async function handleSubmit(event) {
+    event.preventDefault()
+    if (isLoading || uploading) return
+    const invalid = groups.current[step]?.querySelector(':invalid')
+    if (invalid) {
+      invalid.reportValidity()
+      return
+    }
+    const data = new FormData(event.currentTarget)
 
-  const filteredSubcategories = subcategories.filter(s => s.category_id === categoryId)
-
-  async function handleSubmit(formData) {
-    if (!formData.get('branch_id')) {
-      toast.error('Musisz wybrać lokalizację/oddział dla sprzętu!')
+    if (step < steps.length - 1) {
+      if (step === 1) {
+        setPreview({
+          name: data.get('name').trim(),
+          city: branches.find((branch) => branch.id === data.get('branch_id'))?.city,
+          images: JSON.parse(data.get('gallery') || '[]'),
+          description: data.get('description').trim(),
+          priceType: data.get('price_type'),
+          priceAmount: data.get('price_amount'),
+          Czas: periods[data.get('rental_period')],
+        })
+      }
+      showStep(step + 1)
       return
     }
 
-        setIsLoading(true)
+    setError('')
+    setIsLoading(true)
     try {
-      const result = await createEquipment(companyId, formData)
+      const result = await createEquipment(companyId, data)
       if (result?.error) {
-        toast.error(result.error)
+        setError(result.error)
         setIsLoading(false)
+        return
       }
-    } catch (error) {
-      if (error?.digest?.startsWith('NEXT_REDIRECT')) throw error
-      toast.error('Nie udało się dodać ogłoszenia. Spróbuj ponownie.')
+      toast.success(result.pending ? 'Ogłoszenie zapisane i przekazane do moderacji.' : 'Ogłoszenie zostało dodane.')
+      router.replace(`/dashboard/company/${companyId}`)
+    } catch {
+      setError('Nie udało się dodać ogłoszenia. Spróbuj ponownie.')
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <div className="mb-6 flex items-center">
-        <Link href={`/dashboard/company/${companyId}`} className="text-sm font-medium text-blue-600 hover:text-blue-500 flex items-center">
-          <ArrowLeft className="w-4 h-4 mr-1" />
-          Wróć do firmy
-        </Link>
-      </div>
+    <div className="mx-auto max-w-3xl">
+      <Link href={`/dashboard/company/${companyId}`} className="mb-3 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-brand-600 hover:underline dark:text-brand-400">
+        <ArrowLeft size={17} aria-hidden="true" /> Wróć do firmy
+      </Link>
 
-      <div className="bg-white dark:bg-slate-800 shadow-sm rounded-xl border border-gray-200 dark:border-slate-700 transition-colors">
-        <div className="px-4 py-5 sm:p-6">
-          <div className="flex items-center mb-5">
-            <PackagePlus className="w-6 h-6 text-blue-600 mr-2" />
-            <h3 className="text-lg leading-6 font-bold text-gray-900 dark:text-white">
-              Dodaj nowy sprzęt dla {companyName}
-            </h3>
+      <div className="listing-panel">
+        <h1 className="market-heading">Dodaj ogłoszenie</h1>
+        <p className="mt-1 text-sm text-muted">{companyName}</p>
+        <ol aria-label="Postęp dodawania ogłoszenia" className="my-5 grid grid-cols-3 gap-2 border-b border-border pb-4 sm:gap-3">
+          {steps.map((title, index) => (
+            <li key={title} aria-current={step === index ? 'step' : undefined} className={`flex flex-col items-start gap-1.5 text-xs font-semibold sm:flex-row sm:items-center sm:text-sm ${index === step ? 'text-foreground' : 'text-muted'}`}>
+              <span className={`grid size-7 shrink-0 place-items-center rounded-full ${index <= step ? 'bg-market-yellow text-market-navy' : 'bg-background'}`}>
+                {index < step ? <><Check size={15} aria-hidden="true" /><span className="sr-only">Ukończono</span></> : index + 1}
+              </span>
+              {title}
+            </li>
+          ))}
+        </ol>
+
+        <form noValidate onSubmit={handleSubmit} className="space-y-4">
+          <h2 ref={stepTitle} tabIndex={-1} className="scroll-mt-24 text-lg font-bold text-foreground">{steps[step]}</h2>
+          <input type="hidden" name="category" value={category?.db_key || ''} />
+          <input type="hidden" name="subcategory" value={subcategory?.slug || ''} />
+
+          <div hidden={step !== 0} ref={(node) => { groups.current[0] = node }}>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <label htmlFor="name" className={label}>Nazwa sprzętu *</label>
+                <input id="name" name="name" required maxLength={120} pattern=".*\S.*" placeholder="np. Minikoparka Kubota U17-3a" className={field} />
+              </div>
+              <div>
+                <label htmlFor="category_id" className={label}>Kategoria *</label>
+                <select id="category_id" name="category_id" required value={categoryId} onChange={(event) => { setCategoryId(event.target.value); setSubcategoryId('') }} className={field}>
+                  <option value="">Wybierz kategorię</option>
+                  {categories.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="subcategory_id" className={label}>Podkategoria</label>
+                <select id="subcategory_id" name="subcategory_id" disabled={!filteredSubcategories.length} value={subcategoryId} onChange={(event) => setSubcategoryId(event.target.value)} className={field}>
+                  <option value="">Wybierz typ</option>
+                  {filteredSubcategories.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+                </select>
+              </div>
+              <div className="sm:col-span-2">
+                <label htmlFor="branch_id" className={label}>Lokalizacja sprzętu *</label>
+                <select id="branch_id" name="branch_id" required defaultValue={branches.find((item) => item.is_main)?.id || branches[0]?.id || ''} className={field}>
+                  <option value="">Wybierz oddział</option>
+                  {branches.map((item) => <option key={item.id} value={item.id}>{item.name ? `${item.name} (${item.city})` : `${item.city}, ${item.address}`}</option>)}
+                </select>
+                <p className="mt-1 text-xs text-muted">Miasto i adres ogłoszenia pobierzemy z wybranego oddziału.</p>
+              </div>
+              <div className="sm:col-span-2">
+                <label htmlFor="description" className={label}>Opis <span className="font-normal text-muted">(opcjonalnie)</span></label>
+                <textarea id="description" name="description" rows={4} maxLength={5000} placeholder="Opisz sprzęt i warunki wynajmu." className={field} />
+              </div>
+            </div>
           </div>
-          
-          <form action={handleSubmit} className="space-y-6">
-            {/* Hidden fields for FK and legacy compatibility */}
-            <input type="hidden" name="category_id" value={categoryId} />
-            <input type="hidden" name="category" value={categoryDbKey} />
-            <input type="hidden" name="subcategory_id" value={subcategoryId} />
-            <input type="hidden" name="subcategory" value={subcategorySlug} />
-            <input type="hidden" name="branch_id" value={branchId} />
-            <input type="hidden" name="availability" value={availability} />
-            <input type="hidden" name="rental_period" value={rentalPeriod} />
 
-            <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-              <div className="sm:col-span-6">
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Nazwa Sprzętu <span className="text-red-500">*</span>
-                </label>
-                <div className="mt-1">
-                  <input type="text" name="name" id="name" required placeholder="np. Minikoparka Kubota U17-3a"
-                    className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border outline-none" />
-                </div>
-              </div>
-
+          <div hidden={step !== 1} ref={(node) => { groups.current[1] = node }}>
+            <div className="grid gap-4 sm:grid-cols-6">
+              <GalleryField onUploadingChange={setUploading} />
               <div className="sm:col-span-3">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Kategoria <span className="text-red-500">*</span>
-                </label>
-                <CustomSelect
-                  options={categories.map(c => ({ value: c.id, label: c.name }))}
-                  value={categoryId}
-                  onChange={handleCategoryChange}
-                  placeholder="Wybierz kategorię..."
-                  variant="field"
-                />
+                <label htmlFor="availability" className={label}>Dostępność</label>
+                <select id="availability" name="availability" defaultValue="immediately" className={field}>
+                  <option value="immediately">Dostępny od ręki</option>
+                  <option value="on_call">Na telefon</option>
+                </select>
               </div>
-
               <div className="sm:col-span-3">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Podkategoria
-                </label>
-                <CustomSelect
-                  options={filteredSubcategories.map(s => ({ value: s.id, label: s.name }))}
-                  value={subcategoryId}
-                  onChange={setSubcategoryId}
-                  placeholder="Wybierz typ..."
-                  variant="field"
-                  disabled={!categoryId}
-                />
+                <label htmlFor="rental_period" className={label}>Okres rozliczeniowy</label>
+                <select id="rental_period" name="rental_period" defaultValue="day" className={field}>
+                  {Object.entries(periods).map(([value, title]) => <option key={value} value={value}>{title}</option>)}
+                </select>
               </div>
-
-              <div className="sm:col-span-6">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Lokalizacja / Oddział Firmy <span className="text-red-500">*</span>
-                </label>
-                <CustomSelect
-                  options={branches.map(b => ({ 
-                    value: b.id, 
-                    label: b.name ? `${b.name} (${b.city})` : `${b.city}, ${b.address}` 
-                  }))}
-                  value={branchId}
-                  onChange={setBranchId}
-                  placeholder="Wybierz oddział..."
-                  variant="field"
-                />
-                <p className="mt-1 text-xs text-gray-500 italic">Miasto i adres ogłoszenia będą pobrane z wybranego oddziału.</p>
-              </div>
-
-              <div className="sm:col-span-3">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Dostępność
-                </label>
-                <CustomSelect
-                  options={[
-                    { value: 'immediately', label: 'Dostępny od ręki' },
-                    { value: 'on_call', label: 'Na telefon' }
-                  ]}
-                  value={availability}
-                  onChange={setAvailability}
-                  variant="field"
-                />
-              </div>
-
-              <div className="sm:col-span-3">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Cena za
-                </label>
-                <CustomSelect
-                  options={[
-                    { value: 'hour', label: '/ godzina' },
-                    { value: 'day', label: '/ doba' },
-                    { value: 'week', label: '/ tydzień' },
-                    { value: 'month', label: '/ miesiąc' }
-                  ]}
-                  value={rentalPeriod}
-                  onChange={setRentalPeriod}
-                  variant="field"
-                />
-              </div>
-
-              <div className="sm:col-span-6">
-                <label htmlFor="external_olx_url" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Link do OLX (Opcjonalnie)
-                </label>
-                <div className="mt-1">
-                  <input type="url" name="external_olx_url" id="external_olx_url" placeholder="https://olx.pl/..."
-                    className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border outline-none" />
-                </div>
-              </div>
-
-<GalleryField />
-
               <ListingDetailsFields />
-
               <div className="sm:col-span-6">
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Opis (Opcjonalnie)
-                </label>
-                <div className="mt-1">
-                  <textarea name="description" id="description" rows={4} placeholder="Opisz parametry sprzętu..."
-                    className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border outline-none" />
-                </div>
+                <label htmlFor="external_olx_url" className={label}>Link do OLX <span className="font-normal text-muted">(opcjonalnie)</span></label>
+                <input id="external_olx_url" name="external_olx_url" type="url" maxLength={500} placeholder="https://olx.pl/..." className={field} />
               </div>
+            </div>
+          </div>
 
-              <div className="sm:col-span-6 space-y-4">
-                <div className="relative flex items-start">
-                  <div className="flex items-center h-5">
-                    <input id="promotion" name="promotion" type="checkbox"
-                      className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded" />
-                  </div>
-                  <div className="ml-3 text-sm">
-                    <label htmlFor="promotion" className="font-medium text-gray-700 dark:text-gray-300">Chcę promować to ogłoszenie w przyszłości</label>
-                    <p className="text-gray-500 dark:text-gray-400">Zaznacz, jeśli jesteś zainteresowany płatnym wyróżnieniem swojego sprzętu.</p>
+          <div hidden={step !== 2} ref={(node) => { groups.current[2] = node }}>
+            {step === 2 && preview && (
+              <article className="rounded-xl border border-border bg-background p-3 sm:p-4">
+                <div className="grid items-start gap-4 sm:grid-cols-2">
+                  <ListingGallery name={preview.name} city={preview.city} category={category?.db_key} images={preview.images} />
+                  <div className="min-w-0">
+                    <h3 className="break-words text-lg font-bold">{preview.name}</h3>
+                    <p className="mt-1 flex items-center gap-1 text-sm text-muted"><MapPin size={15} aria-hidden="true" /> {preview.city}</p>
+                    <p className="mt-2 text-lg font-extrabold">{priceText(preview)}</p>
+                    {preview.description && <p className="mt-2 whitespace-pre-line break-words text-sm text-muted">{preview.description}</p>}
                   </div>
                 </div>
-
-                <div className="relative flex items-start">
-                  <div className="flex items-center h-5">
-                    <input id="terms" name="terms" type="checkbox" required
-                      className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded" />
-                  </div>
-                  <div className="ml-3 text-sm">
-                    <label htmlFor="terms" className="font-medium text-gray-700 dark:text-gray-300">
-                      Akceptuję <Link href="/regulamin" className="text-blue-600 hover:underline">regulamin</Link> oraz <Link href="/polityka-prywatnosci" className="text-blue-600 hover:underline">politykę prywatności</Link> <span className="text-red-500">*</span>
-                    </label>
+              </article>
+            )}
+            <div className="mt-4 space-y-3 text-sm">
+              <label className="flex items-start gap-2">
+                <input id="promotion" name="promotion" type="checkbox" className="mt-0.5 size-4 shrink-0 accent-brand-600" />
+                Chcę promować to ogłoszenie w przyszłości
+              </label>
+              <div className="flex items-start gap-2">
+                <input id="terms" name="terms" type="checkbox" required className="mt-0.5 size-4 shrink-0 accent-brand-600" />
+                <div>
+                  <label htmlFor="terms">Akceptuję regulamin oraz politykę prywatności *</label>
+                  <div className="flex flex-wrap gap-x-3 text-brand-600 dark:text-brand-400">
+                    <Link href="/regulamin" target="_blank" rel="noopener" className="underline">Regulamin</Link>
+                    <Link href="/polityka-prywatnosci" target="_blank" rel="noopener" className="underline">Polityka prywatności</Link>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
 
-            <div className="pt-5 flex justify-end">
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="ml-3 inline-flex justify-center py-2.5 px-6 border border-transparent shadow-sm text-sm font-bold rounded-xl text-white bg-blue-600 hover:bg-blue-700 focus:outline-none disabled:opacity-50"
-              >
-                {isLoading ? 'Dodawanie...' : 'Dodaj sprzęt'}
-              </button>
-            </div>
-          </form>
-        </div>
+          {error && <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-800 dark:bg-red-950 dark:text-red-200">{error}</p>}
+
+          <div className="flex flex-wrap justify-end gap-2 border-t border-border pt-4">
+            {step > 0 && <button type="button" disabled={isLoading} onClick={() => showStep(step - 1)} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-300 px-4 text-sm font-semibold hover:bg-background dark:border-slate-600"><ArrowLeft size={16} aria-hidden="true" /> Wstecz</button>}
+            <button type="submit" disabled={isLoading || uploading} className="market-action">
+              {isLoading ? 'Zapisywanie…' : uploading ? 'Wysyłanie zdjęć…' : step === 2 ? 'Dodaj ogłoszenie' : 'Dalej'}
+              {step < 2 && !uploading && <ArrowRight size={16} aria-hidden="true" />}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   )

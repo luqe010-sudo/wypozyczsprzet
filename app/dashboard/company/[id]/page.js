@@ -2,19 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { ArrowLeft, Edit, Plus, MapPin, Globe, Phone, Mail, PackageOpen, BarChart3 } from 'lucide-react'
-import EquipmentRowActions from '@/components/dashboard/EquipmentRowActions'
-import { formatDate } from '@/lib/format'
-import ListingImage from '@/components/listing/ListingImage'
-
-const STATUS_INFO = {
-  active: { label: 'Opublikowane', className: 'text-green-800 bg-green-100 dark:text-green-300 dark:bg-green-950' },
-  incomplete: { label: 'Opublikowane, niekompletne', className: 'text-amber-900 bg-amber-100 dark:text-amber-200 dark:bg-amber-950' },
-  pending: { label: 'Czeka na moderację', className: 'text-amber-900 bg-amber-100 dark:text-amber-200 dark:bg-amber-950' },
-  inactive: { label: 'Wstrzymane', className: 'text-gray-800 bg-gray-200 dark:text-gray-200 dark:bg-slate-700' },
-  stale: { label: 'Ukryte: potwierdź aktualność', className: 'text-red-800 bg-red-100 dark:text-red-300 dark:bg-red-950' },
-  hidden: { label: 'Ukryte przez administratora', className: 'text-gray-800 bg-gray-200 dark:text-gray-200 dark:bg-slate-700' },
-  rejected: { label: 'Odrzucone', className: 'text-red-800 bg-red-100 dark:text-red-300 dark:bg-red-950' },
-}
+import EquipmentList from '@/components/dashboard/EquipmentList'
 
 export default async function CompanyDetailsPage({ params: routeParams }) {
   const params = await routeParams;
@@ -172,59 +160,7 @@ export default async function CompanyDetailsPage({ params: routeParams }) {
           </Link>
         </div>
 
-        {equipment && equipment.length > 0 ? (
-          <div className="bg-white dark:bg-slate-800 shadow-sm rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden">
-            <ul className="divide-y divide-gray-200 dark:divide-slate-700">
-              {equipment.map((item) => (
-                <li key={item.id} className="p-4 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">
-                  <div className="flex items-start gap-3 sm:gap-4">
-                    <div className="relative h-[4.5rem] w-20 shrink-0 overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-700 sm:w-24">
-                      <ListingImage src={item.image_url} alt="" title={item.name} category={item.category} sizes="96px" />
-                    </div>
-                    <div className="flex min-w-0 flex-1 flex-wrap items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <h4 className="break-words font-bold text-slate-950 dark:text-white">
-                          {item.name}
-                        </h4>
-                        <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                          <span className={`rounded px-2 py-0.5 text-xs font-medium ${(STATUS_INFO[item.status] || STATUS_INFO.inactive).className}`}>
-                            {(STATUS_INFO[item.status] || { label: item.status }).label}
-                          </span>
-                          {item.last_confirmed_at && <span>Potwierdzono: {formatDate(item.last_confirmed_at)}</span>}
-                        </p>
-                        <div className="mt-2">
-                          <EquipmentRowActions id={item.id} companyId={company.id} status={item.status} />
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <div className="text-right">
-                          <p className="text-sm font-bold text-slate-900 dark:text-white">
-                            {item.price_type === 'fixed' ? `${item.price_amount} zł` : 'Na zapytanie'}
-                          </p>
-                        </div>
-                        <Link
-                          href={`/dashboard/equipment/${item.id}/edit`}
-                          aria-label={`Edytuj ogłoszenie ${item.name}`}
-                          className="rounded-lg p-2 text-slate-600 hover:bg-amber-100 dark:text-slate-300 dark:hover:bg-slate-700"
-                        >
-                          <Edit className="w-5 h-5" />
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : (
-          <div className="text-center py-12 bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm">
-            <PackageOpen className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">Brak sprzętu</h3>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              Twoja firma nie ma jeszcze dodanego żadnego sprzętu.
-            </p>
-          </div>
-        )}
+        <EquipmentList equipment={equipment || []} error={equipmentError} />
       </div>
     </div>
   )
