@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation';
 import { createClient } from '../utils/supabase/client';
 import { SEO_CATEGORIES } from '../lib/categories';
 
-export default function Navbar({ actionUrl, actionLabel }) {
+export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [mobileCatsOpen, setMobileCatsOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
@@ -100,7 +100,7 @@ export default function Navbar({ actionUrl, actionLabel }) {
       <div className="navbar-container">
         <Link href="/" className="nav-brand group">
           <span className="text-xl font-black tracking-tight text-gray-900 dark:text-white">
-            Wypozycz<span className="text-blue-600">.Online</span>
+            Wypozycz<span className="text-brand-600 dark:text-brand-400">.online</span>
           </span>
         </Link>
 
@@ -120,7 +120,7 @@ export default function Navbar({ actionUrl, actionLabel }) {
           <button
             onClick={toggleDarkMode}
             className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors text-gray-500 dark:text-gray-400"
-            aria-label="Toggle Dark Mode"
+            aria-label="Przełącz tryb ciemny"
           >
             {isDark ? (
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" /></svg>
@@ -132,7 +132,7 @@ export default function Navbar({ actionUrl, actionLabel }) {
           <button
             className="mobile-menu-toggle dark:text-white"
             onClick={() => setIsOpen(!isOpen)}
-            aria-label="Toggle menu"
+            aria-label="Menu"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               {isOpen ? <path d="M18 6L6 18M6 6l12 12" /> : <path d="M3 12h18M3 6h18M3 18h18" />}
@@ -160,7 +160,6 @@ export default function Navbar({ actionUrl, actionLabel }) {
                   onClick={() => setIsOpen(false)}
                   className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 transition-colors"
                 >
-                  <span>{cat.icon}</span>
                   <span>{cat.name}</span>
                 </Link>
               ))}
@@ -176,7 +175,6 @@ export default function Navbar({ actionUrl, actionLabel }) {
                       onClick={() => setIsOpen(false)}
                       className="flex items-center gap-2 pl-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600"
                     >
-                      <span>{cat.icon}</span>
                       <span>{cat.name}</span>
                     </Link>
                   ))}
@@ -188,7 +186,6 @@ export default function Navbar({ actionUrl, actionLabel }) {
           <Link href="/blog" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">Poradniki</Link>
           <Link href="/katalog" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">Katalog firm</Link>
           <Link href="/umowy" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">Umowy</Link>
-          <Link href="/regulamin" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">Regulamin</Link>
           <Link href="/kontakt" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">Kontakt</Link>
 
           {user && isAdmin && (

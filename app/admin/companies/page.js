@@ -4,7 +4,7 @@ import { Building2, Plus } from 'lucide-react'
 import Link from 'next/link'
 
 export default async function AdminCompaniesPage() {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   // Fetch all companies with equipment count and users
   const [

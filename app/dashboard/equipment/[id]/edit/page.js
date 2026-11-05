@@ -4,8 +4,9 @@ import EditEquipmentForm from './EditEquipmentForm'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 
-export default async function EditEquipmentPage({ params }) {
-  const supabase = createClient()
+export default async function EditEquipmentPage({ params: routeParams }) {
+  const params = await routeParams;
+const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {

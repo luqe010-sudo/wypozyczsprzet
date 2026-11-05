@@ -5,6 +5,7 @@ import { updateEquipment, deleteEquipment } from '../../actions'
 import { toast } from 'react-hot-toast'
 import { Trash2 } from 'lucide-react'
 import CustomSelect from '../../../../../components/CustomSelect'
+import { ListingDetailsFields, GalleryField } from '../../../../../components/dashboard/ListingDetailsFields'
 
 export default function EditEquipmentForm({ equipment, categories = [], subcategories = [], branches = [] }) {
   const [isLoading, setIsLoading] = useState(false)
@@ -41,14 +42,17 @@ export default function EditEquipmentForm({ equipment, categories = [], subcateg
   const filteredSubcategories = subcategories.filter(s => s.category_id === categoryId)
 
   async function handleSubmit(formData) {
-    setIsLoading(true)
-    const result = await updateEquipment(equipment.id, equipment.company_id, formData)
-    
-    if (result?.error) {
-      toast.error(result.error)
+        setIsLoading(true)
+    try {
+      const result = await updateEquipment(equipment.id, equipment.company_id, formData)
+      if (result?.error) {
+        toast.error(result.error)
+        setIsLoading(false)
+      }
+    } catch (error) {
+      if (error?.digest?.startsWith('NEXT_REDIRECT')) throw error
+      toast.error('Nie udało się zapisać zmian. Spróbuj ponownie.')
       setIsLoading(false)
-    } else {
-      toast.success('Dane sprzętu zaktualizowane')
     }
   }
 
@@ -150,15 +154,7 @@ export default function EditEquipmentForm({ equipment, categories = [], subcateg
 
           <div className="sm:col-span-3">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Cena (PLN) <span className="text-red-500">*</span>
-            </label>
-            <input type="number" name="price_from" id="price_from" required min="0" step="0.01" defaultValue={equipment.price_from || equipment.Cena_od}
-              className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border outline-none" />
-          </div>
-
-          <div className="sm:col-span-3">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Jednostka czasu
+              Cena za
             </label>
             <CustomSelect
               options={[
@@ -183,23 +179,9 @@ export default function EditEquipmentForm({ equipment, categories = [], subcateg
             </div>
           </div>
 
-          <div className="sm:col-span-6">
-            <label htmlFor="image" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Zdjęcie sprzętu
-            </label>
-            <div className="mt-1 space-y-3">
-              {equipment.image_url && (
-                <div className="flex items-center space-x-3">
-                  <img src={equipment.image_url} alt="Podgląd" className="h-20 w-20 object-cover rounded-md border dark:border-slate-600" />
-                  <span className="text-xs text-gray-500">Obecne zdjęcie</span>
-                </div>
-              )}
-              <input type="hidden" name="current_image_url" defaultValue={equipment.image_url} />
-              <input type="file" name="image" id="image" accept="image/*"
-                className="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-slate-700 dark:file:text-gray-200" />
-              <p className="text-xs text-gray-500">Zostaw puste, aby zachować obecne zdjęcie.</p>
-            </div>
-          </div>
+<GalleryField initialImages={[equipment.image_url, ...(equipment.gallery_urls || [])]} />
+
+          <ListingDetailsFields listing={equipment} />
 
           <div className="sm:col-span-6">
             <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300">

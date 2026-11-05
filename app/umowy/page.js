@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import React from 'react';
 import { documents } from '../../lib/umowy-data';
 import DocumentCard from '../../components/DocumentCard';
@@ -47,7 +48,7 @@ export default function UmowyPage() {
         {[
           { icon: <Zap className="text-amber-500" />, title: 'Szybkość', desc: 'Pobierz, uzupełnij i podpisz w kilka minut.' },
           { icon: <ShieldCheck className="text-green-500" />, title: 'Bezpieczeństwo', desc: 'Zabezpiecz swoje maszyny przed uszkodzeniami i kradzieżą.' },
-          { icon: <FileText className="text-blue-500" />, title: 'Standard rynkowy', desc: 'Sprawdzone zapisy stosowane przez największe wypożyczalnie.' }
+          { icon: <FileText className="text-blue-500" />, title: 'Standard rynkowy', desc: 'Typowe zapisy umów wynajmu sprzętu' }
         ].map((feature, i) => (
           <div key={i} className="flex items-center gap-4 p-6 bg-white dark:bg-slate-800/50 rounded-2xl border border-gray-50 dark:border-slate-700">
             <div className="p-3 bg-gray-50 dark:bg-slate-800 rounded-xl">
@@ -101,14 +102,13 @@ export default function UmowyPage() {
       <section className="mt-20 text-center bg-blue-600 rounded-3xl p-10 md:p-16 text-white shadow-2xl shadow-blue-500/20">
         <h2 className="text-3xl md:text-4xl font-black mb-6">Szukasz sprzętu do wynajęcia?</h2>
         <p className="text-blue-100 text-lg mb-10 max-w-2xl mx-auto">
-          Przejrzyj setki ogłoszeń od lokalnych dostawców sprzętu budowlanego, maszyn ogrodowych i narzędzi.
+          Przejrzyj ogłoszenia lokalnych wypożyczalni sprzętu budowlanego, maszyn ogrodowych i narzędzi.
         </p>
-        <a 
-          href="/"
+        <Link href="/"
           className="inline-block px-10 py-4 bg-white text-blue-600 font-black rounded-2xl transition-transform hover:scale-105 shadow-xl"
         >
           Przeglądaj ogłoszenia
-        </a>
+        </Link>
       </section>
     </div>
   );

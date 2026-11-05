@@ -1,11 +1,10 @@
 import './globals.css';
 import { Inter } from 'next/font/google';
 import Navbar from '../components/Navbar';
-import dynamic from 'next/dynamic';
+import CookieConsent from '../components/CookieConsentLoader';
 import ToastProvider from '../components/ToastProvider';
 import Script from 'next/script';
-
-const CookieConsent = dynamic(() => import('../components/CookieConsent'), { ssr: false });
+import Link from 'next/link';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -13,20 +12,14 @@ const inter = Inter({
   variable: '--font-inter',
 });
 
-const publicFormUrl = process.env.NEXT_PUBLIC_FORM_URL || process.env.FORM_URL || '';
-const formSheetUrl = process.env.FORM_SHEET_URL || '';
-const actionUrl = publicFormUrl || formSheetUrl;
-const actionLabel = publicFormUrl ? 'Dodaj ogłoszenie' : 'Arkusz zgłoszeń';
-
 export const metadata = {
   metadataBase: new URL('https://wypozycz.online'),
-  title: 'WypożyczSprzęt - Największa wypożyczalnia sprzętu budowlanego w jednym miejscu',
-  description: 'Znajdź koparki, minikoparki i sprzęt budowlany lokalnie. Porównaj oferty bez dzwonienia po firmach.',
-  keywords: 'wynajem sprzętu budowlanego, roboty ziemne, sprzęt ogrodowy, agregaty, prace na wysokości, narzędzia, koparki, rusztowania, wypożyczalnia, wrocław',
+  title: 'Wynajem sprzętu budowlanego i ogrodowego na Dolnym Śląsku | WypożyczSprzęt',
+  description: 'Koparki, minikoparki, zagęszczarki, agregaty i narzędzia na wynajem. Kontakt bezpośrednio z wynajmującym, bez prowizji.',
 
   openGraph: {
-    title: 'Wynajem sprzętu budowlanego w jednym miejscu',
-    description: 'Znajdź koparki, minikoparki i sprzęt budowlany lokalnie. Porównaj oferty bez dzwonienia po firmach.',
+    title: 'Wynajem sprzętu budowlanego i ogrodowego na Dolnym Śląsku',
+    description: 'Koparki, minikoparki, zagęszczarki, agregaty i narzędzia na wynajem. Kontakt bezpośrednio z wynajmującym, bez prowizji.',
     url: '/',
     siteName: 'WypożyczSprzęt',
     images: [
@@ -81,17 +74,20 @@ export default function RootLayout({ children }) {
       <body>
         <ToastProvider />
         <CookieConsent />
-        <Navbar actionUrl={actionUrl} actionLabel={actionLabel} />
+        <Navbar />
         <main className="bg-gray-50 dark:bg-slate-900 min-h-screen transition-colors">{children}</main>
-        <footer className="footer bg-white dark:bg-slate-900 dark:text-gray-400 dark:border-t dark:border-slate-800 transition-colors">
-          <div className="navbar-container">
-            <p>
-              &copy; {new Date().getFullYear()} {'Wypo\u017cyczSprz\u0119t Marketplace. Wszystkie prawa zastrze\u017cone.'}
-              {' | '}
-              <a href="/regulamin" className="hover:underline">Regulamin</a>
-              {' | '}
+        <footer className="border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+          <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-8 text-sm text-slate-600 dark:text-slate-400 sm:px-6 md:flex-row md:items-center md:justify-between">
+            <p>&copy; {new Date().getFullYear()} WypożyczSprzęt. Serwis ogłoszeniowy, nie jest stroną umów wynajmu.</p>
+            <nav aria-label="Stopka" className="flex flex-wrap gap-x-5 gap-y-2">
+              <Link href="/katalog" className="hover:underline">Katalog firm</Link>
+              <Link href="/blog" className="hover:underline">Poradniki</Link>
+              <Link href="/umowy" className="hover:underline">Wzory umów</Link>
+              <Link href="/kontakt" className="hover:underline">Kontakt</Link>
+              <Link href="/regulamin" className="hover:underline">Regulamin</Link>
+              <Link href="/polityka-prywatnosci" className="hover:underline">Polityka prywatności</Link>
               <a href="https://www.facebook.com/profile.php?id=61561285692729" target="_blank" rel="noopener noreferrer" className="hover:underline">Facebook</a>
-            </p>
+            </nav>
           </div>
         </footer>
       </body>

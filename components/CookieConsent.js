@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Script from 'next/script';
+import Link from 'next/link';
 
 export default function CookieConsent() {
   const [showBanner, setShowBanner] = useState(false);
@@ -63,8 +64,8 @@ export default function CookieConsent() {
         <div className="cookie-banner">
           <div className="cookie-container">
             <div className="cookie-content">
-              <h3>Ta strona używa ciasteczek 🍪</h3>
-              <p>Używamy plików cookies, aby zapewnić najlepszą jakość korzystania z naszej strony oraz do celów analitycznych.</p>
+              <h3>Ta strona używa plików cookies</h3>
+              <p>Niezbędne pliki cookies zapewniają działanie serwisu. Analityczne włączymy tylko za Twoją zgodą. Szczegóły w <Link href="/polityka-prywatnosci" style={{ textDecoration: 'underline' }}>polityce prywatności</Link>.</p>
             </div>
             <div className="cookie-actions">
               <button onClick={() => setShowSettings(true)} className="btn-cookie-settings">Ustawienia</button>
@@ -171,23 +172,24 @@ export default function CookieConsent() {
           transition: all 0.2s;
         }
         .btn-cookie-primary {
-          background: #2563eb;
+          background: #c2410c;
           color: white;
           border: none;
         }
-        .btn-cookie-primary:hover { background: #1d4ed8; }
+        .btn-cookie-primary:hover { background: #9a3412; }
         .btn-cookie-secondary {
-          background: rgba(0, 0, 0, 0.05);
-          color: #4b5563;
+          background: #e2e8f0;
+          color: #334155;
+          text-decoration: underline;
           border: none;
         }
         .btn-cookie-secondary:hover { background: rgba(0, 0, 0, 0.1); }
         .btn-cookie-settings {
           background: transparent;
-          color: #2563eb;
-          border: 1px solid #2563eb;
+          color: #c2410c;
+          border: 1px solid #c2410c;
         }
-        .btn-cookie-settings:hover { background: rgba(37, 99, 235, 0.05); }
+        .btn-cookie-settings:hover { background: rgba(194, 65, 12, 0.05); }
 
         .cookie-modal-overlay {
           position: fixed;

@@ -30,22 +30,24 @@ Wszystkie tabele bazy danych mają włączone RLS. Pamiętaj:
 - **Weryfikacja Admina**: Zawsze rozpoczynaj Server Actions w panelu admina od wywołania funkcji `checkAdmin()` (zdefiniowanej w `actions.js`).
 
 ### 2. Krytyczna pułapka sesji w Middleware
-W pliku [utils/supabase/middleware.js](file:///e:/sprzety_budowlane/utils/supabase/middleware.js) znajduje się mechanizm odświeżania sesji.
+W pliku [utils/supabase/middleware.js](file:///e:/sprzety_budowlane/utils/supabase/middleware.js) (wywoływanym z `proxy.js`) znajduje się mechanizm odświeżania sesji.
 > [!CAUTION]
 > **Nigdy nie umieszczaj żadnej logiki** pomiędzy wywołaniem `createServerClient` a `supabase.auth.getUser()`. Nawet drobna modyfikacja lub opóźnienie w tym miejscu może doprowadzić do losowego wylogowywania użytkowników i problemów z ciasteczkami sesyjnymi.
 
 ---
 
-## 🔍 Wyszukiwarka i Podwójny Zapis (Double-Write)
+## 📝 Ogłoszenia, slugi i moderacja
 
-Przy tworzeniu lub modyfikacji formularza dodawania ogłoszeń pamiętaj, że aplikacja stosuje **strategię podwójnego zapisu**:
-1. Dane są zapisywane w bazie PostgreSQL w Supabase (tworząc rekord firmy oraz sprzętu ze statusem `pending` dla moderacji).
-2. Dane są równolegle przesyłane do arkusza Google Sheets za pośrednictwem skryptu Google Apps Script (`GOOGLE_SCRIPT_URL`).
-Jeśli modyfikujesz formularz, musisz dostosować payload w obu tych miejscach w pliku `app/api/add-listing/route.js`.
+- **Dane**: jedynym źródłem jest Supabase, czytane przez `lib/listings.js`. Nie ma już zapisu do CSV ani Google Sheets.
+- **Slug jest stały**: powstaje raz, przy tworzeniu ogłoszenia (`generateUniqueSlug`), i nie zmienia się przy edycji nazwy ani miasta. Strona oferty szuka po samym slugu i przekierowuje 308 na kanoniczną ścieżkę.
+- **Prawda w treści**: nie dodawaj zaszytych na stałe opinii, liczb ani plakietek. Fakty o ofercie pokazujemy tylko, gdy są w danych (`listingFacts` w `lib/format.js`). Plakietka „Zweryfikowana firma” wynika wyłącznie z `companies.verified_at`.
+- **Moderacja w bazie**: triggery `guard_equipment_write` i `guard_company_write` pilnują statusu, priorytetu, sluga i `verified_at` dla zwykłych użytkowników. Pierwsze ogłoszenie niezweryfikowanej firmy dostaje status `pending`.
+- **Zapytania** (`inquiries`): tworzy wyłącznie serwer przez `app/actions/inquiryActions.js`. Maile idą przez Resend (`lib/email.js`); bez `RESEND_API_KEY` zapytania nadal zapisują się i są widoczne w panelach.
+- **Zdjęcia**: przeglądarka wysyła je bezpośrednio do Cloudinary po podpisie z `/api/upload-signature`.
 
 ---
 
 ## 🗺️ Integracja Map i Geokodowania
 
-- **Geokodowanie**: Serwerowy endpoint `/api/geocode` posiada wbudowany cache dla 23 największych miast Polski oraz logikę wycinania kodu pocztowego. Jeśli dodajesz wyszukiwanie po adresie, zawsze przepuszczaj zapytania przez to API, aby uniknąć limitowania zapytań (Rate Limiting) w serwisie OpenStreetMap Nominatim.
+- **Geokodowanie**: współrzędne powstają przy zapisie firmy lub oddziału (`lib/geocoding.js`, MapTiler) i są trzymane w bazie. Przeglądarka nie geokoduje nic sama.
 - **Mapy**: Komponent `ListingMap.js` renderuje mapy za pomocą wektorów MapTiler (z wykorzystaniem autorskiego ciemnego stylu **Fiord**). Jeśli klucz MapTiler nie jest dostępny, automatycznie przełącza się na ciemne kafelki rastrowe **Carto Dark**.

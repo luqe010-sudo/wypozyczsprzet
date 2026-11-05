@@ -1,19 +1,21 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
 import cloudinary from '@/lib/cloudinary'
 import { geocodeAddress } from '@/lib/geocoding'
 import { sanitizeAddress } from '@/lib/utils'
 import { slugify, citySlug, voivodeshipSlug } from '@/lib/slugify'
 import { createSupabaseAdminClient } from '@/lib/supabaseAdmin'
+import { generateUniqueSlug } from '@/lib/listings'
+import { parseListingFields } from '@/lib/listingForm'
 
 const USER_ROLES = new Set(['user', 'admin'])
-const EQUIPMENT_STATUSES = new Set(['active', 'pending', 'inactive', 'rejected', 'incomplete'])
+const EQUIPMENT_STATUSES = new Set(['active', 'pending', 'inactive', 'rejected', 'incomplete', 'hidden', 'stale'])
 const DELETABLE_TABLES = new Set(['companies', 'equipment', 'company_branches'])
 
 async function checkAdmin() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
 
@@ -59,7 +61,7 @@ function revalidateDirectoryPaths(company) {
   revalidatePath('/admin/directory')
   revalidatePath('/katalog')
   revalidatePath('/sitemaps/katalog')
-  revalidateTag('directory')
+  updateTag('directory')
 
   if (!company) return
 
@@ -115,7 +117,7 @@ export async function updateCompanyOwner(companyId, newOwnerId) {
 
     if (error) throw error
     revalidatePath('/admin/companies')
-    revalidateTag('listings')
+    updateTag('listings')
     return { success: true }
   } catch (error) {
     return { error: error.message }
@@ -136,7 +138,7 @@ export async function adminDeleteRecord(table, id) {
 
     if (error) throw error
     revalidatePath(`/admin/${table}`)
-    revalidateTag('listings')
+    updateTag('listings')
     return { success: true }
   } catch (error) {
     return { error: error.message }
@@ -178,7 +180,7 @@ export async function adminUpdateCompany(id, formData) {
 
     if (error) throw error
     revalidatePath('/admin/companies')
-    revalidateTag('listings')
+    updateTag('listings')
     return { success: true }
   } catch (error) {
     return { error: error.message }
@@ -188,51 +190,44 @@ export async function adminUpdateCompany(id, formData) {
 export async function adminUpdateEquipment(id, formData) {
   try {
     const { supabase } = await checkAdmin()
-    
-    let imageUrl = formData.get('current_image_url')
-    const imageFile = formData.get('image')
 
-    if (imageFile && imageFile.size > 0) {
-      const arrayBuffer = await imageFile.arrayBuffer()
-      const buffer = Buffer.from(arrayBuffer)
-      
-      const uploadResult = await new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream(
-          { folder: 'listings' },
-          (error, result) => {
-            if (error) reject(error)
-            else resolve(result)
-          }
-        )
-        uploadStream.end(buffer)
-      })
-      imageUrl = uploadResult.secure_url
-    }
+    const { data: current, error: currentError } = await supabase
+      .from('equipment')
+      .select('image_url, gallery_urls')
+      .eq('id', id)
+      .single()
+    if (currentError) throw currentError
 
-    const rawData = {
-      name: formData.get('name'),
-      category: formData.get('category'),
-      subcategory: formData.get('subcategory') || null,
-      category_id: formData.get('category_id') || null,
-      subcategory_id: formData.get('subcategory_id') || null,
-      branch_id: formData.get('branch_id') || null,
-      price_from: parseFloat(formData.get('price_from')),
-      rental_period: formData.get('rental_period'),
-      availability: formData.get('availability'),
-      description: formData.get('description'),
-      external_olx_url: formData.get('external_olx_url'),
-      image_url: imageUrl,
-      promotion: formData.get('promotion') === 'on',
-    }
+    const fields = parseListingFields(formData, {
+      existingImages: [current.image_url, ...(current.gallery_urls || [])].filter(Boolean),
+    })
 
     const { error } = await supabase
       .from('equipment')
-      .update(rawData)
+      .update({ ...fields, promotion: formData.get('promotion') === 'on' })
       .eq('id', id)
 
     if (error) throw error
     revalidatePath('/admin/equipment')
-    revalidateTag('listings')
+    updateTag('listings')
+    return { success: true }
+  } catch (error) {
+    return { error: error.message }
+  }
+}
+
+/** Marks a company as verified: its identity was checked and owner confirmed by an admin. */
+export async function adminSetCompanyVerified(companyId, verified) {
+  try {
+    const { supabase } = await checkAdmin()
+    const { error } = await supabase
+      .from('companies')
+      .update({ verified_at: verified ? new Date().toISOString() : null })
+      .eq('id', companyId)
+
+    if (error) throw error
+    revalidatePath('/admin/companies')
+    updateTag('listings')
     return { success: true }
   } catch (error) {
     return { error: error.message }
@@ -287,7 +282,7 @@ export async function adminCreateCompany(formData) {
     await supabase.from('company_branches').insert([branchData])
 
     revalidatePath('/admin/companies')
-    revalidateTag('listings')
+    updateTag('listings')
     return { success: true, id: data[0].id }
   } catch (error) {
     return { error: error.message }
@@ -297,52 +292,23 @@ export async function adminCreateCompany(formData) {
 export async function adminCreateEquipment(formData) {
   try {
     const { supabase } = await checkAdmin()
-    
-    let imageUrl = null
-    const imageFile = formData.get('image')
-
-    if (imageFile && imageFile.size > 0) {
-      const arrayBuffer = await imageFile.arrayBuffer()
-      const buffer = Buffer.from(arrayBuffer)
-      
-      const uploadResult = await new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream(
-          { folder: 'listings' },
-          (error, result) => {
-            if (error) reject(error)
-            else resolve(result)
-          }
-        )
-        uploadStream.end(buffer)
-      })
-      imageUrl = uploadResult.secure_url
-    }
-
-    const rawData = {
-      company_id: formData.get('company_id'),
-      name: formData.get('name'),
-      category: formData.get('category'),
-      subcategory: formData.get('subcategory') || null,
-      category_id: formData.get('category_id') || null,
-      subcategory_id: formData.get('subcategory_id') || null,
-      branch_id: formData.get('branch_id') || null,
-      price_from: parseFloat(formData.get('price_from')),
-      rental_period: formData.get('rental_period'),
-      availability: formData.get('availability'),
-      description: formData.get('description'),
-      external_olx_url: formData.get('external_olx_url'),
-      image_url: imageUrl,
-      promotion: formData.get('promotion') === 'on',
-      status: 'active',
-    }
+    const fields = parseListingFields(formData)
+    const slug = await generateUniqueSlug(supabase, fields.name)
 
     const { error } = await supabase
       .from('equipment')
-      .insert([rawData])
+      .insert([{
+        ...fields,
+        company_id: formData.get('company_id'),
+        slug,
+        promotion: formData.get('promotion') === 'on',
+        status: 'active',
+        source: 'imported',
+      }])
 
     if (error) throw error
     revalidatePath('/admin/equipment')
-    revalidateTag('listings')
+    updateTag('listings')
     return { success: true }
   } catch (error) {
     return { error: error.message }
@@ -363,7 +329,7 @@ export async function updateEquipmentStatus(id, status) {
 
     if (error) throw error
     revalidatePath('/admin/equipment')
-    revalidateTag('listings')
+    updateTag('listings')
     return { success: true }
   } catch (error) {
     return { error: error.message }
@@ -645,7 +611,7 @@ export async function adminCreateCompanyBranch(companyId, formData) {
     if (error) throw error
     revalidatePath('/admin/companies')
     revalidatePath(`/admin/companies/${companyId}/edit`)
-    revalidateTag('listings')
+    updateTag('listings')
     return { success: true, id: data.id }
   } catch (error) {
     return { error: error.message }
@@ -682,7 +648,7 @@ export async function adminUpdateCompanyBranch(branchId, formData) {
     if (error) throw error
     revalidatePath('/admin/companies')
     if (data?.company_id) revalidatePath(`/admin/companies/${data.company_id}/edit`)
-    revalidateTag('listings')
+    updateTag('listings')
     return { success: true }
   } catch (error) {
     return { error: error.message }
@@ -704,7 +670,7 @@ export async function adminDeleteCompanyBranch(branchId) {
     if (!data) throw new Error('Nie znaleziono oddziału')
     revalidatePath('/admin/companies')
     revalidatePath(`/admin/companies/${data.company_id}/edit`)
-    revalidateTag('listings')
+    updateTag('listings')
     return { success: true }
   } catch (error) {
     return { error: error.message }

@@ -22,7 +22,7 @@ export default function RegulaminPage() {
 
         <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden">
           <div className="p-8 md:p-12">
-            <h1 className="text-3xl font-black text-gray-900 dark:text-white mb-8 text-center uppercase tracking-tight">📄 Regulamin Serwisu „Wypożycz Sprzęt”</h1>
+            <h1 className="text-3xl font-black text-gray-900 dark:text-white mb-8 text-center uppercase tracking-tight">Regulamin Serwisu „Wypożycz Sprzęt”</h1>
             
             <div className="prose dark:prose-invert max-w-none text-gray-600 dark:text-gray-400 space-y-8">
               <section>
@@ -64,7 +64,8 @@ export default function RegulaminPage() {
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-100 dark:border-slate-700 pb-2">§4. Dodawanie ogłoszeń</h2>
                 <ol className="list-decimal pl-5 space-y-2 leading-relaxed">
                   <li>Dodanie ogłoszenia odbywa się poprzez formularz dostępny w serwisie.</li>
-                  <li>Ogłoszenia przed publikacją podlegają moderacji przez administratora.</li>
+                  <li>Pierwsze ogłoszenie firmy podlega moderacji przez administratora przed publikacją. Kolejne ogłoszenia tej firmy publikowane są od razu i mogą zostać sprawdzone później.</li>
+                  <li>Serwis może publikować ogłoszenia przygotowane na podstawie danych dostępnych publicznie. Takie ogłoszenia są oznaczone na stronie. Firma może przejąć profil albo zażądać usunięcia ogłoszenia, pisząc na adres podany w zakładce Kontakt.</li>
                   <li>Administrator zastrzega sobie prawo do:
                     <ul className="list-disc pl-8 mt-2 space-y-1">
                       <li>odrzucenia ogłoszenia bez podania przyczyny,</li>
@@ -100,7 +101,7 @@ export default function RegulaminPage() {
               <section>
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-100 dark:border-slate-700 pb-2">§6. Publikacja i czas trwania ogłoszeń</h2>
                 <ol className="list-decimal pl-5 space-y-2 leading-relaxed">
-                  <li>Ogłoszenia są publikowane po zatwierdzeniu przez administratora.</li>
+                  <li>Administrator może poprosić właściciela ogłoszenia o potwierdzenie jego aktualności. Ogłoszenie niepotwierdzone mimo przypomnienia może zostać ukryte do czasu potwierdzenia.</li>
                   <li>Administrator może usunąć ogłoszenie w dowolnym momencie, w szczególności w przypadku:
                     <ul className="list-disc pl-8 mt-2 space-y-1">
                       <li>naruszenia regulaminu,</li>
@@ -122,7 +123,8 @@ export default function RegulaminPage() {
               <section>
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-100 dark:border-slate-700 pb-2">§8. Dane kontaktowe</h2>
                 <ol className="list-decimal pl-5 space-y-2 leading-relaxed">
-                  <li>Serwis może umożliwiać bezpośredni kontakt między użytkownikami.</li>
+                  <li>Serwis umożliwia bezpośredni kontakt między użytkownikami, w tym wysłanie zapytania do wynajmującego za pomocą formularza. Dane z formularza przekazywane są wynajmującemu, którego dotyczy zapytanie.</li>
+                  <li>Treści naruszające prawo lub regulamin można zgłosić linkiem „Zgłoś błąd lub naruszenie” na stronie ogłoszenia albo przez adres podany w zakładce Kontakt. Administrator rozpatruje zgłoszenia bez zbędnej zwłoki.</li>
                   <li>Administrator nie odpowiada za sposób wykorzystania danych kontaktowych przez użytkowników.</li>
                 </ol>
               </section>

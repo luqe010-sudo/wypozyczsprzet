@@ -1,189 +1,165 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
-import cloudinary from '@/lib/cloudinary'
+import { generateUniqueSlug } from '@/lib/listings'
+import { parseListingFields } from '@/lib/listingForm'
+import { adminEmail, sendEmail } from '@/lib/email'
+import { SITE_URL } from '@/lib/site'
 
-export async function createEquipment(companyId, formData) {
-  const supabase = createClient()
+async function requireOwnedCompany(supabase, companyId) {
   const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Zaloguj się, aby kontynuować.')
 
-  if (!user) {
-    throw new Error('You must be logged in')
-  }
-
-  // Verify company ownership
   const { data: company } = await supabase
     .from('companies')
-    .select('id')
+    .select('id, name')
     .eq('id', companyId)
     .eq('owner_user_id', user.id)
     .single()
 
-  if (!company) {
-    throw new Error('Unauthorized or company not found')
-  }
+  if (!company) throw new Error('Nie masz dostępu do tej firmy.')
+  return company
+}
 
-  const imageFile = formData.get('image')
-  let imageUrl = ''
+function refresh(companyId) {
+  revalidatePath(`/dashboard/company/${companyId}`)
+  updateTag('listings')
+}
 
-  if (imageFile && imageFile.size > 0) {
-    try {
-      const bytes = await imageFile.arrayBuffer()
-      const buffer = Buffer.from(bytes)
-      
-      const uploadResponse = await new Promise((resolve, reject) => {
-        cloudinary.uploader.upload_stream({
-          folder: 'listings',
-        }, (error, result) => {
-          if (error) reject(error)
-          else resolve(result)
-        }).end(buffer)
-      })
-      
-      imageUrl = uploadResponse.secure_url
-    } catch (uploadError) {
-      console.error('Error uploading to Cloudinary:', uploadError)
-    }
-  }
+export async function createEquipment(companyId, formData) {
+  const supabase = await createClient()
+  const company = await requireOwnedCompany(supabase, companyId)
 
-  const rawData = {
-    company_id: companyId,
-    category: formData.get('category'),
-    name: formData.get('name'),
-    price_from: formData.get('price_from'),
-    rental_period: formData.get('rental_period'),
-    availability: formData.get('availability'),
-    description: formData.get('description'),
-    external_olx_url: formData.get('external_olx_url'),
-    image_url: imageUrl,
-    promotion: formData.get('promotion') === 'on',
-    category_id: formData.get('category_id') || null,
-    subcategory_id: formData.get('subcategory_id') || null,
-    branch_id: formData.get('branch_id') || null,
-    status: 'active',
-  }
-
-  const { error } = await supabase
-    .from('equipment')
-    .insert([rawData])
-
-  if (error) {
+  let fields
+  try {
+    fields = parseListingFields(formData)
+  } catch (error) {
     return { error: error.message }
   }
 
-  revalidatePath(`/dashboard/company/${companyId}`)
-  revalidateTag('listings')
+  const slug = await generateUniqueSlug(supabase, fields.name)
+
+  // The database decides the final status: the first listing of an unverified company waits for moderation.
+  const { data: created, error } = await supabase
+    .from('equipment')
+    .insert([{
+      ...fields,
+      company_id: companyId,
+      slug,
+      promotion: formData.get('promotion') === 'on',
+      last_confirmed_at: new Date().toISOString(),
+      status: 'pending',
+    }])
+    .select('status')
+    .single()
+
+  if (error) return { error: error.message }
+
+  if (created.status === 'pending') {
+    await sendEmail({
+      to: adminEmail(),
+      subject: `Ogłoszenie do moderacji: ${fields.name}`,
+      text: `Firma ${company.name} dodała ogłoszenie „${fields.name}”.\n\nModeracja: ${SITE_URL}/admin/equipment`,
+    })
+  }
+
+  refresh(companyId)
   redirect(`/dashboard/company/${companyId}`)
 }
 
 export async function updateEquipment(id, companyId, formData) {
-  const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const supabase = await createClient()
+  await requireOwnedCompany(supabase, companyId)
 
-  if (!user) {
-    throw new Error('Unauthorized')
-  }
-
-  // Verify company ownership
-  const { data: company } = await supabase
-    .from('companies')
-    .select('id')
-    .eq('id', companyId)
-    .eq('owner_user_id', user.id)
+  const { data: current } = await supabase
+    .from('equipment')
+    .select('image_url, gallery_urls')
+    .eq('id', id)
+    .eq('company_id', companyId)
     .single()
+  if (!current) return { error: 'Nie znaleziono ogłoszenia.' }
 
-  if (!company) {
-    throw new Error('Unauthorized or company not found')
-  }
-
-  const imageFile = formData.get('image')
-  let imageUrl = formData.get('current_image_url')
-
-  if (imageFile && imageFile.size > 0) {
-    try {
-      const bytes = await imageFile.arrayBuffer()
-      const buffer = Buffer.from(bytes)
-      
-      const uploadResponse = await new Promise((resolve, reject) => {
-        cloudinary.uploader.upload_stream({
-          folder: 'listings',
-        }, (error, result) => {
-          if (error) reject(error)
-          else resolve(result)
-        }).end(buffer)
-      })
-      
-      imageUrl = uploadResponse.secure_url
-    } catch (uploadError) {
-      console.error('Error uploading to Cloudinary:', uploadError)
-    }
-  }
-
-  const rawData = {
-    category: formData.get('category'),
-    name: formData.get('name'),
-    price_from: formData.get('price_from'),
-    rental_period: formData.get('rental_period'),
-    availability: formData.get('availability'),
-    description: formData.get('description'),
-    external_olx_url: formData.get('external_olx_url'),
-    image_url: imageUrl,
-    promotion: formData.get('promotion') === 'on',
-    category_id: formData.get('category_id') || null,
-    subcategory_id: formData.get('subcategory_id') || null,
-    branch_id: formData.get('branch_id') || null,
+  let fields
+  try {
+    fields = parseListingFields(formData, { existingImages: [current.image_url, ...(current.gallery_urls || [])].filter(Boolean) })
+  } catch (error) {
+    return { error: error.message }
   }
 
   const { error } = await supabase
     .from('equipment')
-    .update(rawData)
+    .update({
+      ...fields,
+      promotion: formData.get('promotion') === 'on',
+      last_confirmed_at: new Date().toISOString(),
+    })
     .eq('id', id)
-    // RLS handles the ownership check via company_id implicitly if setup correctly, 
-    // but we add it to be safe if calling from server
     .eq('company_id', companyId)
 
-  if (error) {
-    return { error: error.message }
-  }
+  if (error) return { error: error.message }
 
-  revalidatePath(`/dashboard/company/${companyId}`)
-  revalidateTag('listings')
+  refresh(companyId)
   redirect(`/dashboard/company/${companyId}`)
 }
 
 export async function deleteEquipment(id, companyId) {
-  const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const supabase = await createClient()
+  await requireOwnedCompany(supabase, companyId)
 
-  if (!user) {
-    throw new Error('Unauthorized')
-  }
-
-  // Verify company ownership
-  const { data: company } = await supabase
-    .from('companies')
-    .select('id')
-    .eq('id', companyId)
-    .eq('owner_user_id', user.id)
-    .single()
-
-  if (!company) {
-    throw new Error('Unauthorized or company not found')
-  }
-  
   const { error } = await supabase
     .from('equipment')
     .delete()
     .eq('id', id)
     .eq('company_id', companyId)
 
-  if (error) {
-    return { error: error.message }
-  }
+  if (error) return { error: error.message }
 
-  revalidatePath(`/dashboard/company/${companyId}`)
-  revalidateTag('listings')
+  refresh(companyId)
   redirect(`/dashboard/company/${companyId}`)
+}
+
+/** The owner states the listing is current. Also brings back one hidden for lack of confirmation. */
+export async function confirmEquipment(id, companyId) {
+  const supabase = await createClient()
+  await requireOwnedCompany(supabase, companyId)
+
+  const { data: listing } = await supabase
+    .from('equipment')
+    .select('status')
+    .eq('id', id)
+    .eq('company_id', companyId)
+    .single()
+  if (!listing) return { error: 'Nie znaleziono ogłoszenia.' }
+
+  const { error } = await supabase
+    .from('equipment')
+    .update({
+      last_confirmed_at: new Date().toISOString(),
+      reminder_sent_at: null,
+      ...(listing.status === 'stale' ? { status: 'active' } : {}),
+    })
+    .eq('id', id)
+    .eq('company_id', companyId)
+
+  if (error) return { error: error.message }
+  refresh(companyId)
+  return { success: true }
+}
+
+/** Temporarily takes a listing off the site, or brings it back. */
+export async function setEquipmentPaused(id, companyId, paused) {
+  const supabase = await createClient()
+  await requireOwnedCompany(supabase, companyId)
+
+  const { error } = await supabase
+    .from('equipment')
+    .update({ status: paused ? 'inactive' : 'active' })
+    .eq('id', id)
+    .eq('company_id', companyId)
+
+  if (error) return { error: error.message }
+  refresh(companyId)
+  return { success: true }
 }

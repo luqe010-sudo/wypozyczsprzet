@@ -7,3 +7,6 @@ dist
 *.log
 public/uploads
 baza_wynajem_ulepszona.xlsx
+
+.vercel
+.env*

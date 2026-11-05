@@ -4,8 +4,9 @@ import EditCompanyForm from './EditCompanyForm'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 
-export default async function EditCompanyPage({ params }) {
-  const supabase = createClient()
+export default async function EditCompanyPage({ params: routeParams }) {
+  const params = await routeParams;
+const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {

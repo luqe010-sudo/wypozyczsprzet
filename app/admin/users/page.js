@@ -3,7 +3,7 @@ import UsersTable from './UsersTable'
 import { Users } from 'lucide-react'
 
 export default async function AdminUsersPage() {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   // Fetch all users and count their companies
   const { data: users } = await supabase

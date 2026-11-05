@@ -19,8 +19,9 @@ export async function generateStaticParams() {
  * Dynamic metadata for SEO.
  * Canonical points to the city variant to avoid duplicate content.
  */
-export async function generateMetadata({ params }) {
-  const company = await fetchCompanyBySlug(params.companySlug);
+export async function generateMetadata({ params: routeParams }) {
+  const params = await routeParams;
+const company = await fetchCompanyBySlug(params.companySlug);
   if (!company) return { title: 'Firma nie znaleziona' };
 
   // Find the matching voivodeship name from branches
@@ -57,8 +58,9 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default async function CompanyVoivodeshipPage({ params }) {
-  const company = await fetchCompanyBySlug(params.companySlug);
+export default async function CompanyVoivodeshipPage({ params: routeParams }) {
+  const params = await routeParams;
+const company = await fetchCompanyBySlug(params.companySlug);
   if (!company) notFound();
 
   // Find voivodeship name from branches

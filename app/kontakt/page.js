@@ -1,4 +1,6 @@
+import Link from 'next/link';
 import React from 'react';
+import { CONTACT_EMAIL } from '../../lib/site';
 
 export const metadata = {
   title: 'Kontakt i Współpraca - Wynajem Sprzętu',
@@ -30,7 +32,7 @@ export default function ContactPage() {
         <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 list-none p-0">
           <li className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
             <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-            <span>Zwiększenie zasięgów</span>
+            <span>Zapytania od klientów z okolicy</span>
           </li>
           <li className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
             <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
@@ -49,7 +51,7 @@ export default function ContactPage() {
         <div className="bg-blue-50 dark:bg-slate-900/50 p-6 rounded-2xl border border-blue-100 dark:border-slate-700 border-l-4 border-l-blue-600">
           <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">Napisz do nas:</h3>
           <p className="text-xl font-black text-blue-600 dark:text-blue-400 mb-1">
-            📧 lukasz.szyp@gmail.com
+            {CONTACT_EMAIL}
           </p>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Odpowiadamy zazwyczaj w ciągu 24 godzin.
@@ -62,16 +64,16 @@ export default function ContactPage() {
         <p className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
           Stale rozwijamy naszą platformę. Jeśli masz pomysł na nową funkcjonalność lub zauważyłeś błąd, daj nam znać!
         </p>
-        <a href="mailto:lukasz.szyp@gmail.com" className="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-md">
+        <a href={`mailto:${CONTACT_EMAIL}`} className="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-md">
           Wyślij wiadomość
         </a>
       </div>
 
       <div className="mt-12 text-center">
-        <a href="/" className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 font-bold transition-colors">
+        <Link href="/" className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 font-bold transition-colors">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
           Powrót do ogłoszeń
-        </a>
+        </Link>
       </div>
     </div>
   );

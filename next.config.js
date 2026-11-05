@@ -36,6 +36,7 @@ const nextConfig = {
   images: {
     remotePatterns: imageRemotePatterns,
     minimumCacheTTL: 3600,
+    qualities: [65, 75],
   },
   async redirects() {
     return [
@@ -44,6 +45,9 @@ const nextConfig = {
         destination: '/dashboard',
         permanent: true,
       },
+      { source: '/chorzow-pierwszy', destination: '/chorzow', permanent: true },
+      { source: '/:category/chorzow-pierwszy', destination: '/:category/chorzow', permanent: true },
+      { source: '/:category/chorzow-pierwszy/:slug', destination: '/:category/chorzow/:slug', permanent: true },
     ];
   },
 };

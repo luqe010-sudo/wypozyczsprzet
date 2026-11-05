@@ -11,7 +11,7 @@ Aplikacja wdrożyła podwójną architekturę map w celu optymalizacji wydajnoś
 ### 1. `ListingMap.js` (React Map GL + Maplibre GL)
 Używany na karcie szczegółów oferty. Prezentuje punktową lokalizację sprzętu.
 - **Stylizacja Premium**: Wykorzystuje autorski ciemny styl **Fiord** zintegrowany z **MapTiler** (za pośrednictwem wektorowego źródła kafelków `openmaptiles`). Jeśli brak klucza `NEXT_PUBLIC_MAPTILER_KEY`, następuje automatyczny fallback do ciemnych kafelków rastrowych **Carto Dark**.
-- **Dynamiczne Geokodowanie**: Posiada wewnętrzny efekt `useEffect`, który sprawdza współrzędne geograficzne w bazie (`lat` / `lng`). W przypadku ich braku, wysyła asynchroniczne żądanie do API `/api/geocode`, przekazując oczyszczony adres w celu pobrania koordynatów z OpenStreetMap.
+- **Współrzędne z bazy**: mapa korzysta wyłącznie z `lat`/`lng` zapisanych przy oddziale firmy.
 - **Interaktywność**: Po kliknięciu markera wyskakuje Popup ze skróconym opisem oferty, ceną oraz dedykowanym przyciskiem przekierowującym do Nawigacji Google Maps.
 
 ### 2. `MapComponent.js`
@@ -40,30 +40,29 @@ Ta lista została wygenerowana automatycznie przez skrypt narzędziowy `Living D
 
 *   **[AddressAutocomplete.js](file:///e:/sprzety_budowlane/components/AddressAutocomplete.js)**: Pole tekstowe z autosugestią adresu oparte na geokodowaniu OpenStreetMap/Nominatim w czasie rzeczywistym.
 *   **[Breadcrumbs.js](file:///e:/sprzety_budowlane/components/Breadcrumbs.js)**: Klasyczna ścieżka powrotu wspierająca nawigację SEO dla ofert oraz kategorii.
-*   **[CTASection.js](file:///e:/sprzety_budowlane/components/CTASection.js)**: Sekcja wezwania do działania (Call to Action) zachęcająca wypożyczalnie do rejestracji i dodawania maszyn.
 *   **[CategoryHubs.js](file:///e:/sprzety_budowlane/components/CategoryHubs.js)**: Kafelki na stronie głównej prezentujące główne kategorie sprzętu (roboty ziemne, ogród, narzędzia) wraz z liczbą aktywnych ofert.
 *   **[ClaimCompanyModal.js](file:///e:/sprzety_budowlane/components/ClaimCompanyModal.js)**: Interaktywne okno modalne służące do wysyłania zgłoszeń roszczeń do profili firm z katalogu.
 *   **[CookieConsent.js](file:///e:/sprzety_budowlane/components/CookieConsent.js)**: Premium baner zgód na pliki cookies zgodny z RODO (GDPR) z pełną konfiguracją śledzenia Google Analytics.
+*   **[CookieConsentLoader.js](file:///e:/sprzety_budowlane/components/CookieConsentLoader.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[CustomSelect.js](file:///e:/sprzety_budowlane/components/CustomSelect.js)**: Zaawansowany i w pełni stylizowany komponent wyboru (Select Dropdown) obsługujący podkategorie i ikony kategorii.
 *   **[DocumentCard.js](file:///e:/sprzety_budowlane/components/DocumentCard.js)**: Karta pobierania wzorów umów najmu sprzętu budowlanego.
 *   **[DynamicPlaceholder.js](file:///e:/sprzety_budowlane/components/DynamicPlaceholder.js)**: Dynamiczne grafiki zastępcze generowane z logo lub nazwą firmy dla ofert bez wgranych zdjęć.
 *   **[FAQSchema.js](file:///e:/sprzety_budowlane/components/FAQSchema.js)**: Wstrzykuje dane FAQ w standardzie JSON-LD bezpośrednio do nagłówków SEO.
-*   **[Filters.js](file:///e:/sprzety_budowlane/components/Filters.js)**: Belka filtrów szybkiego dostępu (sortowanie, wybór statusu).
-*   **[FiltersSidebar.js](file:///e:/sprzety_budowlane/components/FiltersSidebar.js)**: Panel boczny z filtrami na urządzeniach mobilnych i desktopach (cena, odległość, dostępność).
-*   **[Hero.js](file:///e:/sprzety_budowlane/components/Hero.js)**: Główny nagłówek strony z zaawansowaną wyszukiwarką lokalizacji i kategorii sprzętu budowlanego.
 *   **[ListingCard.js](file:///e:/sprzety_budowlane/components/ListingCard.js)**: Premium karta prezentacyjna oferta z animacjami najechania myszką (hover), zdjęciem i ceną.
-*   **[ListingGrid.js](file:///e:/sprzety_budowlane/components/ListingGrid.js)**: Kontener siatki (Flex/Grid layout) dla kart ogłoszeń.
 *   **[ListingMap.js](file:///e:/sprzety_budowlane/components/ListingMap.js)**: Mapa szczegółów oferty zintegrowana z Maplibre GL, wektorowymi kafelkami i fallbackiem do CartoDB.
 *   **[MapComponent.js](file:///e:/sprzety_budowlane/components/MapComponent.js)**: Zaawansowana, pełnoekranowa mapa klastrująca lokalizacje wielu maszyn na rynku.
-*   **[Marketplace.js](file:///e:/sprzety_budowlane/components/Marketplace.js)**: Główny silnik i interfejs wyszukiwarki ogłoszeń, łączący mapy, filtry i listę wyników.
 *   **[Navbar.js](file:///e:/sprzety_budowlane/components/Navbar.js)**: Pasek nawigacji u góry ekranu z obsługą logowania, rejestracji i stanu sesji użytkownika.
-*   **[PrivacyModal.js](file:///e:/sprzety_budowlane/components/PrivacyModal.js)**: Szczegółowy modal ustawień cookies umożliwiający konfigurację poszczególnych zgód (analityka, marketing).
-*   **[SeoFAQ.js](file:///e:/sprzety_budowlane/components/SeoFAQ.js)**: Sekcja FAQ przydatna do pozycjonowania organicznego na stronach kategorii.
-*   **[StatsSection.js](file:///e:/sprzety_budowlane/components/StatsSection.js)**: Statystyki serwisu pokazujące liczbę użytkowników, maszyn i zrealizowanych wypożyczeń.
 *   **[ToastProvider.js](file:///e:/sprzety_budowlane/components/ToastProvider.js)**: Kontekst obsługi powiadomień toast (react-hot-toast).
-*   **[TrustBar.js](file:///e:/sprzety_budowlane/components/TrustBar.js)**: Pasek zaufania z logotypami partnerów oraz opiniami klientów.
+*   **[browse/BrowseListings.js](file:///e:/sprzety_budowlane/components/browse/BrowseListings.js)**: Search and filtering over listings already sent by the server. The first render
+*   **[browse/HubView.js](file:///e:/sprzety_budowlane/components/browse/HubView.js)**: Reużywalny komponent interfejsu React w systemie.
+*   **[dashboard/EquipmentRowActions.js](file:///e:/sprzety_budowlane/components/dashboard/EquipmentRowActions.js)**: Reużywalny komponent interfejsu React w systemie.
+*   **[dashboard/ListingDetailsFields.js](file:///e:/sprzety_budowlane/components/dashboard/ListingDetailsFields.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[dashboard/StatsDashboard.js](file:///e:/sprzety_budowlane/components/dashboard/StatsDashboard.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[directory/CompanyCard.js](file:///e:/sprzety_budowlane/components/directory/CompanyCard.js)**: Bogata karta profilowa firmy w katalogu (adresy oddziałów, mapa, recenzje, formularz roszczenia).
 *   **[directory/CompanyListCard.js](file:///e:/sprzety_budowlane/components/directory/CompanyListCard.js)**: Element listy firm prezentujący podsumowanie profilu w katalogu głównym.
 *   **[directory/DirectoryBreadcrumbs.js](file:///e:/sprzety_budowlane/components/directory/DirectoryBreadcrumbs.js)**: Specjalne ścieżki nawigacji dla katalogu firm.
+*   **[inquiries/InquiryList.js](file:///e:/sprzety_budowlane/components/inquiries/InquiryList.js)**: Reużywalny komponent interfejsu React w systemie.
+*   **[listing/InquiryForm.js](file:///e:/sprzety_budowlane/components/listing/InquiryForm.js)**: Reużywalny komponent interfejsu React w systemie.
+*   **[listing/ListingGallery.js](file:///e:/sprzety_budowlane/components/listing/ListingGallery.js)**: Reużywalny komponent interfejsu React w systemie.
+*   **[listing/ListingImage.js](file:///e:/sprzety_budowlane/components/listing/ListingImage.js)**: Listing photo with a graceful fallback: images linked from third-party sites can
 <!-- END_COMPONENTS_LIST -->

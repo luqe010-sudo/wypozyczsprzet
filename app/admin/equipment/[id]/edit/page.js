@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 
 export default async function AdminEditEquipmentPage({ params }) {
   const { id } = params
-  const supabase = createClient()
+  const supabase = await createClient()
 
   // Fetch equipment, categories, subcategories, and branches in parallel
   const [

@@ -2,7 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import AdminNewCompanyForm from './AdminNewCompanyForm'
 
 export default async function AdminNewCompanyPage() {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const { data: users } = await supabase
     .from('profiles')

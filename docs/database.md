@@ -218,8 +218,10 @@ Te skrypty reprezentują historię zmian struktury bazy danych. Są one automaty
 *   **[supabase_claims_setup.sql](file:///e:/sprzety_budowlane/supabase_claims_setup.sql)**: Tworzy tabelę claims (roszczeń) do zarządzania prawami do profili firm oraz przydziela uprawnienia RLS dla admina i użytkowników.
 *   **[supabase_directory_admin_setup.sql](file:///e:/sprzety_budowlane/supabase_directory_admin_setup.sql)**: Skrócony instalator uprawnień administracyjnych dla tabel katalogu firm.
 *   **[supabase_directory_migration.sql](file:///e:/sprzety_budowlane/supabase_directory_migration.sql)**: Dodaje unikalną kolumnę slug do tabeli katalogu, wdraża procedurę automatycznego generowania slugów w bazie i konfiguruje odczyt publiczny.
+*   **[supabase_mvp_migration.sql](file:///e:/sprzety_budowlane/supabase_mvp_migration.sql)**: MVP MIGRATION: structured listing data, stable slugs, inquiries, company verification, moderation.
 *   **[supabase_relationship_fixes.sql](file:///e:/sprzety_budowlane/supabase_relationship_fixes.sql)**: Rozwiązuje problemy z kluczami obcymi i indeksami wydajnościowymi między tabelami.
 *   **[supabase_restructure_migration.sql](file:///e:/sprzety_budowlane/supabase_restructure_migration.sql)**: ============================================================================
 *   **[supabase_security_fixes.sql](file:///e:/sprzety_budowlane/supabase_security_fixes.sql)**: Uaktualnia uprawnienia schematu publicznego i naprawia luki w politykach RLS.
+*   **[supabase_security_hotfix.sql](file:///e:/sprzety_budowlane/supabase_security_hotfix.sql)**: SECURITY HOTFIX
 *   **[supabase_setup.sql](file:///e:/sprzety_budowlane/supabase_setup.sql)**: Podstawowy skrypt modyfikujący tabele companies i equipment, włączający RLS oraz polityki edycji dla właścicieli sprzętów.
 <!-- END_MIGRATIONS_LIST -->

@@ -4,9 +4,9 @@ System **WypożyczSprzęt** wykorzystuje serwerowe punkty końcowe Next.js API R
 
 ---
 
-## 🛡️ Ochrona Ścieżek i Middleware (`middleware.js`)
+## 🛡️ Ochrona Ścieżek i Proxy (`proxy.js`)
 
-Aplikacja zabezpiecza prywatne obszary za pomocą globalnego pliku `/middleware.js`, który deleguje obsługę sesji do modułu w `/utils/supabase/middleware.js`.
+Aplikacja zabezpiecza prywatne obszary za pomocą globalnego pliku `/proxy.js`, który deleguje obsługę sesji do modułu w `/utils/supabase/middleware.js`.
 
 ### 1. Inicjalizacja Klienta Supabase w Middleware
 Klient Supabase Server jest tworzony przy pomocy `@supabase/ssr` (`createServerClient`). Zapewnia to automatyczną synchronizację ciasteczek (cookies) sesyjnych między przeglądarką klienta a serwerem Next.js:
@@ -33,21 +33,12 @@ Podczas każdego żądania middleware sprawdza autentykację użytkownika przy u
 
 Aplikacja udostępnia dwa kluczowe punkty końcowe do obsługi map oraz dodawania nowych ogłoszeń:
 
-### 1. `POST /api/add-listing` - Formularz Dodawania Ogłoszenia
-Zaawansowany endpoint przetwarzający publiczne zgłoszenie nowej maszyny do bazy. Posiada wdrożone zabezpieczenia oraz unikalną architekturę podwójnego zapisu:
+### 1. `POST /api/upload-signature`: podpis wysyłki zdjęcia
+Dostępny tylko dla zalogowanych. Zwraca podpis, z którym przeglądarka wysyła zdjęcie bezpośrednio do Cloudinary (folder `listings`, formaty JPG/PNG/WEBP).
 
-- **Limitowanie Żądań (Rate Limiting)**: Maksymalnie **5 zgłoszeń na godzinę** z jednego adresu IP klienta (IP wyodrębniane z nagłówków `x-forwarded-for` lub `x-real-ip`). Dane są przechowywane w pamięci podręcznej serwera (`submissionBuckets`).
-- **Walidacja Pliku Graficznego**:
-  - Obsługiwane typy mime: `image/jpeg`, `image/png`, `image/webp`.
-  - Maksymalny rozmiar pliku: **5 MB**.
-  - Przesyłanie strumieniowe bufferów bezpośrednio do **Cloudinary** (folder `/listings`) bez zapisywania pliku tymczasowego na dysku serwera.
-- **Double-Write Strategy (Podwójny Zapis)**:
-  1. **Supabase (PostgreSQL)**: Tworzy nowy rekord w tabeli `companies` ze statusem `pending` oraz powiązany rekord w tabeli `equipment` ze statusem `pending` dla celów moderacji przez administratora.
-  2. **Google Sheets API**: Równolegle wysyła ustrukturyzowany pakiet danych w formacie JSON do zewnętrznego skryptu Google Apps Script (`GOOGLE_SCRIPT_URL`), aby zsynchronizować ogłoszenie w arkuszu kalkulacyjnym.
+### 2. `GET /api/cron/freshness`: zadanie dzienne
+Uruchamiane przez Vercel Cron z nagłówkiem `Authorization: Bearer $CRON_SECRET`. Przypomina właścicielom o potwierdzeniu ogłoszeń, ukrywa niepotwierdzone (tylko gdy działa wysyłka maili) i anonimizuje zapytania starsze niż 12 miesięcy.
 
-### 2. `GET /api/geocode` - Geolokalizacja i Geokodowanie Adresów
-Endpoint optymalizujący pobieranie współrzędnych geograficznych dla miast i adresów w Polsce.
+### 3. Server Action `submitInquiry` (`app/actions/inquiryActions.js`)
+Formularz zapytania: walidacja, honeypot, limit 5 zapytań na godzinę z jednego hasha IP, zapis do `inquiries` kluczem serwisowym i powiadomienia e-mail.
 
-- **Server-Side Cache**: Posiada wbudowaną statyczną mapę pamięci podręcznej (`geocodeCache`) z zapisanymi współrzędnymi dla 23 największych miast w Polsce (np. Wrocław, Warszawa, Kraków, Rzeszów), co redukuje narzut sieciowy do zera dla większości zapytań.
-- **Fallback Kodów Pocztowych**: Wykorzystuje wyrażenia regularne do wycinania kodu pocztowego (np. z `"50-001 Wrocław"` pobiera `"Wrocław"`) i sprawdza dopasowanie w cache miast.
-- **Integracja z OpenStreetMap Nominatim**: Jeśli zapytanie nie znajduje się w cache, endpoint wysyła zapytanie do zewnętrznego serwera Nominatim z ustawionym niestandardowym User-Agentem (`WypozyczSprzet/1.0`) w celu pobrania dokładnych współrzędnych. Udane zapytania są automatycznie dopisywane do cache.

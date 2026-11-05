@@ -3,19 +3,19 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import Map, { Marker, Popup, NavigationControl, FullscreenControl, GeolocateControl } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import maplibregl from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
 import Image from 'next/image';
 
-// Default center (Poland)
+// Default center: Lower Silesia, where most listings are.
 const DEFAULT_VIEWPORT = {
-  latitude: 52.0689,
-  longitude: 19.4797,
-  zoom: 5
+  latitude: 50.9,
+  longitude: 16.9,
+  zoom: 7
 };
 
 import { Source, Layer } from 'react-map-gl/maplibre';
 import { FIORD_STYLE } from '../lib/mapStyleConfig';
-import { sanitizeAddress } from '../lib/utils';
+import { priceText } from '../lib/format';
 
 // Helper to create a circle GeoJSON
 function createCircle(center, radiusInKm) {
@@ -45,7 +45,7 @@ function createCircle(center, radiusInKm) {
   };
 }
 
-export default function MapComponent({ listings, geoCache, searchCenter, radius, onLocationShared, isCompact = false }) {
+export default function MapComponent({ listings, searchCenter, radius, onLocationShared, isCompact = false }) {
   const [isDark, setIsDark] = useState(false);
   const mapRef = useRef(null);
   const prevCenterRef = useRef(null);
@@ -92,23 +92,9 @@ export default function MapComponent({ listings, geoCache, searchCenter, radius,
 
   const markers = useMemo(() => {
     return listings.map((item, index) => {
-      // 1. Prioritize direct coordinates from database
-      let lat = item.lat;
-      let lng = item.lng;
-      let isExact = !!(lat && lng);
-
-      // 2. Fallback to geoCache if direct coords are missing
-      if (!isExact) {
-        const addr = sanitizeAddress(item.Lokalizacja, item.Miasto);
-        const cityClean = sanitizeAddress('', item.Miasto);
-        const coords = geoCache[addr] || geoCache[cityClean];
-        
-        if (coords && coords !== 'failed') {
-          lat = coords.lat;
-          lng = coords.lng;
-          isExact = !!geoCache[addr] && geoCache[addr] !== 'failed';
-        }
-      }
+      const lat = item.lat;
+      const lng = item.lng;
+      const isExact = true;
 
       if (lat && lng) {
         // Use deterministic jitter based on ID to prevent "dancing" pins
@@ -129,7 +115,7 @@ export default function MapComponent({ listings, geoCache, searchCenter, radius,
       }
       return null;
     }).filter(Boolean);
-  }, [listings, geoCache]);
+  }, [listings]);
 
   const circleGeoJSON = useMemo(() => {
     if (!searchCenter || !radius) return null;
@@ -186,7 +172,7 @@ export default function MapComponent({ listings, geoCache, searchCenter, radius,
       <Map
         ref={mapRef}
         mapLib={maplibregl}
-        initialViewState={DEFAULT_VIEWPORT}
+        initialViewState={searchCenter ? { latitude: searchCenter.lat, longitude: searchCenter.lng, zoom: 9 } : DEFAULT_VIEWPORT}
         onMove={evt => {}}
         style={{ width: '100%', height: '100%' }}
         mapStyle={mapStyle}
@@ -270,13 +256,13 @@ export default function MapComponent({ listings, geoCache, searchCenter, radius,
                 </div>
               )}
               <h3 className="font-bold text-sm text-gray-900 dark:text-white leading-tight mb-1">{popupInfo['Sprzęt']}</h3>
-              <p className="text-blue-600 dark:text-blue-400 font-bold text-sm mb-1">{popupInfo.Cena_od} PLN / {popupInfo.Czas}</p>
+              <p className="text-blue-600 dark:text-blue-400 font-bold text-sm mb-1">{priceText(popupInfo)}</p>
               <p className="text-gray-500 dark:text-gray-400 text-xs flex items-center gap-1">
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                 {popupInfo.Miasto}
               </p>
               <a 
-                href={`/oferta/${popupInfo.slug}`}
+                href={`/${popupInfo.seoCategory}/${popupInfo.citySlug}/${popupInfo.slug}`}
                 className="mt-2 block text-center bg-blue-600 text-white text-xs font-bold py-2 rounded-lg hover:bg-blue-700 transition-colors no-underline"
               >
                 Szczegóły
@@ -286,7 +272,7 @@ export default function MapComponent({ listings, geoCache, searchCenter, radius,
         )}
       </Map>
 
-      <div className="absolute bottom-4 left-4 bg-white/90 dark:bg-slate-800/90 backdrop-blur px-3 py-1.5 rounded-full text-[10px] font-bold text-gray-700 dark:text-gray-300 shadow-md border border-gray-200 dark:border-slate-700 z-10">
+      <div className="absolute bottom-4 left-4 bg-white/90 dark:bg-slate-800/90 backdrop-blur px-3 py-1.5 rounded-full text-xs font-medium text-gray-700 dark:text-gray-300 shadow-md border border-gray-200 dark:border-slate-700 z-10">
         Oferty: {markers.length}
       </div>
     </div>

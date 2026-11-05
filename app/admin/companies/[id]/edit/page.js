@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 
 export default async function AdminEditCompanyPage({ params }) {
   const { id } = params
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const [
     { data: company },

@@ -7,6 +7,7 @@ import { ArrowLeft, Package } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import CustomSelect from '../../../../../components/CustomSelect'
+import { ListingDetailsFields, GalleryField } from '../../../../../components/dashboard/ListingDetailsFields'
 
 export default function AdminEditEquipmentForm({ equipment, categories = [], subcategories = [], branches = [] }) {
   const [isLoading, setIsLoading] = useState(false)
@@ -140,13 +141,7 @@ export default function AdminEditEquipmentForm({ equipment, categories = [], sub
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cena (PLN)</label>
-              <input type="number" name="price_from" required step="0.01" defaultValue={equipment.price_from}
-                className="mt-1 block w-full rounded-lg border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border focus:ring-blue-500 focus:border-blue-500" />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jednostka czasu</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cena za</label>
               <CustomSelect
                 options={[
                   { value: 'hour', label: '/ godzina' },
@@ -160,20 +155,9 @@ export default function AdminEditEquipmentForm({ equipment, categories = [], sub
               />
             </div>
 
-            <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Zdjęcie sprzętu</label>
-              <div className="mt-2 space-y-4">
-                {equipment.image_url && (
-                  <div className="flex items-center gap-4">
-                    <img src={equipment.image_url} alt="Podgląd" className="h-24 w-24 object-cover rounded-lg border dark:border-slate-600" />
-                    <span className="text-xs text-gray-500 italic">Obecnie wyświetlane zdjęcie</span>
-                  </div>
-                )}
-                <input type="hidden" name="current_image_url" defaultValue={equipment.image_url} />
-                <input type="file" name="image" accept="image/*"
-                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
-              </div>
-            </div>
+<GalleryField initialImages={[equipment.image_url, ...(equipment.gallery_urls || [])]} />
+
+            <ListingDetailsFields listing={equipment} />
 
             <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Opis</label>

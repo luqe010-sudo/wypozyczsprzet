@@ -6,6 +6,7 @@ import { toast } from 'react-hot-toast'
 import Link from 'next/link'
 import { ArrowLeft, PackagePlus } from 'lucide-react'
 import CustomSelect from '../../../../../../components/CustomSelect'
+import { ListingDetailsFields, GalleryField } from '../../../../../../components/dashboard/ListingDetailsFields'
 
 export default function NewEquipmentForm({ companyId, companyName, categories = [], subcategories = [], branches = [] }) {
   const [isLoading, setIsLoading] = useState(false)
@@ -34,11 +35,16 @@ export default function NewEquipmentForm({ companyId, companyName, categories = 
       return
     }
 
-    setIsLoading(true)
-    const result = await createEquipment(companyId, formData)
-    
-    if (result?.error) {
-      toast.error(result.error)
+        setIsLoading(true)
+    try {
+      const result = await createEquipment(companyId, formData)
+      if (result?.error) {
+        toast.error(result.error)
+        setIsLoading(false)
+      }
+    } catch (error) {
+      if (error?.digest?.startsWith('NEXT_REDIRECT')) throw error
+      toast.error('Nie udało się dodać ogłoszenia. Spróbuj ponownie.')
       setIsLoading(false)
     }
   }
@@ -143,15 +149,7 @@ export default function NewEquipmentForm({ companyId, companyName, categories = 
 
               <div className="sm:col-span-3">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Cena (PLN) <span className="text-red-500">*</span>
-                </label>
-                <input type="number" name="price_from" id="price_from" required min="0" step="0.01" placeholder="0.00"
-                  className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border outline-none" />
-              </div>
-
-              <div className="sm:col-span-3">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Jednostka czasu
+                  Cena za
                 </label>
                 <CustomSelect
                   options={[
@@ -176,15 +174,9 @@ export default function NewEquipmentForm({ companyId, companyName, categories = 
                 </div>
               </div>
 
-              <div className="sm:col-span-6">
-                <label htmlFor="image" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Zdjęcie sprzętu
-                </label>
-                <div className="mt-1">
-                  <input type="file" name="image" id="image" accept="image/*"
-                    className="block w-full text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-slate-700 dark:file:text-gray-200" />
-                </div>
-              </div>
+<GalleryField />
+
+              <ListingDetailsFields />
 
               <div className="sm:col-span-6">
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -215,7 +207,7 @@ export default function NewEquipmentForm({ companyId, companyName, categories = 
                   </div>
                   <div className="ml-3 text-sm">
                     <label htmlFor="terms" className="font-medium text-gray-700 dark:text-gray-300">
-                      Akceptuję <Link href="/regulamin" className="text-blue-600 hover:underline">Regulamin</Link> oraz politykę RODO <span className="text-red-500">*</span>
+                      Akceptuję <Link href="/regulamin" className="text-blue-600 hover:underline">regulamin</Link> oraz <Link href="/polityka-prywatnosci" className="text-blue-600 hover:underline">politykę prywatności</Link> <span className="text-red-500">*</span>
                     </label>
                   </div>
                 </div>

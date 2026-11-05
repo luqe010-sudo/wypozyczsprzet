@@ -2,8 +2,9 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getArticleBySlug, articles } from '../../../lib/articles';
 
-export async function generateMetadata({ params }) {
-  const article = getArticleBySlug(params.slug);
+export async function generateMetadata({ params: routeParams }) {
+  const params = await routeParams;
+const article = getArticleBySlug(params.slug);
   if (!article) return { title: 'Nie znaleziono artykułu' };
 
   return {

@@ -1,11 +1,11 @@
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
-import { LogOut, Home, Building2, Settings } from 'lucide-react'
+import { LogOut, Home, Inbox, Settings } from 'lucide-react'
 import { signout } from '@/app/login/actions'
 
 export default async function DashboardLayout({ children }) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
@@ -28,6 +28,10 @@ export default async function DashboardLayout({ children }) {
                   <Home className="w-4 h-4 mr-2" />
                   Panel Główny
                 </Link>
+                <Link href="/dashboard/inquiries" className="text-gray-500 dark:text-gray-400 inline-flex items-center px-1 pt-1 text-sm font-medium hover:text-gray-900 dark:hover:text-white">
+                  <Inbox className="w-4 h-4 mr-2" />
+                  Zapytania
+                </Link>
                 <Link href="/dashboard/settings" className="text-gray-500 dark:text-gray-400 inline-flex items-center px-1 pt-1 text-sm font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                   <Settings className="w-4 h-4 mr-2" />
                   Ustawienia
@@ -35,6 +39,9 @@ export default async function DashboardLayout({ children }) {
               </div>
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
+              <Link href="/dashboard/inquiries" aria-label="Zapytania" className="sm:hidden p-2 text-gray-600 dark:text-gray-300">
+                <Inbox className="w-5 h-5" />
+              </Link>
               <span className="hidden sm:inline-block text-sm text-gray-500 dark:text-gray-400 truncate max-w-[200px]">
                 {user.email}
               </span>

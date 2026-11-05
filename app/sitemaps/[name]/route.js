@@ -1,13 +1,35 @@
-import { fetchAllSlugs } from '../../../lib/googleSheets';
+import { fetchMarketplaceData } from '../../../lib/listings';
 import { SEO_CATEGORY_SLUGS } from '../../../lib/categories';
 import { articles } from '../../../lib/articles';
 import { documents } from '../../../lib/umowy-data';
 import { getVoivodeshipSlugForCity } from '../../../lib/regions';
+import { MIN_LISTINGS_FOR_INDEXING } from '../../../lib/site';
 
 const BASE_URL = 'https://wypozycz.online';
 
+function countBy(slugData, keyOf) {
+  const counts = new Map();
+  slugData.forEach((item) => {
+    const key = keyOf(item);
+    if (key) counts.set(key, (counts.get(key) || 0) + 1);
+  });
+  return counts;
+}
+
+async function fetchAllSlugs() {
+  const { listings } = await fetchMarketplaceData();
+  return listings.map((item) => ({
+    slug: item.slug,
+    seoCategory: item.seoCategory,
+    citySlug: item.citySlug,
+    cityName: item.Miasto,
+    created_at: item.created_at,
+    updated_at: item.updated_at,
+  }));
+}
+
 export async function GET(request, { params }) {
-  const { name } = params;
+  const { name } = await params;
   let xml = '';
 
   try {
@@ -78,8 +100,9 @@ function generateOffersSitemap(slugData) {
 
 function generateLocalHubsSitemap(slugData) {
   const localHubsMap = new Map();
+  const hubCounts = countBy(slugData, (item) => (item.seoCategory && item.citySlug ? `${item.seoCategory}/${item.citySlug}` : null));
   slugData.forEach(item => {
-    if (item.seoCategory && item.citySlug) {
+    if (item.seoCategory && item.citySlug && hubCounts.get(`${item.seoCategory}/${item.citySlug}`) >= MIN_LISTINGS_FOR_INDEXING) {
       const key = `${item.seoCategory}/${item.citySlug}`;
       const itemDate = item.updated_at || item.created_at ? new Date(item.updated_at || item.created_at) : new Date(0);
       const existingDate = localHubsMap.get(key);
@@ -108,6 +131,7 @@ function generateStaticSitemap() {
     '',
     '/kontakt',
     '/regulamin',
+    '/polityka-prywatnosci',
     '/blog',
     '/umowy',
   ];
@@ -149,8 +173,9 @@ function generateUmowySitemap() {
 
 function generateCitiesSitemap(slugData) {
   const citiesMap = new Map();
+  const cityCounts = countBy(slugData, (item) => item.citySlug);
   slugData.forEach(item => {
-    if (item.citySlug) {
+    if (item.citySlug && cityCounts.get(item.citySlug) >= MIN_LISTINGS_FOR_INDEXING) {
       const itemDate = item.updated_at || item.created_at ? new Date(item.updated_at || item.created_at) : new Date(0);
       const existingDate = citiesMap.get(item.citySlug);
       if (!existingDate || itemDate > existingDate) {
@@ -175,10 +200,11 @@ function generateCitiesSitemap(slugData) {
 
 function generateVoivodeshipsSitemap(slugData) {
   const voivodeshipsMap = new Map();
+  const regionCounts = countBy(slugData, (item) => getVoivodeshipSlugForCity(item.cityName || item.citySlug));
   slugData.forEach(item => {
     if (item.cityName || item.citySlug) {
       const vSlug = getVoivodeshipSlugForCity(item.cityName || item.citySlug);
-      if (vSlug) {
+      if (vSlug && regionCounts.get(vSlug) >= MIN_LISTINGS_FOR_INDEXING) {
         const itemDate = item.updated_at || item.created_at ? new Date(item.updated_at || item.created_at) : new Date(0);
         const existingDate = voivodeshipsMap.get(vSlug);
         if (!existingDate || itemDate > existingDate) {
