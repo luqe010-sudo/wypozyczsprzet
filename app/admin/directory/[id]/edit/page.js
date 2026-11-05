@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 
 export default async function AdminEditDirectoryCompanyPage({ params }) {
   const { id } = params
-  const supabase = createClient()
+  const supabase = await createClient()
 
   // Fetch the company and all associated branches
   const [

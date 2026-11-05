@@ -21,8 +21,9 @@ export async function generateStaticParams() {
   }));
 }
 
-export async function generateMetadata({ params }) {
-  const doc = documents.find((d) => d.slug === params.slug);
+export async function generateMetadata({ params: routeParams }) {
+  const params = await routeParams;
+const doc = documents.find((d) => d.slug === params.slug);
   if (!doc) return {};
 
   return {

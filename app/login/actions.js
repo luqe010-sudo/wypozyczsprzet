@@ -3,9 +3,10 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
+import { SITE_URL } from '@/lib/site'
 
 export async function login(formData) {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const data = {
     email: formData.get('email'),
@@ -23,7 +24,7 @@ export async function login(formData) {
 }
 
 export async function signup(formData) {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const data = {
     email: formData.get('email'),
@@ -41,18 +42,18 @@ export async function signup(formData) {
 }
 
 export async function signout() {
-  const supabase = createClient()
+  const supabase = await createClient()
   await supabase.auth.signOut()
   revalidatePath('/', 'layout')
   redirect('/')
 }
 
 export async function forgotPassword(formData) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const email = formData.get('email')
   
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/reset-password`,
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || SITE_URL}/auth/reset-password`,
   })
 
   if (error) {
@@ -63,7 +64,7 @@ export async function forgotPassword(formData) {
 }
 
 export async function updatePassword(formData) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const password = formData.get('password')
   
   const { error } = await supabase.auth.updateUser({

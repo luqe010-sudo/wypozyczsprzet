@@ -4,9 +4,9 @@
 
 
 :root {
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
-  --primary-light: #eff6ff;
+  --primary: #c2410c;
+  --primary-hover: #9a3412;
+  --primary-light: #fff7ed;
   --background: #f8fafc;
   --foreground: #111827;
   --muted: #64748b;
@@ -22,8 +22,8 @@
 }
 
 .dark {
-  --primary: #3b82f6;
-  --primary-hover: #60a5fa;
+  --primary: #c2410c;
+  --primary-hover: #ea580c;
   --background: #0f172a;
   --foreground: #f8fafc;
   --muted: #94a3b8;
@@ -171,25 +171,25 @@ body {
 .btn-primary:hover {
   background-color: var(--primary-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 4px 12px rgba(194, 65, 12, 0.25);
 }
 
 .btn-secondary-panel {
-  background-color: #eef2ff;
-  color: #3730a3 !important;
-  border: 1px solid #c7d2fe;
+  background-color: #f1f5f9;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1;
   box-shadow: 0 8px 18px rgb(79 70 229 / 0.12);
 }
 
 .btn-secondary-panel:hover {
-  background-color: #e0e7ff;
-  color: #312e81 !important;
+  background-color: #e2e8f0;
+  color: #0f172a !important;
   transform: translateY(-1px);
 }
 
 .dark .btn-secondary-panel {
   background-color: rgb(49 46 129 / 0.35);
-  color: #c7d2fe !important;
+  color: #cbd5e1 !important;
   border-color: rgb(129 140 248 / 0.35);
 }
 
@@ -316,7 +316,7 @@ body {
   }
 
   .nav-links > a.btn-secondary-panel {
-    color: #3730a3;
+    color: #0f172a;
   }
 
   .nav-links > a:last-child {
@@ -350,8 +350,8 @@ body {
 }
 
 @keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
-  50% { box-shadow: 0 0 20px 4px rgba(37, 99, 235, 0.15); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(194, 65, 12, 0.4); }
+  50% { box-shadow: 0 0 20px 4px rgba(194, 65, 12, 0.15); }
 }
 
 @keyframes shimmer {
@@ -438,7 +438,7 @@ body {
 
 .btn-cta-glow:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(37, 99, 235, 0.35);
+  box-shadow: 0 8px 25px rgba(194, 65, 12, 0.35);
 }
 
 .btn-cta-glow:active {
@@ -472,7 +472,7 @@ body {
   bottom: 0.15em;
   width: 4px;
   border-radius: 4px;
-  background: linear-gradient(180deg, #2563eb, #7c3aed);
+  background: linear-gradient(180deg, #c2410c, #9a3412);
 }
 
 /* FAQ Accordion */
@@ -490,7 +490,7 @@ body {
 }
 
 .faq-item:hover {
-  background-color: rgba(37, 99, 235, 0.02);
+  background-color: rgba(194, 65, 12, 0.02);
 }
 
 .dark .faq-item:hover {
@@ -498,7 +498,7 @@ body {
 }
 
 .faq-item-active {
-  background-color: rgba(37, 99, 235, 0.03) !important;
+  background-color: rgba(194, 65, 12, 0.03) !important;
 }
 
 .dark .faq-item-active {
@@ -561,7 +561,7 @@ body {
 /* Premium Pricing Box */
 .pricing-box-premium {
   background-color: #f3f6fc;
-  border: 1px solid rgba(37, 99, 235, 0.03);
+  border: 1px solid rgba(194, 65, 12, 0.03);
   border-radius: 20px;
   transition: all 0.3s ease;
 }
@@ -595,7 +595,7 @@ body {
 
 /* Checkmarks check colors */
 .check-blue {
-  color: #2563eb;
+  color: #c2410c;
 }
 
 .check-green {
@@ -605,7 +605,7 @@ body {
 /* Bottom CTA Banner */
 .bottom-cta-banner {
   background-color: #f3f6fc;
-  border: 1px solid rgba(37, 99, 235, 0.05);
+  border: 1px solid rgba(194, 65, 12, 0.05);
   border-radius: 24px;
 }
 
@@ -628,7 +628,7 @@ body {
   transform: translateY(-6px);
   box-shadow:
     0 20px 40px rgba(0, 0, 0, 0.08),
-    0 8px 16px rgba(37, 99, 235, 0.06);
+    0 8px 16px rgba(194, 65, 12, 0.06);
 }
 
 .dark .related-card {
@@ -644,14 +644,14 @@ body {
 
 /* Price gradient accent */
 .price-gradient {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #c2410c 0%, #9a3412 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .dark .price-gradient {
-  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, #fdba74 0%, #fb923c 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

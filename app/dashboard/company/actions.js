@@ -1,13 +1,13 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { geocodeAddress } from '@/lib/geocoding'
 import { sanitizeAddress } from '@/lib/utils'
 
 export async function createCompany(formData) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
@@ -61,12 +61,12 @@ export async function createCompany(formData) {
   await supabase.from('company_branches').insert([branchData])
 
   revalidatePath('/dashboard')
-  revalidateTag('listings')
+  updateTag('listings')
   redirect(`/dashboard/company/${data[0].id}`)
 }
 
 export async function updateCompany(id, formData) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
@@ -130,12 +130,12 @@ export async function updateCompany(id, formData) {
 
   revalidatePath('/dashboard')
   revalidatePath(`/dashboard/company/${id}`)
-  revalidateTag('listings')
+  updateTag('listings')
   redirect(`/dashboard/company/${id}`)
 }
 
 export async function deleteCompany(id) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
@@ -169,14 +169,14 @@ export async function deleteCompany(id) {
   }
 
   revalidatePath('/dashboard')
-  revalidateTag('listings')
+  updateTag('listings')
   redirect('/dashboard')
 }
 
 // ─── Branch Management ───────────────────────────────────────────────────────
 
 export async function createBranch(companyId, formData) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
@@ -220,12 +220,12 @@ export async function createBranch(companyId, formData) {
 
   revalidatePath(`/dashboard/company/${companyId}`)
   revalidatePath(`/dashboard/company/${companyId}/edit`)
-  revalidateTag('listings')
+  updateTag('listings')
   return { success: true }
 }
 
 export async function deleteBranch(branchId, companyId) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
@@ -252,6 +252,6 @@ export async function deleteBranch(branchId, companyId) {
 
   revalidatePath(`/dashboard/company/${companyId}`)
   revalidatePath(`/dashboard/company/${companyId}/edit`)
-  revalidateTag('listings')
+  updateTag('listings')
   return { success: true }
 }

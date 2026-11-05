@@ -1,0 +1,6 @@
+{
+  "regions": ["dub1"],
+  "crons": [
+    { "path": "/api/cron/freshness", "schedule": "0 6 * * *" }
+  ]
+}

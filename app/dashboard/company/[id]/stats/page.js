@@ -4,8 +4,9 @@ import { redirect } from 'next/navigation';
 import { ArrowLeft, BarChart3 } from 'lucide-react';
 import StatsDashboard from '@/components/dashboard/StatsDashboard';
 
-export default async function CompanyStatsPage({ params }) {
-  const supabase = createClient();
+export default async function CompanyStatsPage({ params: routeParams }) {
+  const params = await routeParams;
+const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {

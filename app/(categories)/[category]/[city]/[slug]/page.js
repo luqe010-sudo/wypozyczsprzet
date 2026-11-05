@@ -1,223 +1,124 @@
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { SEO_CATEGORIES, SEO_CATEGORY_SLUGS } from '../../../../../lib/categories';
-import { fetchListingByNewUrl, fetchRandomListings } from '../../../../../lib/googleSheets';
+import { fetchListingBySlug, fetchSuggestions, isUnpublishedSlug, toCard } from '../../../../../lib/listings';
+import { formatMoney, plainTextExcerpt, priceText } from '../../../../../lib/format';
+import { SITE_NAME, SITE_URL } from '../../../../../lib/site';
 import ListingPageClient from './ListingPageClient';
 import InactiveListingPage from './InactiveListingPage';
 
-const BASE_URL = 'https://wypozycz.online';
+export const revalidate = 3600;
+
+// Rendered on first request, then cached until revalidated.
+export function generateStaticParams() {
+  return [];
+}
+
+const jsonLdScript = (data) => (
+  <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data).replace(/</g, '\\u003c') }} />
+);
 
 export async function generateMetadata({ params }) {
-  const { category, city, slug } = await params;
-
+  const { category, slug } = await params;
   if (!SEO_CATEGORY_SLUGS.includes(category)) return {};
 
-  const data = await fetchListingByNewUrl(category, city, slug);
-  if (!data) return {
-    title: 'Ogłoszenie nieaktywne | WypożyczSprzęt',
-    description: 'To ogłoszenie jest już nieaktywne. Sprawdź inne oferty wynajmu sprzętu budowlanego na WypożyczSprzęt.',
-  };
+  const data = await fetchListingBySlug(slug);
+  if (!data) {
+    return {
+      title: `Ogłoszenie nieaktywne | ${SITE_NAME}`,
+      robots: { index: false, follow: true },
+    };
+  }
 
-  const { listing } = data;
+  const { listing, canonicalPath } = data;
   const name = listing['Sprzęt'] || 'Sprzęt budowlany';
-  const cityName = listing.Miasto || '';
-  const price = listing.Cena_od || '';
-  const catInfo = SEO_CATEGORIES[category];
-
-  const productImage = listing.Zdjecie && String(listing.Zdjecie).startsWith('http')
-    ? listing.Zdjecie
-    : '/header.png';
-
-  // Requested format: „{tytuł_oferty} na wynajem we {miasto}. Sprawdź dostępność i lokalne oferty.”
-  const description = `${name} na wynajem w ${cityName}. Sprawdź dostępność i lokalne oferty wynajmu od firm i osób prywatnych.`;
+  const price = listing.priceType === 'fixed' ? ` od ${formatMoney(listing.priceAmount)}` : '';
+  const title = `${name} – wynajem, ${listing.Miasto}${price} | ${SITE_NAME}`;
+  const description = plainTextExcerpt(listing.Opis) || `${name} na wynajem, ${listing.Miasto}. ${priceText(listing)}.`;
 
   return {
-    title: `${name} – wynajem ${cityName} | od ${price} PLN | WypożyczSprzęt`,
+    title,
     description,
-    keywords: `wynajem ${name}, ${name} ${cityName}, wypożyczalnia sprzętu ${cityName}, ${catInfo?.name || ''}`,
-    alternates: {
-      canonical: `${BASE_URL}/${category}/${city}/${slug}`,
-    },
+    alternates: { canonical: `${SITE_URL}${canonicalPath}` },
     openGraph: {
-      title: `${name} – wynajem ${cityName}`,
+      title,
       description,
-      images: [
-        {
-          url: productImage,
-          width: 800,
-          height: 600,
-          alt: `${name} na wynajem ${cityName}`,
-        },
-      ],
+      url: `${SITE_URL}${canonicalPath}`,
       type: 'website',
+      ...(listing.gallery[0] ? { images: [{ url: listing.gallery[0], alt: `${name} na wynajem` }] } : {}),
     },
   };
 }
 
 export default async function ListingPage({ params }) {
   const { category, city, slug } = await params;
+  if (!SEO_CATEGORY_SLUGS.includes(category)) notFound();
 
-  if (!SEO_CATEGORY_SLUGS.includes(category)) {
+  const data = await fetchListingBySlug(slug);
+
+  if (!data) {
+    if (await isUnpublishedSlug(slug)) {
+      const suggestions = await fetchSuggestions(6, category);
+      return <InactiveListingPage suggestions={suggestions} category={category} />;
+    }
     notFound();
   }
 
-  const data = await fetchListingByNewUrl(category, city, slug);
-
-  // Listing was removed from the database — show "inactive" page with suggestions
-  if (!data) {
-    const suggestions = await fetchRandomListings(6, category);
-    return <InactiveListingPage suggestions={suggestions} category={category} />;
-  }
-
-  const { listing, related } = data;
+  const { listing, related, canonicalPath } = data;
+  if (canonicalPath !== `/${category}/${city}/${slug}`) permanentRedirect(canonicalPath);
 
   const name = listing['Sprzęt'] || 'Sprzęt';
-  const cityName = listing.Miasto || '';
-  const catInfo = SEO_CATEGORIES[category];
-  const price = listing.Cena_od || '';
-  const time = listing.Czas || 'doba';
-  const company = listing.companyDetails || {};
-  const availability = listing['Dostępność'] || '';
+  const categoryInfo = SEO_CATEGORIES[listing.seoCategory];
 
-  // Use description from database if available, otherwise auto-generate
-  const seoDescription = listing.Opis
-    ? listing.Opis
-    : `${name} dostępne do wynajmu w ${cityName} – to doskonały wybór dla profesjonalistów i osób prywatnych szukających niezawodnego sprzętu z kategorii "${catInfo?.name || ''}". 
-
-Oferta obejmuje wynajem ${name} w cenie od ${price} PLN za ${time}. Sprzęt jest udostępniany przez firmę ${company.Nazwa || 'lokalnego dostawcę'}, która specjalizuje się w wynajmie sprzętu budowlanego i ogrodniczego na terenie ${cityName} oraz okolic.
-
-Wynajem sprzętu budowlanego to ekonomiczna alternatywa dla zakupu – pozwala zaoszczędzić znaczne środki, szczególnie gdy potrzebujesz urządzenia jednorazowo lub na krótki czas. Dzięki naszej platformie możesz szybko porównać oferty, sprawdzić dostępność i skontaktować się bezpośrednio z właścicielem sprzętu.
-
-Wszystkie oferty na WypożyczSprzęt są weryfikowane, a kontakt z dostawcą odbywa się bezpośrednio – bez pośredników i dodatkowych opłat. Wystarczy kliknąć przycisk "Pokaż numer" i umówić się na odbiór sprzętu.`;
-
-  // FAQ data
-  const faqItems = [
-    {
-      question: `Ile kosztuje wynajem ${name} w ${cityName}?`,
-      answer: `Cena wynajmu ${name} zaczyna się od ${price} PLN za ${time}. Ostateczna cena może zależeć od okresu wynajmu i dodatkowych usług. Skontaktuj się z dostawcą, aby uzyskać dokładną wycenę.`,
-    },
-    {
-      question: `Gdzie mogę odebrać ${name}?`,
-      answer: `Sprzęt jest dostępny w ${cityName}. Dostawca – ${company.Nazwa || 'firma lokalna'} – może oferować również transport na miejsce pracy. Szczegóły uzgodnisz telefonicznie.`,
-    },
-    {
-      question: `Jak wynająć ${name}?`,
-      answer: `Wystarczy kliknąć przycisk "Pokaż numer" na tej stronie i zadzwonić do dostawcy. Nie wymaga to rejestracji ani logowania. Umów się na termin, podpisz krótką umowę i odbierz sprzęt.`,
-    },
-    {
-      question: `Czy ${name} jest aktualnie dostępne?`,
-      answer: availability && availability !== 'brak danych'
-        ? `Tak, sprzęt jest oznaczony jako dostępny: ${availability}. Zalecamy jednak potwierdzenie telefoniczne.`
-        : `Zalecamy kontakt telefoniczny z dostawcą w celu potwierdzenia aktualnej dostępności sprzętu.`,
-    },
-  ];
-
-  // Product image for structured data
-  const productImage = listing.Zdjecie && String(listing.Zdjecie).startsWith('http')
-    ? listing.Zdjecie
-    : '/placeholders/default-equipment.png';
-
-  // JSON-LD Product
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: name,
-    description: `Wynajem ${name} w ${cityName}. Cena od ${price} PLN/${time}.`,
-    image: productImage,
-    brand: { '@type': 'Brand', name: company.Nazwa || 'WypożyczSprzęt' },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.5',
-      reviewCount: '12',
-      bestRating: '5',
-      worstRating: '1',
-    },
-    review: {
-      '@type': 'Review',
-      reviewRating: { '@type': 'Rating', ratingValue: '5', bestRating: '5' },
-      author: { '@type': 'Person', name: 'Klient WypożyczSprzęt' },
-      reviewBody: `Świetny sprzęt – ${name} w doskonałym stanie technicznym. Szybki kontakt i sprawna obsługa.`,
-    },
-    offers: {
-      '@type': 'Offer',
-      price: String(price).replace(/[^0-9.]/g, '') || '0',
-      priceCurrency: 'PLN',
-      availability: 'https://schema.org/InStock',
-      areaServed: { '@type': 'City', name: cityName },
-      shippingDetails: {
-        '@type': 'OfferShippingDetails',
-        shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'PL' },
-        deliveryTime: {
-          '@type': 'ShippingDeliveryTime',
-          handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
-          transitTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
-        },
-        shippingRate: { '@type': 'MonetaryAmount', value: '0', currency: 'PLN' },
-      },
-      hasMerchantReturnPolicy: {
-        '@type': 'MerchantReturnPolicy',
-        applicableCountry: 'PL',
-        returnPolicyCategory: 'https://schema.org/MerchantReturnNotPermitted',
-        merchantReturnDays: 0,
-      },
-    },
-  };
-
-  // JSON-LD FAQ
-  const faqJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: faqItems.map((item) => ({
-      '@type': 'Question',
-      name: item.question,
-      acceptedAnswer: { '@type': 'Answer', text: item.answer },
-    })),
-  };
-
-  // JSON-LD Breadcrumbs
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Strona główna', item: BASE_URL },
-      { '@type': 'ListItem', position: 2, name: catInfo?.name || category, item: `${BASE_URL}/${category}` },
-      { '@type': 'ListItem', position: 3, name: cityName, item: `${BASE_URL}/${category}/${city}` },
-      { '@type': 'ListItem', position: 4, name: name, item: `${BASE_URL}/${category}/${city}/${slug}` },
+      { '@type': 'ListItem', position: 1, name: 'Strona główna', item: SITE_URL },
+      { '@type': 'ListItem', position: 2, name: categoryInfo?.name || category, item: `${SITE_URL}/${category}` },
+      { '@type': 'ListItem', position: 3, name: listing.Miasto, item: `${SITE_URL}/${category}/${city}` },
+      { '@type': 'ListItem', position: 4, name, item: `${SITE_URL}${canonicalPath}` },
     ],
   };
 
+  // Only stated facts go into structured data: no ratings or reviews exist, so none are declared.
+  const productJsonLd = listing.priceType === 'fixed' ? {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name,
+    description: plainTextExcerpt(listing.Opis, 300) || `${name} na wynajem, ${listing.Miasto}.`,
+    ...(listing.gallery.length > 0 ? { image: listing.gallery } : {}),
+    offers: {
+      '@type': 'Offer',
+      url: `${SITE_URL}${canonicalPath}`,
+      price: String(listing.priceAmount),
+      priceCurrency: 'PLN',
+      availability: 'https://schema.org/InStock',
+      areaServed: { '@type': 'City', name: listing.Miasto },
+      seller: { '@type': 'Organization', name: listing.companyDetails.Nazwa },
+    },
+  } : null;
+
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      {jsonLdScript(breadcrumbJsonLd)}
+      {productJsonLd && jsonLdScript(productJsonLd)}
 
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 py-6">
-        {/* Breadcrumbs */}
-        <nav className="flex items-center gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400 mb-8 py-2 overflow-x-auto whitespace-nowrap" aria-label="Breadcrumb">
-          <Link href="/" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors no-underline">
-            Strona główna
-          </Link>
-          <span className="text-gray-300 dark:text-gray-700">/</span>
-          <Link href={`/${category}`} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors no-underline">
-            {catInfo?.name || category}
-          </Link>
-          <span className="text-gray-300 dark:text-gray-700">/</span>
-          <Link href={`/${category}/${city}`} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors no-underline">
-            {cityName}
-          </Link>
-          <span className="text-gray-300 dark:text-gray-700">/</span>
-          <span className="text-gray-950 dark:text-gray-200 truncate max-w-[200px]">{name}</span>
+      <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6 md:py-8">
+        <nav aria-label="Ścieżka" className="mb-4 flex items-center gap-2 overflow-x-auto whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">
+          <Link href="/" className="hover:underline">Strona główna</Link>
+          <span aria-hidden="true">/</span>
+          <Link href={`/${category}`} className="hover:underline">{categoryInfo?.name || category}</Link>
+          <span aria-hidden="true">/</span>
+          <Link href={`/${category}/${city}`} className="hover:underline">{listing.Miasto}</Link>
         </nav>
 
-        {/* Main content */}
         <ListingPageClient
           listing={listing}
-          seoDescription={seoDescription}
-          faqItems={faqItems}
-          related={related}
+          description={listing.Opis}
+          related={related.map(toCard)}
           categorySlug={category}
-          categoryName={catInfo?.name || category}
+          categoryName={categoryInfo?.name || category}
         />
       </div>
     </>

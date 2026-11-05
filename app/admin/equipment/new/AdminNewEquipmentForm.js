@@ -7,6 +7,7 @@ import { ArrowLeft, Package } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import CustomSelect from '../../../../components/CustomSelect'
+import { ListingDetailsFields, GalleryField } from '../../../../components/dashboard/ListingDetailsFields'
 
 export default function AdminNewEquipmentForm({ companies = [], categories = [], subcategories = [], branches = [] }) {
   const [isLoading, setIsLoading] = useState(false)
@@ -160,13 +161,7 @@ export default function AdminNewEquipmentForm({ companies = [], categories = [],
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cena (PLN) <span className="text-red-500">*</span></label>
-              <input type="number" name="price_from" required step="0.01" placeholder="0.00"
-                className="mt-1 block w-full rounded-lg border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border focus:ring-blue-500 focus:border-blue-500" />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jednostka czasu</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cena za</label>
               <CustomSelect
                 options={[
                   { value: 'hour', label: '/ godzina' },
@@ -180,11 +175,9 @@ export default function AdminNewEquipmentForm({ companies = [], categories = [],
               />
             </div>
 
-            <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Zdjęcie sprzętu</label>
-              <input type="file" name="image" accept="image/*"
-                className="mt-2 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
-            </div>
+<GalleryField />
+
+            <ListingDetailsFields />
 
             <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Opis</label>

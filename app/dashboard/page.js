@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { Building2, Plus, MapPin, Package } from 'lucide-react'
 
 export default async function DashboardPage() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   // Fetch user's companies with equipment count

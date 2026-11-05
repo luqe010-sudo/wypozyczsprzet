@@ -18,8 +18,9 @@ export async function generateStaticParams() {
 /**
  * Dynamic metadata for SEO.
  */
-export async function generateMetadata({ params }) {
-  const company = await fetchCompanyBySlug(params.companySlug);
+export async function generateMetadata({ params: routeParams }) {
+  const params = await routeParams;
+const company = await fetchCompanyBySlug(params.companySlug);
   if (!company) return { title: 'Firma nie znaleziona' };
 
   // Find the matching city name from branches
@@ -54,8 +55,9 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default async function CompanyCityPage({ params }) {
-  const company = await fetchCompanyBySlug(params.companySlug);
+export default async function CompanyCityPage({ params: routeParams }) {
+  const params = await routeParams;
+const company = await fetchCompanyBySlug(params.companySlug);
   if (!company) notFound();
 
   // Find city name from branches

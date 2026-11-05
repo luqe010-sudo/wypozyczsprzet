@@ -11,8 +11,10 @@ import {
   BarChart
 } from 'lucide-react'
 
+const inquiriesSince = () => new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+
 export default async function AdminDashboardPage() {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   // Fetch stats in parallel
   const [
@@ -21,20 +23,26 @@ export default async function AdminDashboardPage() {
     { count: equipmentCount },
     { data: recentCompanies },
     { data: topEquipment },
-    { data: globalStats }
+    { data: globalStats },
+    { count: inquiryCount },
+    { count: pendingCount }
   ] = await Promise.all([
     supabase.from('profiles').select('*', { count: 'exact', head: true }),
     supabase.from('companies').select('*', { count: 'exact', head: true }),
     supabase.from('equipment').select('*', { count: 'exact', head: true }),
     supabase.from('companies').select('*, company_branches(*)').order('created_at', { ascending: false }).limit(5),
     supabase.from('equipment_stats').select('*, equipment(name, category)').order('views_count', { ascending: false }).limit(5),
-    supabase.from('equipment_stats').select('views_count, phone_clicks, website_clicks, olx_clicks')
+    supabase.from('equipment_stats').select('views_count, phone_clicks, website_clicks, olx_clicks'),
+    supabase.from('inquiries').select('id', { count: 'exact', head: true }).gte('created_at', inquiriesSince()),
+    supabase.from('equipment').select('id', { count: 'exact', head: true }).eq('status', 'pending')
   ])
 
   const totalViews = globalStats?.reduce((acc, curr) => acc + (curr.views_count || 0), 0) || 0;
   const totalClicks = globalStats?.reduce((acc, curr) => acc + (curr.phone_clicks || 0) + (curr.website_clicks || 0) + (curr.olx_clicks || 0), 0) || 0;
 
   const stats = [
+    { name: 'Zapytania (30 dni)', value: inquiryCount || 0, icon: Activity, color: 'text-green-700', bg: 'bg-green-100' },
+    { name: 'Do moderacji', value: pendingCount || 0, icon: ShieldAlert, color: 'text-amber-700', bg: 'bg-amber-100' },
     { name: 'Użytkownicy', value: userCount || 0, icon: Users, color: 'text-blue-600', bg: 'bg-blue-100' },
     { name: 'Firmy', value: companyCount || 0, icon: Building2, color: 'text-purple-600', bg: 'bg-purple-100' },
     { name: 'Sprzęt', value: equipmentCount || 0, icon: Package, color: 'text-orange-600', bg: 'bg-orange-100' },

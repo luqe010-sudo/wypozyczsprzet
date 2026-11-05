@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { adminDeleteRecord, updateCompanyOwner } from '../actions'
+import { adminDeleteRecord, adminSetCompanyVerified, updateCompanyOwner } from '../actions'
 import { toast } from 'react-hot-toast'
 import { 
   Search, 
@@ -57,6 +57,18 @@ export default function CompaniesTable({ initialCompanies, users }) {
     }
   }
 
+  const handleVerify = async (companyId, verified) => {
+    const result = await adminSetCompanyVerified(companyId, verified)
+    if (result.success) {
+      setCompanies(companies.map(c =>
+        c.id === companyId ? { ...c, verified_at: verified ? new Date().toISOString() : null } : c
+      ))
+      toast.success(verified ? 'Firma oznaczona jako zweryfikowana' : 'Cofnięto weryfikację')
+    } else {
+      toast.error(result.error)
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Search Header */}
@@ -96,6 +108,14 @@ export default function CompaniesTable({ initialCompanies, users }) {
                   <td className="px-6 py-4">
                     <div className="font-bold text-gray-900 dark:text-white">{company.name}</div>
                     <div className="text-xs text-gray-500 truncate max-w-[200px]">{company.id}</div>
+                    <label className="mt-1 flex items-center gap-1.5 text-xs text-gray-700 dark:text-gray-300">
+                      <input
+                        type="checkbox"
+                        checked={Boolean(company.verified_at)}
+                        onChange={(e) => handleVerify(company.id, e.target.checked)}
+                      />
+                      Zweryfikowana (sprawdzony NIP i właściciel)
+                    </label>
                   </td>
                   <td className="px-6 py-4">
                     <Link 

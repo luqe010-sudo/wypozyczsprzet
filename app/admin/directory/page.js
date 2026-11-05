@@ -4,7 +4,7 @@ import { BookOpen, Plus } from 'lucide-react'
 import Link from 'next/link'
 
 export default async function AdminDirectoryPage() {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   // Fetch all company directory items with their branches
   const { data: companies, error } = await supabase

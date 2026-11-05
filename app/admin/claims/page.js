@@ -10,10 +10,6 @@ export default function AdminClaimsPage() {
   const [error, setError] = useState(null)
   const [processingId, setProcessingId] = useState(null)
 
-  useEffect(() => {
-    loadClaims()
-  }, [])
-
   async function loadClaims() {
     setLoading(true)
     const result = await getPendingClaims()
@@ -24,6 +20,10 @@ export default function AdminClaimsPage() {
     }
     setLoading(false)
   }
+
+  useEffect(() => {
+    loadClaims()
+  }, [])
 
   async function onAction(claimId, action, companyId, userId) {
     if (!confirm(`Czy na pewno chcesz ${action === 'approve' ? 'ZAAKCEPTOWAĆ' : 'ODRZUCIĆ'} to zgłoszenie?`)) return

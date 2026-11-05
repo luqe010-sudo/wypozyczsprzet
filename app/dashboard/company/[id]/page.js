@@ -2,9 +2,22 @@ import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { ArrowLeft, Edit, Plus, MapPin, Globe, Phone, Mail, PackageOpen, BarChart3 } from 'lucide-react'
+import EquipmentRowActions from '@/components/dashboard/EquipmentRowActions'
+import { formatDate } from '@/lib/format'
 
-export default async function CompanyDetailsPage({ params }) {
-  const supabase = createClient()
+const STATUS_INFO = {
+  active: { label: 'Opublikowane', className: 'text-green-800 bg-green-100 dark:text-green-300 dark:bg-green-950' },
+  incomplete: { label: 'Opublikowane, niekompletne', className: 'text-amber-900 bg-amber-100 dark:text-amber-200 dark:bg-amber-950' },
+  pending: { label: 'Czeka na moderację', className: 'text-amber-900 bg-amber-100 dark:text-amber-200 dark:bg-amber-950' },
+  inactive: { label: 'Wstrzymane', className: 'text-gray-800 bg-gray-200 dark:text-gray-200 dark:bg-slate-700' },
+  stale: { label: 'Ukryte: potwierdź aktualność', className: 'text-red-800 bg-red-100 dark:text-red-300 dark:bg-red-950' },
+  hidden: { label: 'Ukryte przez administratora', className: 'text-gray-800 bg-gray-200 dark:text-gray-200 dark:bg-slate-700' },
+  rejected: { label: 'Odrzucone', className: 'text-red-800 bg-red-100 dark:text-red-300 dark:bg-red-950' },
+}
+
+export default async function CompanyDetailsPage({ params: routeParams }) {
+  const params = await routeParams;
+const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
@@ -49,6 +62,13 @@ export default async function CompanyDetailsPage({ params }) {
           >
             <BarChart3 className="w-4 h-4 mr-2" />
             Statystyki
+          </Link>
+          <Link
+            href="/dashboard/inquiries"
+            className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-slate-600 shadow-sm text-sm font-medium rounded text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-700 hover:bg-gray-50"
+          >
+            <Mail className="w-4 h-4 mr-2" />
+            Zapytania
           </Link>
           <Link
             href={`/dashboard/company/${company.id}/edit`}
@@ -156,22 +176,25 @@ export default async function CompanyDetailsPage({ params }) {
             <ul className="divide-y divide-gray-200 dark:divide-slate-700">
               {equipment.map((item) => (
                 <li key={item.id} className="p-4 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <h4 className="text-lg font-medium text-gray-900 dark:text-white">
-                        {item.name || item.Sprzęt}
+                        {item.name}
                       </h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        Kategoria: {item.category || item.Kategoria}
+                      <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                        <span className={`rounded px-2 py-0.5 text-xs font-medium ${(STATUS_INFO[item.status] || STATUS_INFO.inactive).className}`}>
+                          {(STATUS_INFO[item.status] || { label: item.status }).label}
+                        </span>
+                        {item.last_confirmed_at && <span>Potwierdzono: {formatDate(item.last_confirmed_at)}</span>}
                       </p>
+                      <div className="mt-2">
+                        <EquipmentRowActions id={item.id} companyId={company.id} status={item.status} />
+                      </div>
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="text-right">
                         <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                          {item.price_from || item.Cena_od} <span className="text-xs text-gray-500">zł / {item.rental_period || item.Czas}</span>
-                        </p>
-                        <p className="text-xs font-medium text-gray-500">
-                          Status: {item.availability || item.Dostępność}
+                          {item.price_type === 'fixed' ? `${item.price_amount} zł` : 'Na zapytanie'}
                         </p>
                       </div>
                       <Link

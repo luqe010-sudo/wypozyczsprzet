@@ -7,6 +7,9 @@ Allow: /_next/static/
 Allow: /_next/image/
 Disallow: /admin/
 Disallow: /api/
+Disallow: /dashboard/
+Disallow: /login
+Disallow: /auth/
 Disallow: /*?*
 
 Sitemap: ${BASE_URL}/sitemap.xml

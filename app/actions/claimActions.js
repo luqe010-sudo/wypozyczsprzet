@@ -1,12 +1,14 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
-import { revalidatePath, revalidateTag } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
+import { adminEmail, sendEmail } from '@/lib/email'
+import { SITE_URL } from '@/lib/site'
 
 const CLAIM_ACTIONS = new Set(['approve', 'reject'])
 
 async function checkAdmin() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
 
@@ -22,7 +24,7 @@ async function checkAdmin() {
 
 export async function submitClaim(companyId, { email, phone, message }) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
@@ -54,6 +56,12 @@ export async function submitClaim(companyId, { email, phone, message }) {
       }])
 
     if (error) throw error
+
+    await sendEmail({
+      to: adminEmail(),
+      subject: 'Zgłoszenie przejęcia profilu firmy',
+      text: `Nowe zgłoszenie od ${email}, telefon ${phone}.\n\nWiadomość: ${message || 'brak'}\n\nDecyzja: ${SITE_URL}/admin/claims`,
+    })
 
     return { success: true }
   } catch (error) {
@@ -94,18 +102,26 @@ export async function handleClaimAction(claimId, action, companyId, userId) {
       // 1. Update company owner
       const { error: updateError } = await supabase
         .from('companies')
-        .update({ owner_user_id: userId })
+        .update({ owner_user_id: userId, verified_at: new Date().toISOString() })
         .eq('id', companyId)
 
       if (updateError) throw updateError
 
       // 2. Mark claim as approved
-      const { error: claimError } = await supabase
+      const { data: claim, error: claimError } = await supabase
         .from('company_claims')
         .update({ status: 'approved' })
         .eq('id', claimId)
+        .select('email')
+        .single()
 
       if (claimError) throw claimError
+
+      await sendEmail({
+        to: claim.email,
+        subject: 'Profil firmy został przypisany do Twojego konta',
+        text: `Dzień dobry,\n\nmożesz już zarządzać ogłoszeniami firmy i odbierać zapytania klientów:\n${SITE_URL}/dashboard`,
+      })
 
       // 3. Reject other pending claims for the same company
       await supabase
@@ -126,7 +142,7 @@ export async function handleClaimAction(claimId, action, companyId, userId) {
 
     revalidatePath('/admin/claims')
     revalidatePath('/dashboard')
-    revalidateTag('listings')
+    updateTag('listings')
     return { success: true }
   } catch (error) {
     return { error: error.message }

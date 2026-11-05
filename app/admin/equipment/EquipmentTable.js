@@ -18,10 +18,21 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 
+const STATUS_LABELS = {
+  pending: 'Do moderacji',
+  active: 'Aktywne',
+  incomplete: 'Niekompletne',
+  inactive: 'Wstrzymane',
+  stale: 'Niepotwierdzone',
+  hidden: 'Ukryte',
+  rejected: 'Odrzucone',
+}
+
 export default function EquipmentTable({ initialEquipment }) {
   const [equipment, setEquipment] = useState(initialEquipment)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterCategory, setFilterCategory] = useState('all')
+  const [filterStatus, setFilterStatus] = useState('all')
   const searchParams = useSearchParams()
   const companyFilter = searchParams.get('company')
 
@@ -32,7 +43,8 @@ export default function EquipmentTable({ initialEquipment }) {
     const itemCategoryName = e.equipment_categories?.name || e.category
     const matchesCategory = filterCategory === 'all' || itemCategoryName === filterCategory
     const matchesCompany = !companyFilter || e.company_id === companyFilter
-    return matchesSearch && matchesCategory && matchesCompany
+    const matchesStatus = filterStatus === 'all' || e.status === filterStatus
+    return matchesSearch && matchesCategory && matchesCompany && matchesStatus
   })
 
   const handleDelete = async (id) => {
@@ -86,6 +98,17 @@ export default function EquipmentTable({ initialEquipment }) {
               <option key={cat} value={cat}>{cat}</option>
             ))}
           </select>
+          <select
+            aria-label="Status"
+            className="text-sm bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg p-2 outline-none"
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+          >
+            <option value="all">Wszystkie statusy</option>
+            {Object.entries(STATUS_LABELS).map(([value, label]) => (
+              <option key={value} value={value}>{label} ({equipment.filter(e => e.status === value).length})</option>
+            ))}
+          </select>
           <div className="text-sm text-gray-500 whitespace-nowrap">
             Wyników: <strong>{filteredEquipment.length}</strong>
           </div>
@@ -111,12 +134,12 @@ export default function EquipmentTable({ initialEquipment }) {
                     <Star className="w-4 h-4 fill-current" />
                   </span>
                 )}
-                <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase shadow-lg ${
-                  item.status === 'active' ? 'bg-green-500 text-white' : 
-                  item.status === 'incomplete' ? 'bg-orange-500 text-white' : 
-                  'bg-gray-500 text-white'
+                <span className={`px-2 py-1 rounded text-xs font-semibold shadow-lg ${
+                  item.status === 'active' ? 'bg-green-700 text-white' :
+                  item.status === 'pending' ? 'bg-amber-500 text-black' :
+                  'bg-gray-700 text-white'
                 }`}>
-                  {item.status === 'incomplete' ? 'Niekompletne' : item.status}
+                  {STATUS_LABELS[item.status] || item.status}
                 </span>
               </div>
             </div>
@@ -142,7 +165,7 @@ export default function EquipmentTable({ initialEquipment }) {
 
               <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100 dark:border-slate-700">
                 <div className="text-sm font-bold text-blue-600">
-                  {item.price_from} PLN <span className="text-[10px] font-normal text-gray-500">/ {item.rental_period}</span>
+                  {item.price_type === 'fixed' ? `${item.price_amount} zł` : 'Na zapytanie'}
                 </div>
                 
                 <div className="flex items-center gap-1">
@@ -160,6 +183,14 @@ export default function EquipmentTable({ initialEquipment }) {
                   >
                     {item.status === 'active' ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                   </button>
+                  {item.status === 'pending' && (
+                    <button
+                      onClick={() => handleStatusChange(item.id, 'rejected')}
+                      className="px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                    >
+                      Odrzuć
+                    </button>
+                  )}
                   <button
                     onClick={() => handleStatusChange(item.id, 'incomplete')}
                     className={`p-2 rounded-lg transition-colors ${item.status === 'incomplete' ? 'text-orange-600 bg-orange-50' : 'text-gray-400 hover:bg-gray-100'}`}

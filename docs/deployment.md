@@ -33,7 +33,11 @@ CLOUDINARY_API_SECRET=your-cloudinary-api-secret
 # THIRD-PARTY INTEGRATIONS
 # ==============================================================================
 # Adres URL skryptu Google Apps Script do synchronizacji arkuszy
-GOOGLE_SCRIPT_URL=https://script.google.com/macros/s/your-script-id/exec
+RESEND_API_KEY=re_xxx
+EMAIL_FROM=WypożyczSprzęt <powiadomienia@wypozycz.online>
+ADMIN_NOTIFICATION_EMAIL=
+CRON_SECRET=losowy-ciag-znakow
+NEXT_PUBLIC_SITE_URL=https://wypozycz.online
 # Opcjonalny klucz MapTiler dla niestandardowych wektorowych map premium
 NEXT_PUBLIC_MAPTILER_KEY=your-maptiler-key
 ```
@@ -57,8 +61,8 @@ Aplikacja wysyła zdjęcia maszyn i logo firm bezpośrednio z serwera Next.js:
 - Logo firm z katalogu są zapisywane w folderze `company_logos`.
 - Zdjęcia maszyn przesyłane są strumieniowo przy użyciu metody `cloudinary.uploader.upload_stream` ze zdefiniowanym folderem docelowym.
 
-### 3. Google Sheets (Synchronizacja Zgłoszeń)
-Formularz dodawania ofert wykonuje podwójny zapis. Przesyła payload do Google Apps Script skonfigurowanego pod adresem `GOOGLE_SCRIPT_URL`. Skrypt ten automatycznie dopisuje wiersz na końcu wskazanego arkusza kalkulacyjnego.
+### 3. Resend (powiadomienia e-mail)
+Bez `RESEND_API_KEY` zapytania zapisują się w bazie i są widoczne w panelach, ale nikt nie dostaje maila. Domena z `EMAIL_FROM` musi być zweryfikowana w Resend.
 
 ---
 

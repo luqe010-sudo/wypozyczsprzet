@@ -5,7 +5,7 @@ import { Suspense } from 'react'
 import Link from 'next/link'
 
 export default async function AdminEquipmentPage() {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   // Fetch all equipment with company details
   const { data: equipment } = await supabase

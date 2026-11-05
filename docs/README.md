@@ -39,9 +39,9 @@ graph TD
    - Dynamicznie aktualizowana lista wszystkich komponentów w systemie.
 
 4. 🔒 **[API i Middleware](file:///e:/sprzety_budowlane/docs/api_middleware.md)**
-   - Analiza `/middleware.js` oraz `/utils/supabase/middleware.js`.
+   - Analiza `/proxy.js` oraz `/utils/supabase/middleware.js`.
    - Zabezpieczenie tras panelu klienta (`/dashboard`) i administratora (`/admin`).
-   - Integracje z zewnętrznymi API (Geolokalizacja, Google Sheets).
+   - Integracje z zewnętrznymi API (MapTiler, Cloudinary, Resend).
 
 5. 🛠️ **[Katalog Firm i Panel Admina](file:///e:/sprzety_budowlane/docs/admin_directory.md)**
    - Funkcjonalności katalogu firm w `/katalog` i wariantów lokalnych.
@@ -54,7 +54,7 @@ graph TD
    - Dane strukturalne JSON-LD (Product, LocalBusiness, Breadcrumbs, FAQ).
 
 7. 🚀 **[Wdrożenie i Zmienne Środowiskowe](file:///e:/sprzety_budowlane/docs/deployment.md)**
-   - Plik `.env.local` i wymagane zmienne dla Supabase, Cloudinary, Google Sheets.
+   - Plik `.env.local` i wymagane zmienne dla Supabase, Cloudinary, Resend.
    - Proces uruchamiania lokalnego i budowania wersji produkcyjnej (`next build`).
 
 8. 🤖 **[Wytyczne dla Agentów AI](file:///e:/sprzety_budowlane/docs/AGENTS.md)**
@@ -93,4 +93,4 @@ WypożyczSprzęt opiera się na nowoczesnym, zoptymalizowanym stacku technologic
 | **React Map GL & Maplibre** | Prezentacja interaktywnych map z geolokalizacją i lokalnymi wypożyczalniami |
 | **Tailwind CSS** | System stylizowania UI oparty na klasach narzędziowych |
 | **Cloudinary** | Optymalizacja, hosting i przesyłanie zdjęć maszyn oraz logo firm |
-| **Google Sheets API** | Synchronizacja i pobieranie masowych danych z arkuszy Google |
+| **Resend** | Powiadomienia e-mail o zapytaniach i moderacji |

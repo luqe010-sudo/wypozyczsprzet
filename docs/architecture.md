@@ -20,7 +20,7 @@ Projekt jest podzielony na logiczne warstwy odpowiedzialne za logikę biznesową
 ├── components/           # Reużywalne komponenty React (UI, mapy, formularze)
 │   ├── dashboard/        # Komponenty panelu klienta
 │   └── directory/        # Komponenty katalogu firm
-├── lib/                  # Biblioteki narzędziowe, integracje z zewnętrznymi API (Google Sheets, Cloudinary)
+Warstwa danych (listings.js), formatowanie, e-mail, integracje z zewnętrznymi API
 ├── public/               # Statyczne zasoby aplikacji (ikony, obrazki nagłówków)
 ├── scripts/              # Skrypty migracyjne oraz automatyzacja zadań deweloperskich
 └── utils/                # Narzędzia pomocnicze (np. konfiguracja Supabase middleware dla serwera i klienta)
@@ -59,6 +59,7 @@ Poniższa lista przedstawia trasy zdefiniowane w katalogu `app/`. Zostały one s
 *   `admin/equipment` -> `/admin/equipment` - Moderacja ofert sprzętu budowlanego.
 *   `admin/equipment/[id]/edit` -> `/admin/equipment/[id]/edit` - Nowo wykryta dynamiczna trasa w systemie.
 *   `admin/equipment/new` -> `/admin/equipment/new` - Nowo wykryta dynamiczna trasa w systemie.
+*   `admin/inquiries` -> `/admin/inquiries` - Nowo wykryta dynamiczna trasa w systemie.
 *   `admin/users` -> `/admin/users` - Zarządzanie rolami użytkowników.
 *   `blog` -> `/blog` - Nowo wykryta dynamiczna trasa w systemie.
 *   `blog/[slug]` -> `/blog/[slug]` - Nowo wykryta dynamiczna trasa w systemie.
@@ -69,6 +70,7 @@ Poniższa lista przedstawia trasy zdefiniowane w katalogu `app/`. Zostały one s
 *   `dashboard/company/[id]/stats` -> `/dashboard/company/[id]/stats` - Nowo wykryta dynamiczna trasa w systemie.
 *   `dashboard/company/new` -> `/dashboard/company/new` - Nowo wykryta dynamiczna trasa w systemie.
 *   `dashboard/equipment/[id]/edit` -> `/dashboard/equipment/[id]/edit` - Nowo wykryta dynamiczna trasa w systemie.
+*   `dashboard/inquiries` -> `/dashboard/inquiries` - Nowo wykryta dynamiczna trasa w systemie.
 *   `dashboard/settings` -> `/dashboard/settings` - Nowo wykryta dynamiczna trasa w systemie.
 *   `katalog` -> `/katalog` - Publiczny spis i wyszukiwarka firm w katalogu.
 *   `katalog/[city]/[companySlug]` -> `/katalog/[city]/[companySlug]` - Strona profilowa firmy w konkretnym mieście.
@@ -76,6 +78,7 @@ Poniższa lista przedstawia trasy zdefiniowane w katalogu `app/`. Zostały one s
 *   `kontakt` -> `/kontakt` - Formularz kontaktowy i dane kontaktowe.
 *   `login` -> `/login` - Ekran logowania/rejestracji zintegrowany z Supabase Auth.
 *   `oferta/[slug]` -> `/oferta/[slug]` - Nowo wykryta dynamiczna trasa w systemie.
+*   `polityka-prywatnosci` -> `/polityka-prywatnosci` - Nowo wykryta dynamiczna trasa w systemie.
 *   `regulamin` -> `/regulamin` - Regulamin świadczenia usług platformy.
 *   `robots.txt` -> `/robots.txt` - Nowo wykryta dynamiczna trasa w systemie.
 *   `sitemap.xml` -> `/sitemap.xml` - Nowo wykryta dynamiczna trasa w systemie.

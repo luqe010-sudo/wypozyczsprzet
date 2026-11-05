@@ -9,7 +9,8 @@ import {
   Settings, 
   ArrowLeft,
   ShieldCheck,
-  Handshake
+  Handshake,
+  Inbox
 } from 'lucide-react'
 
 export default function AdminLayout({ children }) {
@@ -19,6 +20,7 @@ export default function AdminLayout({ children }) {
     { label: 'Katalog', icon: BookOpen, href: '/admin/directory' },
     { label: 'Sprzęt', icon: Package, href: '/admin/equipment' },
     { label: 'Użytkownicy', icon: Users, href: '/admin/users' },
+    { label: 'Zapytania', icon: Inbox, href: '/admin/inquiries' },
     { label: 'Zgłoszenia', icon: Handshake, href: '/admin/claims' },
   ]
 

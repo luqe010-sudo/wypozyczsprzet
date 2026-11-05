@@ -2,8 +2,9 @@ import { createClient } from '@/utils/supabase/server'
 import NewEquipmentForm from './NewEquipmentForm'
 import { redirect } from 'next/navigation'
 
-export default async function NewEquipmentPage({ params }) {
-  const supabase = createClient()
+export default async function NewEquipmentPage({ params: routeParams }) {
+  const params = await routeParams;
+const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {

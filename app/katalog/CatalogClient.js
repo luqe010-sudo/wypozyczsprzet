@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { Search, Building2, MapPin } from 'lucide-react';
 import { voivodeshipSlug, citySlug } from '../../lib/slugify';
+import { VOIVODESHIPS } from '../../lib/regions';
 import CompanyListCard from '../../components/directory/CompanyListCard';
 import DirectoryBreadcrumbs from '../../components/directory/DirectoryBreadcrumbs';
 
@@ -128,8 +129,8 @@ export default function CatalogClient({ companies = [], cities = [], voivodeship
           Wypożyczalnie <span className="text-blue-600 dark:text-blue-400">sprzętu budowlanego</span>
         </h1>
         <p className="text-base md:text-lg text-gray-500 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
-          Sprawdzone firmy oferujące wynajem sprzętu budowlanego w całej Polsce.
-          Znajdź wypożyczalnię w swoim mieście.
+          Wypożyczalnie sprzętu budowlanego z danymi kontaktowymi z publicznych rejestrów i wizytówek.
+          Znajdź firmę w swojej okolicy.
         </p>
       </header>
 
@@ -190,7 +191,7 @@ export default function CatalogClient({ companies = [], cities = [], voivodeship
                 .sort((a, b) => a.name.localeCompare(b.name, 'pl'))
                 .map((v) => (
                   <option key={v.slug} value={v.slug}>
-                    {v.name}
+                    {VOIVODESHIPS[v.slug]?.name || v.name}
                   </option>
                 ))}
             </select>
@@ -236,7 +237,7 @@ export default function CatalogClient({ companies = [], cities = [], voivodeship
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                      Województwo {region.voivodeship}
+                      Województwo {VOIVODESHIPS[voivodeshipSlug(region.voivodeship)]?.name?.toLowerCase() || region.voivodeship}
                     </h2>
                     <p className="text-xs text-gray-400 dark:text-gray-500">
                       {regionTotal} {regionTotal === 1 ? 'firma' : regionTotal < 5 ? 'firmy' : 'firm'}

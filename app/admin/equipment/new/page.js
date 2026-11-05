@@ -2,7 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import AdminNewEquipmentForm from './AdminNewEquipmentForm'
 
 export default async function AdminNewEquipmentPage() {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const [
     { data: companies },
