@@ -1,9 +1,9 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { LayoutGrid, LocateFixed, Map as MapIcon, Search, SlidersHorizontal, X } from 'lucide-react';
+import { LayoutGrid, LocateFixed, Map as MapIcon, MapPin, Search, SlidersHorizontal, X } from 'lucide-react';
 import ListingCard from '../ListingCard';
 import { SEO_CATEGORIES, FORM_CATEGORIES } from '../../lib/categories';
 import { getVoivodeshipSlugForCity, VOIVODESHIPS } from '../../lib/regions';
@@ -28,7 +28,7 @@ const SORT_OPTIONS = [
 ];
 const DEFAULTS = { q: '', category: '', sub: '', city: '', radius: '25', maxPrice: '', delivery: '', operator: '', sort: '' };
 
-const selectClass = 'h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white';
+const selectClass = 'h-11 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-400/40 disabled:opacity-55 dark:border-slate-600 dark:bg-slate-800 dark:text-white';
 const labelClass = 'mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400';
 
 function readUrlFilters() {
@@ -80,6 +80,8 @@ export default function BrowseListings({
   fixedSubcategories = null,
   heading = null,
   emptyHint = null,
+  searchIntro = null,
+  beforeResults = null,
 }) {
   const [filters, setFilters] = useState(DEFAULTS);
   const [view, setView] = useState('list');
@@ -87,23 +89,19 @@ export default function BrowseListings({
   const [userLocation, setUserLocation] = useState(null);
   const [locating, setLocating] = useState(false);
   const [locationError, setLocationError] = useState('');
-  const [sheetOpen, setSheetOpen] = useState(false);
+  const filterDialog = useRef(null);
+  const resultsRef = useRef(null);
 
   useEffect(() => {
-    setFilters(readUrlFilters());
-    if (new URLSearchParams(window.location.search).get('view') === 'map') setView('map');
-  }, []);
-
-  useEffect(() => {
-    if (!sheetOpen) return undefined;
-    const close = (event) => { if (event.key === 'Escape') setSheetOpen(false); };
-    document.addEventListener('keydown', close);
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.removeEventListener('keydown', close);
-      document.body.style.overflow = '';
+    const syncUrl = () => {
+      setFilters(readUrlFilters());
+      setView(new URLSearchParams(window.location.search).get('view') === 'map' ? 'map' : 'list');
+      setVisible(PAGE_SIZE);
     };
-  }, [sheetOpen]);
+    syncUrl();
+    window.addEventListener('popstate', syncUrl);
+    return () => window.removeEventListener('popstate', syncUrl);
+  }, []);
 
   const update = useCallback((patch) => {
     setFilters((current) => {
@@ -211,12 +209,30 @@ export default function BrowseListings({
   const activeCount = ['category', 'sub', 'city', 'maxPrice', 'delivery', 'operator'].filter((key) => filters[key]).length
     + (userLocation ? 1 : 0);
 
-  const filterControls = (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+  const citySelect = (id, className = selectClass) => (
+    <select id={id} className={className} value={filters.city} onChange={(event) => { setUserLocation(null); update({ city: event.target.value }); }}>
+      <option value="">Wszystkie miejscowości</option>
+      {cityOptions.map(([group, cities]) => (
+        <optgroup key={group} label={group}>
+          {cities.map((city) => <option key={city} value={city}>{city}</option>)}
+        </optgroup>
+      ))}
+    </select>
+  );
+
+  const radiusSelect = (id, className = selectClass) => (
+    <select id={id} className={className} value={filters.radius} disabled={!center} onChange={(event) => update({ radius: event.target.value })}>
+      {filters.city && <option value="0">Tylko ta miejscowość</option>}
+      {RADIUS_OPTIONS.map((km) => <option key={km} value={km}>Do {km} km</option>)}
+    </select>
+  );
+
+  const filterControls = (idPrefix) => (
+    <div className="grid gap-4">
       {!lockCategory && (
         <div>
-          <label htmlFor="filter-category" className={labelClass}>Kategoria</label>
-          <select id="filter-category" className={selectClass} value={filters.category} onChange={(e) => update({ category: e.target.value, sub: '' })}>
+          <label htmlFor={idPrefix + '-category'} className={labelClass}>Kategoria</label>
+          <select id={idPrefix + '-category'} className={selectClass} value={filters.category} onChange={(e) => update({ category: e.target.value, sub: '' })}>
             <option value="">Wszystkie kategorie</option>
             {FORM_CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
           </select>
@@ -225,47 +241,32 @@ export default function BrowseListings({
 
       {subcategories.length > 0 && (
         <div>
-          <label htmlFor="filter-sub" className={labelClass}>Typ sprzętu</label>
-          <select id="filter-sub" className={selectClass} value={filters.sub} onChange={(e) => update({ sub: e.target.value })}>
+          <label htmlFor={idPrefix + '-sub'} className={labelClass}>Typ sprzętu</label>
+          <select id={idPrefix + '-sub'} className={selectClass} value={filters.sub} onChange={(e) => update({ sub: e.target.value })}>
             <option value="">Dowolny typ</option>
             {subcategories.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
         </div>
       )}
 
-      {!lockCity && (
+      {!lockCity && !searchIntro && (
         <div>
-          <label htmlFor="filter-city" className={labelClass}>Miejscowość</label>
-          <select
-            id="filter-city"
-            className={selectClass}
-            value={filters.city}
-            onChange={(e) => { setUserLocation(null); update({ city: e.target.value }); }}
-          >
-            <option value="">Wszystkie miejscowości</option>
-            {cityOptions.map(([group, cities]) => (
-              <optgroup key={group} label={group}>
-                {cities.map((city) => <option key={city} value={city}>{city}</option>)}
-              </optgroup>
-            ))}
-          </select>
+          <label htmlFor={idPrefix + '-city'} className={labelClass}>Miejscowość</label>
+          {citySelect(idPrefix + '-city')}
         </div>
       )}
 
-      {center && (
+      {center && !searchIntro && (
         <div>
-          <label htmlFor="filter-radius" className={labelClass}>Odległość</label>
-          <select id="filter-radius" className={selectClass} value={filters.radius} onChange={(e) => update({ radius: e.target.value })}>
-            {filters.city && <option value="0">Tylko ta miejscowość</option>}
-            {RADIUS_OPTIONS.map((km) => <option key={km} value={km}>Do {km} km</option>)}
-          </select>
+          <label htmlFor={idPrefix + '-radius'} className={labelClass}>Odległość</label>
+          {radiusSelect(idPrefix + '-radius')}
         </div>
       )}
 
       <div>
-        <label htmlFor="filter-price" className={labelClass}>Cena do (zł)</label>
+        <label htmlFor={idPrefix + '-price'} className={labelClass}>Cena do (zł)</label>
         <input
-          id="filter-price"
+          id={idPrefix + '-price'}
           type="number"
           min="0"
           step="10"
@@ -278,13 +279,13 @@ export default function BrowseListings({
       </div>
 
       <div>
-        <label htmlFor="filter-sort" className={labelClass}>Sortowanie</label>
-        <select id="filter-sort" className={selectClass} value={filters.sort} onChange={(e) => update({ sort: e.target.value })}>
+        <label htmlFor={idPrefix + '-sort'} className={labelClass}>Sortowanie</label>
+        <select id={idPrefix + '-sort'} className={selectClass} value={filters.sort} onChange={(e) => update({ sort: e.target.value })}>
           {SORT_OPTIONS.filter((o) => o.value !== 'distance' || center).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 sm:col-span-2 lg:col-span-4">
+      <div className="flex flex-col items-start">
         <label className="flex min-h-[44px] cursor-pointer items-center gap-2 text-sm text-slate-800 dark:text-slate-200">
           <input type="checkbox" className="h-4 w-4 accent-brand-600" checked={Boolean(filters.delivery)} onChange={(e) => update({ delivery: e.target.checked ? '1' : '' })} />
           Z dostawą
@@ -305,104 +306,154 @@ export default function BrowseListings({
           </button>
         )}
       </div>
-      {locationError && <p role="alert" className="text-sm text-red-700 dark:text-red-400 sm:col-span-2 lg:col-span-4">{locationError}</p>}
+      {locationError && <p role="alert" className="text-sm text-red-700 dark:text-red-400">{locationError}</p>}
     </div>
   );
 
-  return (
-    <section aria-label="Wyszukiwarka ofert">
-      <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-800 md:p-4">
-        <div className="flex gap-2">
-          <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" aria-hidden="true" />
-            <label htmlFor="filter-q" className="sr-only">Czego szukasz?</label>
-            <input
-              id="filter-q"
-              type="search"
-              placeholder="Czego szukasz? np. minikoparka, zagęszczarka"
-              className={`${selectClass} pl-9`}
-              value={filters.q}
-              onChange={(e) => update({ q: e.target.value })}
-            />
-          </div>
-          <button
-            type="button"
-            onClick={() => setSheetOpen(true)}
-            className="flex h-11 flex-shrink-0 items-center gap-2 rounded-lg border border-slate-300 px-3 text-sm font-medium text-slate-800 dark:border-slate-600 dark:text-slate-200 lg:hidden"
-          >
-            <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
-            Filtry{activeCount > 0 ? ` (${activeCount})` : ''}
-          </button>
-        </div>
-        <div className="mt-4 hidden lg:block">{filterControls}</div>
-      </div>
+  const searchField = (
+    <div className="relative min-w-0 flex-1">
+      <Search className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-slate-500 dark:text-slate-400" aria-hidden="true" />
+      <label htmlFor="filter-q" className="sr-only">Czego szukasz?</label>
+      <input
+        id="filter-q"
+        type="search"
+        placeholder="Czego szukasz? Np. minikoparka"
+        className={`${selectClass} pl-10`}
+        value={filters.q}
+        onChange={(event) => update({ q: event.target.value })}
+      />
+    </div>
+  );
 
-      {sheetOpen && (
-        <div className="fixed inset-0 z-[60] lg:hidden" role="dialog" aria-modal="true" aria-label="Filtry">
-          <button type="button" aria-label="Zamknij filtry" className="absolute inset-0 bg-black/50" onClick={() => setSheetOpen(false)} />
-          <div className="absolute inset-x-0 bottom-0 max-h-[85vh] overflow-y-auto rounded-t-2xl bg-white p-4 pb-6 dark:bg-slate-900">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-base font-semibold text-slate-900 dark:text-white">Filtry</h2>
-              <button type="button" aria-label="Zamknij" className="flex h-11 w-11 items-center justify-center text-slate-600 dark:text-slate-300" onClick={() => setSheetOpen(false)}>
-                <X className="h-5 w-5" aria-hidden="true" />
-              </button>
-            </div>
-            {filterControls}
-            <button type="button" onClick={() => setSheetOpen(false)} className="mt-5 h-12 w-full rounded-lg bg-brand-600 font-semibold text-white hover:bg-brand-700">
-              Pokaż {offersLabel(results.length)}
-            </button>
-          </div>
-        </div>
-      )}
+  const filtersButton = (
+    <button type="button" onClick={() => filterDialog.current?.showModal()} className={`flex min-h-11 shrink-0 items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-800 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 ${searchIntro ? '' : 'lg:hidden'}`}>
+      <SlidersHorizontal size={17} aria-hidden="true" />
+      Filtry{activeCount > 0 ? ` (${activeCount})` : ''}
+    </button>
+  );
 
-      <div className="mb-4 mt-6 flex items-center justify-between gap-3">
-        {heading || (
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Oferty wynajmu</h2>
-        )}
-        <div className="flex flex-shrink-0 items-center gap-3">
-          <span className="text-sm text-slate-600 dark:text-slate-400" aria-live="polite">{offersLabel(results.length)}</span>
-          <div className="flex overflow-hidden rounded-lg border border-slate-300 dark:border-slate-600">
-            <button type="button" aria-pressed={view === 'list'} onClick={() => changeView('list')} className={`flex h-10 items-center gap-1.5 px-3 text-sm ${view === 'list' ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-700 dark:text-slate-300'}`}>
-              <LayoutGrid className="h-4 w-4" aria-hidden="true" /><span className="hidden sm:inline">Lista</span>
+  const resultsContent = (
+    <div id="oferty" ref={resultsRef} tabIndex={-1} className="min-w-0 scroll-mt-20 focus:outline-none">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          {heading || <h2 className="market-heading">Oferty wynajmu</h2>}
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400" aria-live="polite">{offersLabel(results.length)}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          {searchIntro && filtersButton}
+          <div className="flex rounded-lg border border-slate-300 bg-white p-0.5 dark:border-slate-600 dark:bg-slate-800" aria-label="Widok wyników" role="group">
+            <button type="button" aria-label="Lista" aria-pressed={view === 'list'} onClick={() => changeView('list')} className="market-view-button">
+              <LayoutGrid size={16} aria-hidden="true" /><span className="hidden sm:inline">Lista</span>
             </button>
-            <button type="button" aria-pressed={view === 'map'} onClick={() => changeView('map')} className={`flex h-10 items-center gap-1.5 px-3 text-sm ${view === 'map' ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-700 dark:text-slate-300'}`}>
-              <MapIcon className="h-4 w-4" aria-hidden="true" /><span className="hidden sm:inline">Mapa</span>
+            <button type="button" aria-label="Mapa" aria-pressed={view === 'map'} onClick={() => changeView('map')} className="market-view-button">
+              <MapIcon size={16} aria-hidden="true" /><span className="hidden sm:inline">Mapa</span>
             </button>
           </div>
         </div>
       </div>
 
       {view === 'map' ? (
-        <div className="h-[70vh] min-h-[420px] overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700">
-          <MapComponent listings={results} searchCenter={center} radius={center ? Number(filters.radius) : 0} isCompact />
+        <div className={`grid overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800 ${searchIntro && results.length > 0 ? 'lg:grid-cols-[20rem_minmax(0,1fr)]' : ''}`}>
+          {searchIntro && results.length > 0 && (
+            <div className="hidden h-[34rem] space-y-2 overflow-y-auto border-r border-slate-200 p-3 dark:border-slate-700 lg:block">
+              {results.slice(0, visible).map((listing) => <ListingCard key={listing.ID_sprzetu} listing={listing} layout="compact" />)}
+              {results.length > visible && (
+                <button type="button" onClick={() => setVisible((count) => count + PAGE_SIZE)} className="min-h-11 w-full rounded-lg border border-slate-300 text-sm font-semibold hover:bg-slate-100 dark:border-slate-600 dark:hover:bg-slate-700">
+                  Pokaż więcej ({results.length - visible})
+                </button>
+              )}
+            </div>
+          )}
+          <div className="relative h-[65vh] min-h-[22rem] lg:h-[34rem]">
+            <MapComponent listings={results} searchCenter={center} radius={center ? Number(filters.radius) : 0} isCompact />
+          </div>
         </div>
       ) : results.length > 0 ? (
         <>
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 xl:grid-cols-4">
+          <div className={searchIntro ? 'grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 xl:grid-cols-4' : 'grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1'}>
             {results.slice(0, visible).map((listing) => (
-              <ListingCard key={listing.ID_sprzetu} listing={listing} />
+              <ListingCard key={listing.ID_sprzetu} listing={listing} layout={searchIntro ? 'grid' : 'row'} />
             ))}
           </div>
           {results.length > visible && (
             <div className="mt-6 text-center">
-              <button type="button" onClick={() => setVisible((count) => count + PAGE_SIZE)} className="h-11 rounded-lg border border-slate-300 px-6 text-sm font-medium text-slate-800 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800">
+              <button type="button" onClick={() => setVisible((count) => count + PAGE_SIZE)} className="min-h-11 rounded-lg border border-slate-300 bg-white px-6 text-sm font-semibold text-slate-800 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
                 Pokaż więcej ({results.length - visible})
               </button>
             </div>
           )}
         </>
       ) : (
-        <div className="rounded-xl border border-slate-200 bg-white p-8 text-center dark:border-slate-700 dark:bg-slate-800">
-          <h3 className="mb-2 text-base font-semibold text-slate-900 dark:text-white">Brak ofert dla wybranych filtrów</h3>
+        <div className="rounded-xl border border-slate-200 bg-white p-6 text-center dark:border-slate-700 dark:bg-slate-800 sm:p-8">
+          <Search size={24} className="mx-auto mb-3 text-slate-500 dark:text-slate-400" aria-hidden="true" />
+          <h3 className="mb-2 font-bold text-slate-900 dark:text-white">Brak ofert dla wybranych filtrów</h3>
           <p className="mx-auto mb-5 max-w-md text-sm text-slate-600 dark:text-slate-400">
             {emptyHint || 'Zmień kryteria lub sprawdź wypożyczalnie w katalogu firm. Często mają więcej sprzętu niż w ogłoszeniach.'}
           </p>
           <div className="flex flex-wrap justify-center gap-3">
-            <button type="button" onClick={reset} className="h-11 rounded-lg bg-brand-600 px-5 text-sm font-semibold text-white hover:bg-brand-700">Wyczyść filtry</button>
-            <Link href="/katalog" className="flex h-11 items-center rounded-lg border border-slate-300 px-5 text-sm font-medium text-slate-800 dark:border-slate-600 dark:text-slate-200">Katalog firm</Link>
+            <button type="button" onClick={reset} className="market-action">Wyczyść filtry</button>
+            <Link href="/katalog" className="flex min-h-11 items-center rounded-lg border border-slate-300 px-5 text-sm font-semibold text-slate-800 dark:border-slate-600 dark:text-slate-200">Katalog firm</Link>
           </div>
         </div>
       )}
+    </div>
+  );
+
+  return (
+    <section aria-label="Wyszukiwarka ofert">
+      {searchIntro ? (
+        <>
+          <div id="szukaj" className="relative isolate scroll-mt-16 overflow-hidden bg-slate-950">
+            <div className="relative mx-auto max-w-7xl px-4 pb-5 sm:px-6 sm:pb-8 lg:pb-10">
+              {searchIntro}
+              <form onSubmit={(event) => {
+                event.preventDefault();
+                resultsRef.current?.focus({ preventScroll: true });
+                resultsRef.current?.scrollIntoView({ block: 'start' });
+              }} className="relative grid gap-2 rounded-xl border border-slate-200 bg-white p-2 shadow-xl dark:border-slate-700 dark:bg-slate-900 lg:grid-cols-[minmax(0,2.2fr)_minmax(0,1.25fr)_minmax(0,1fr)_auto]">
+                {searchField}
+                <div className="relative min-w-0">
+                  <MapPin className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-slate-500 dark:text-slate-400" aria-hidden="true" />
+                  <label htmlFor="hero-city" className="sr-only">Miejscowość</label>
+                  {citySelect('hero-city', `${selectClass} pl-10`)}
+                </div>
+                <div className="relative min-w-0">
+                  <LocateFixed className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-slate-500 dark:text-slate-400" aria-hidden="true" />
+                  <label htmlFor="hero-radius" className="sr-only">Promień wyszukiwania</label>
+                  {radiusSelect('hero-radius', `${selectClass} pl-10`)}
+                </div>
+                <button type="submit" className="market-action px-6"><Search size={17} aria-hidden="true" /> Szukaj</button>
+              </form>
+            </div>
+          </div>
+          {beforeResults}
+          <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">{resultsContent}</div>
+        </>
+      ) : (
+        <>
+          <div className="mb-5 flex gap-2">{searchField}{filtersButton}</div>
+          <div className="grid items-start gap-5 lg:grid-cols-[15rem_minmax(0,1fr)] xl:grid-cols-[17rem_minmax(0,1fr)]">
+            <aside className="hidden rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800 lg:block">
+              <h2 className="mb-4 flex items-center gap-2 font-bold"><SlidersHorizontal size={17} aria-hidden="true" /> Filtry</h2>
+              {filterControls('sidebar')}
+            </aside>
+            {resultsContent}
+          </div>
+        </>
+      )}
+
+      <dialog ref={filterDialog} aria-labelledby="filters-heading" className="fixed inset-x-0 bottom-0 top-auto m-0 max-h-[85dvh] w-full max-w-none overflow-y-auto rounded-t-2xl bg-white p-5 text-slate-900 shadow-xl backdrop:bg-slate-950/60 dark:bg-slate-900 dark:text-white sm:inset-0 sm:m-auto sm:max-w-md sm:rounded-2xl">
+        <div className="mb-4 flex items-center justify-between gap-4">
+          <h2 id="filters-heading" className="text-lg font-bold">Filtry</h2>
+          <button type="button" aria-label="Zamknij filtry" className="grid size-11 place-items-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800" onClick={() => filterDialog.current?.close()}>
+            <X size={20} aria-hidden="true" />
+          </button>
+        </div>
+        {filterControls('dialog')}
+        <button type="button" onClick={() => filterDialog.current?.close()} className="market-action mt-4 w-full">
+          Pokaż {offersLabel(results.length)}
+        </button>
+      </dialog>
     </section>
   );
 }

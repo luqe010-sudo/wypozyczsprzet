@@ -3,8 +3,9 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import Map, { Marker, Popup, NavigationControl, FullscreenControl, GeolocateControl } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import * as maplibregl from 'maplibre-gl';
-import Image from 'next/image';
+import maplibregl from '../lib/mapLibre';
+import { MapPin } from 'lucide-react';
+import ListingImage from './listing/ListingImage';
 
 // Default center: Lower Silesia, where most listings are.
 const DEFAULT_VIEWPORT = {
@@ -218,19 +219,15 @@ export default function MapComponent({ listings, searchCenter, radius, onLocatio
             latitude={marker.latitude}
             longitude={marker.longitude}
             anchor="bottom"
-            onClick={e => {
-              e.originalEvent.stopPropagation();
-              setPopupInfo(marker);
-            }}
           >
-            <div className="cursor-pointer group">
-              <div className="bg-blue-600 text-white p-2 rounded-full shadow-lg group-hover:scale-110 transition-transform border-2 border-white dark:border-slate-800">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </div>
-            </div>
+            <button
+              type="button"
+              aria-label={marker['Sprzęt']}
+              onClick={(event) => { event.stopPropagation(); setPopupInfo(marker); }}
+              className="grid size-10 place-items-center rounded-full border-2 border-white bg-amber-400 text-slate-950 shadow-lg hover:bg-amber-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-slate-950 dark:border-slate-800"
+            >
+              <MapPin size={19} aria-hidden="true" />
+            </button>
           </Marker>
         ))}
 
@@ -240,32 +237,32 @@ export default function MapComponent({ listings, searchCenter, radius, onLocatio
             latitude={popupInfo.latitude}
             longitude={popupInfo.longitude}
             onClose={() => setPopupInfo(null)}
-            closeButton={false}
-            className="z-50"
+            className="market-map-popup z-50"
           >
             <div className="p-3 max-w-[200px] dark:bg-slate-800 rounded-lg">
               {popupInfo.Zdjecie && (
-                <div className="relative w-full h-24 rounded-lg mb-2 overflow-hidden">
-                  <Image 
-                    src={popupInfo.Zdjecie} 
-                    alt={popupInfo['Sprzęt']} 
-                    fill
+                <div className="relative mb-2 h-24 w-full overflow-hidden rounded-lg">
+                  <ListingImage
+                    key={popupInfo.id}
+                    src={popupInfo.Zdjecie}
+                    alt={popupInfo['Sprzęt']}
+                    title={popupInfo['Sprzęt']}
+                    category={popupInfo.Kategoria}
                     sizes="200px"
-                    className="object-cover" 
                   />
                 </div>
               )}
               <h3 className="font-bold text-sm text-gray-900 dark:text-white leading-tight mb-1">{popupInfo['Sprzęt']}</h3>
-              <p className="text-blue-600 dark:text-blue-400 font-bold text-sm mb-1">{priceText(popupInfo)}</p>
+              <p className="mb-1 text-sm font-bold text-slate-900 dark:text-white">{priceText(popupInfo)}</p>
               <p className="text-gray-500 dark:text-gray-400 text-xs flex items-center gap-1">
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                 {popupInfo.Miasto}
               </p>
               <a 
                 href={`/${popupInfo.seoCategory}/${popupInfo.citySlug}/${popupInfo.slug}`}
-                className="mt-2 block text-center bg-blue-600 text-white text-xs font-bold py-2 rounded-lg hover:bg-blue-700 transition-colors no-underline"
+                className="market-action mt-2 w-full"
               >
-                Szczegóły
+                Zobacz ogłoszenie
               </a>
             </div>
           </Popup>

@@ -1,6 +1,7 @@
 import './globals.css';
 import { Inter } from 'next/font/google';
 import Navbar from '../components/Navbar';
+import SiteBrand from '../components/SiteBrand';
 import CookieConsent from '../components/CookieConsentLoader';
 import ToastProvider from '../components/ToastProvider';
 import Script from 'next/script';
@@ -75,19 +76,22 @@ export default function RootLayout({ children }) {
         <ToastProvider />
         <CookieConsent />
         <Navbar />
-        <main className="bg-gray-50 dark:bg-slate-900 min-h-screen transition-colors">{children}</main>
-        <footer className="border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
-          <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-8 text-sm text-slate-600 dark:text-slate-400 sm:px-6 md:flex-row md:items-center md:justify-between">
-            <p>&copy; {new Date().getFullYear()} WypożyczSprzęt. Serwis ogłoszeniowy, nie jest stroną umów wynajmu.</p>
-            <nav aria-label="Stopka" className="flex flex-wrap gap-x-5 gap-y-2">
-              <Link href="/katalog" className="hover:underline">Katalog firm</Link>
-              <Link href="/blog" className="hover:underline">Poradniki</Link>
-              <Link href="/umowy" className="hover:underline">Wzory umów</Link>
-              <Link href="/kontakt" className="hover:underline">Kontakt</Link>
-              <Link href="/regulamin" className="hover:underline">Regulamin</Link>
-              <Link href="/polityka-prywatnosci" className="hover:underline">Polityka prywatności</Link>
-              <a href="https://www.facebook.com/profile.php?id=61561285692729" target="_blank" rel="noopener noreferrer" className="hover:underline">Facebook</a>
-            </nav>
+        <main className="min-h-screen bg-slate-50 transition-colors dark:bg-slate-900">{children}</main>
+        <footer className="border-t border-white/10 bg-slate-950 text-slate-300">
+          <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+            <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+              <SiteBrand />
+              <nav aria-label="Stopka" className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
+                <Link href="/katalog" className="hover:underline">Katalog firm</Link>
+                <Link href="/blog" className="hover:underline">Poradniki</Link>
+                <Link href="/umowy" className="hover:underline">Wzory umów</Link>
+                <Link href="/kontakt" className="hover:underline">Kontakt</Link>
+                <Link href="/regulamin" className="hover:underline">Regulamin</Link>
+                <Link href="/polityka-prywatnosci" className="hover:underline">Polityka prywatności</Link>
+                <a href="https://www.facebook.com/profile.php?id=61561285692729" target="_blank" rel="noopener noreferrer" className="hover:underline">Facebook</a>
+              </nav>
+            </div>
+            <p className="mt-6 border-t border-white/10 pt-5 text-xs text-slate-400">&copy; {new Date().getFullYear()} wypozycz.online. Umowy wynajmu zawierasz bezpośrednio z wynajmującym.</p>
           </div>
         </footer>
       </body>

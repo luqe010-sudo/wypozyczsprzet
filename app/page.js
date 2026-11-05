@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { ArrowRight, Check, ChevronDown, HardHat, MapPin, PhoneCall, Search, Wrench } from 'lucide-react';
 import BrowseListings from '../components/browse/BrowseListings';
 import CategoryHubs from '../components/CategoryHubs';
 import { fetchMarketplaceData, toCard } from '../lib/listings';
@@ -15,9 +16,16 @@ export const metadata = {
 };
 
 const HOW_IT_WORKS = [
-  { title: 'Znajdź sprzęt', text: 'Wpisz, czego potrzebujesz, i wybierz miejscowość. Wyniki ułożymy od najbliższych.' },
-  { title: 'Skontaktuj się', text: 'Zadzwoń albo wyślij zapytanie z terminem. Rozmawiasz bezpośrednio z wynajmującym.' },
-  { title: 'Ustal warunki', text: 'Cenę, kaucję i transport uzgadniasz z firmą. Serwis nie pobiera prowizji od wynajmu.' },
+  { icon: Search, title: 'Znajdź sprzęt', text: 'Wpisz, czego potrzebujesz, i wybierz miejscowość. Wyniki ułożymy od najbliższych.' },
+  { icon: PhoneCall, title: 'Skontaktuj się', text: 'Zadzwoń albo wyślij zapytanie z terminem. Rozmawiasz bezpośrednio z wynajmującym.' },
+  { icon: Check, title: 'Ustal warunki', text: 'Cenę, kaucję i transport uzgadniasz z firmą. Serwis nie pobiera prowizji od wynajmu.' },
+];
+
+const BENEFITS = [
+  { icon: MapPin, title: 'Wynajem lokalnie', text: 'Sprzęt blisko Twojej inwestycji' },
+  { icon: Wrench, title: 'Różne rodzaje sprzętu', text: 'Maszyny, narzędzia i sprzęt ogrodowy' },
+  { icon: PhoneCall, title: 'Bezpośredni kontakt', text: 'Zadzwoń lub wyślij zapytanie' },
+  { icon: HardHat, title: 'Wynajem bez prowizji', text: 'Warunki ustalasz z wynajmującym' },
 ];
 
 const FAQ = [
@@ -74,23 +82,48 @@ export default async function Home() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
 
-      <section className="relative overflow-hidden bg-slate-900">
-        <Image src="/header.png" alt="" fill priority sizes="100vw" quality={65} className="object-cover object-center opacity-40" />
-        <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-7 sm:px-6 md:pb-20 md:pt-12">
-          <h1 className="max-w-3xl text-2xl font-bold leading-tight text-white md:text-4xl">
-            Wynajem sprzętu budowlanego i ogrodowego na Dolnym Śląsku
-          </h1>
-          <p className="mt-2 text-sm text-slate-200 md:text-lg">
-            {offersLabel(listings.length)} w {filters.cities.length} {filters.cities.length === 1 ? 'miejscowości' : 'miejscowościach'}. Kontakt bezpośrednio z wynajmującym, bez prowizji.
-          </p>
-        </div>
-      </section>
+      <BrowseListings
+        listings={listings.map(toCard)}
+        allCities={filters.cities}
+        searchIntro={(
+          <>
+            <div className="home-hero-photo" aria-hidden="true">
+              <Image src="/header.png" alt="" fill preload sizes="100vw" quality={75} className="object-cover object-[88%_center] lg:object-[center_58%]" />
+            </div>
+            <div className="relative max-w-xl pb-28 pt-10 sm:pb-36 sm:pt-14 lg:max-w-[41rem] lg:pb-9 lg:pt-16">
+              <p className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-slate-950/55 px-3 py-1.5 text-xs font-semibold text-white">
+                <MapPin size={14} className="text-amber-400" aria-hidden="true" /> Dolny Śląsk
+              </p>
+              <h1 className="text-[clamp(2rem,5vw,3.8rem)] font-extrabold leading-[1.06] tracking-[-0.045em] text-white">
+                Wynajmij maszyny, sprzęt i narzędzia <span className="block text-amber-400">w swojej okolicy</span>
+              </h1>
+              <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-200 sm:text-base">
+                {listings.length > 0 && <>{offersLabel(listings.length)} w {filters.cities.length} {filters.cities.length === 1 ? 'miejscowości' : 'miejscowościach'}. </>}
+                Skontaktuj się bezpośrednio z wynajmującym i ustal warunki.
+              </p>
+            </div>
+          </>
+        )}
+        beforeResults={(
+          <>
+            <div className="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+              <ul className="mx-auto grid max-w-7xl grid-cols-2 gap-x-4 gap-y-5 px-4 py-5 sm:px-6 lg:grid-cols-4">
+                {BENEFITS.map(({ icon: Icon, title, text }) => (
+                  <li key={title} className="flex items-start gap-2.5">
+                    <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-amber-100 text-amber-900 dark:bg-amber-400/15 dark:text-amber-300"><Icon size={18} aria-hidden="true" /></span>
+                    <div>
+                      <p className="text-sm font-bold leading-snug text-slate-900 dark:text-white">{title}</p>
+                      <p className="mt-0.5 text-xs leading-snug text-slate-600 dark:text-slate-400">{text}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <CategoryHubs categoryCounts={categoryCounts} />
+          </>
+        )}
+      />
 
-      <div className="mx-auto -mt-10 max-w-7xl px-4 pb-10 sm:px-6">
-        <BrowseListings listings={listings.map(toCard)} allCities={filters.cities} />
-      </div>
-
-      <CategoryHubs categoryCounts={categoryCounts} />
 
       {popularCities.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 pb-10 sm:px-6">
@@ -107,27 +140,30 @@ export default async function Home() {
         </section>
       )}
 
-      <section className="border-y border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-800/40">
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
-          <h2 className="mb-5 text-lg font-semibold text-slate-900 dark:text-white">Jak to działa</h2>
-          <ol className="grid gap-6 md:grid-cols-3">
-            {HOW_IT_WORKS.map((step, index) => (
-              <li key={step.title}>
-                <p className="mb-1 text-sm font-semibold text-brand-600 dark:text-brand-400">Krok {index + 1}</p>
-                <h3 className="mb-1 font-semibold text-slate-900 dark:text-white">{step.title}</h3>
-                <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-400">{step.text}</p>
-              </li>
-            ))}
-          </ol>
-        </div>
+      <section id="jak-to-dziala" className="mx-auto max-w-7xl scroll-mt-20 px-4 pb-10 sm:px-6">
+        <h2 className="market-heading mb-5">Jak to działa?</h2>
+        <ol className="grid gap-3 md:grid-cols-3">
+          {HOW_IT_WORKS.map(({ icon: Icon, title, text }, index) => (
+            <li key={title} className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800">
+              <div className="mb-4 flex items-center justify-between">
+                <span className="grid size-10 place-items-center rounded-lg bg-amber-100 text-amber-900 dark:bg-amber-400/15 dark:text-amber-300"><Icon size={20} aria-hidden="true" /></span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Krok {index + 1}</span>
+              </div>
+              <h3 className="font-bold text-slate-900 dark:text-white">{title}</h3>
+              <p className="mt-1 text-sm leading-relaxed text-slate-600 dark:text-slate-400">{text}</p>
+            </li>
+          ))}
+        </ol>
       </section>
 
-      <section className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-        <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">Najczęstsze pytania</h2>
-        <div className="divide-y divide-slate-200 dark:divide-slate-700">
+      <section className="mx-auto max-w-7xl px-4 pb-10 sm:px-6">
+        <h2 className="market-heading mb-5">Najczęstsze pytania</h2>
+        <div className="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white px-5 dark:divide-slate-700 dark:border-slate-700 dark:bg-slate-800">
           {FAQ.map((item) => (
             <details key={item.question} className="group py-3">
-              <summary className="cursor-pointer list-none py-1 font-medium text-slate-900 marker:hidden dark:text-white">{item.question}</summary>
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-2 text-sm font-semibold text-slate-900 marker:hidden dark:text-white">
+                {item.question}<ChevronDown size={17} className="shrink-0 text-slate-500 group-open:rotate-180 dark:text-slate-400" aria-hidden="true" />
+              </summary>
               <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
                 {item.answer}
                 {item.link && (
@@ -142,14 +178,15 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="bg-slate-900">
-        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-4 px-4 py-10 sm:px-6 md:flex-row md:items-center">
-          <div>
-            <h2 className="text-xl font-semibold text-white">Masz sprzęt na wynajem?</h2>
-            <p className="mt-1 text-slate-300">Dodaj ogłoszenie za darmo. Zapytania klientów trafią bezpośrednio do Ciebie.</p>
+      <section id="dla-wynajmujacych" className="mx-auto max-w-7xl scroll-mt-20 px-4 pb-12 sm:px-6">
+        <div className="flex flex-col items-start justify-between gap-5 rounded-2xl bg-slate-950 p-6 sm:p-9 md:flex-row md:items-center">
+          <div className="max-w-xl">
+            <p className="mb-2 text-xs font-bold uppercase tracking-widest text-amber-400">Dla wynajmujących</p>
+            <h2 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">Masz sprzęt na wynajem?</h2>
+            <p className="mt-2 text-sm leading-relaxed text-slate-300">Dodaj ogłoszenie za darmo. Zapytania klientów trafią bezpośrednio do Ciebie.</p>
           </div>
-          <Link href="/dashboard" className="flex h-12 flex-shrink-0 items-center rounded-lg bg-brand-600 px-6 font-semibold text-white hover:bg-brand-700">
-            Dodaj ogłoszenie
+          <Link href="/dashboard" className="market-action shrink-0">
+            Dodaj ogłoszenie <ArrowRight size={17} aria-hidden="true" />
           </Link>
         </div>
       </section>

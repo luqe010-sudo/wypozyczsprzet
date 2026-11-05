@@ -23,25 +23,25 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Moje Firmy</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="market-heading">Moje firmy</h1>
         <Link 
           href="/dashboard/company/new" 
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="market-action"
         >
           <Plus className="w-5 h-5 mr-2" />
-          Dodaj Firmę
+          Dodaj firmę
         </Link>
       </div>
 
       {companies && companies.length > 0 ? (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           {companies.map((company) => (
-            <div key={company.id} className="bg-white dark:bg-slate-800 overflow-hidden shadow-sm rounded-xl border border-gray-200 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-500 transition-colors">
+            <div key={company.id} className="bg-white dark:bg-slate-800 overflow-hidden shadow-sm rounded-xl border border-gray-200 dark:border-slate-700 hover:border-amber-500 dark:hover:border-amber-400 transition-colors">
               <div className="p-6">
                 <div className="flex items-center">
-                  <div className="flex-shrink-0 bg-blue-100 dark:bg-blue-900/30 rounded-md p-3">
-                    <Building2 className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                  <div className="flex-shrink-0 bg-amber-100 dark:bg-amber-400/20 rounded-md p-3">
+                    <Building2 className="h-6 w-6 text-amber-900 dark:text-amber-300" />
                   </div>
                   <div className="ml-4 flex-1">
                     <h3 className="text-lg font-medium text-gray-900 dark:text-white truncate">
@@ -86,10 +86,10 @@ export default async function DashboardPage() {
           <div className="mt-6">
             <Link
               href="/dashboard/company/new"
-              className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="market-action"
             >
               <Plus className="w-5 h-5 mr-2" />
-              Nowa Firma
+              Dodaj firmę
             </Link>
           </div>
         </div>

@@ -1,8 +1,14 @@
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
-import { LogOut, Home, Inbox, Settings } from 'lucide-react'
+import { Building2, Inbox, LogOut, Settings } from 'lucide-react'
 import { signout } from '@/app/login/actions'
+
+const links = [
+  { href: '/dashboard', label: 'Moje firmy', icon: Building2 },
+  { href: '/dashboard/inquiries', label: 'Zapytania', icon: Inbox },
+  { href: '/dashboard/settings', label: 'Ustawienia', icon: Settings },
+]
 
 export default async function DashboardLayout({ children }) {
   const supabase = await createClient()
@@ -13,52 +19,26 @@ export default async function DashboardLayout({ children }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex flex-col transition-colors">
-      <nav className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex">
-              <div className="flex-shrink-0 flex items-center">
-                <Link href="/" className="text-xl font-black text-blue-600 dark:text-blue-400">
-                  Wypożycz<span className="text-gray-900 dark:text-white">.online</span>
-                </Link>
-              </div>
-              <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                <Link href="/dashboard" className="text-gray-900 dark:text-white inline-flex items-center px-1 pt-1 text-sm font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                  <Home className="w-4 h-4 mr-2" />
-                  Panel Główny
-                </Link>
-                <Link href="/dashboard/inquiries" className="text-gray-500 dark:text-gray-400 inline-flex items-center px-1 pt-1 text-sm font-medium hover:text-gray-900 dark:hover:text-white">
-                  <Inbox className="w-4 h-4 mr-2" />
-                  Zapytania
-                </Link>
-                <Link href="/dashboard/settings" className="text-gray-500 dark:text-gray-400 inline-flex items-center px-1 pt-1 text-sm font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                  <Settings className="w-4 h-4 mr-2" />
-                  Ustawienia
-                </Link>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 sm:gap-4">
-              <Link href="/dashboard/inquiries" aria-label="Zapytania" className="sm:hidden p-2 text-gray-600 dark:text-gray-300">
-                <Inbox className="w-5 h-5" />
-              </Link>
-              <span className="hidden sm:inline-block text-sm text-gray-500 dark:text-gray-400 truncate max-w-[200px]">
-                {user.email}
-              </span>
-              <form action={signout}>
-                <button type="submit" className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors whitespace-nowrap">
-                  <LogOut className="w-4 h-4 mr-1 sm:mr-2" />
-                  <span className="hidden sm:inline">Wyloguj</span>
-                </button>
-              </form>
-            </div>
-          </div>
+    <div className="mx-auto grid min-h-[65vh] max-w-7xl items-start gap-5 px-4 py-5 sm:px-6 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-6 lg:py-8">
+      <aside className="listing-panel min-w-0">
+        <div className="mb-3 border-b border-slate-200 pb-3 dark:border-slate-700">
+          <p className="font-bold text-slate-950 dark:text-white">Panel wynajmującego</p>
+          <p className="mt-1 truncate text-xs text-slate-600 dark:text-slate-400" title={user.email}>{user.email}</p>
         </div>
-      </nav>
-
-      <main className="flex-1 max-w-7xl w-full mx-auto py-6 sm:px-6 lg:px-8">
-        {children}
-      </main>
+        <nav aria-label="Panel wynajmującego" className="flex flex-wrap gap-1 lg:flex-col">
+          {links.map(({ href, label, icon: Icon }) => (
+            <Link key={href} href={href} className="flex min-h-11 items-center gap-2 rounded-lg px-2.5 text-sm font-semibold text-slate-800 hover:bg-amber-100 dark:text-slate-200 dark:hover:bg-slate-700">
+              <Icon size={17} aria-hidden="true" /> {label}
+            </Link>
+          ))}
+          <form action={signout}>
+            <button type="submit" className="flex min-h-11 w-full items-center gap-2 rounded-lg px-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700">
+              <LogOut size={17} aria-hidden="true" /> Wyloguj
+            </button>
+          </form>
+        </nav>
+      </aside>
+      <div className="min-w-0">{children}</div>
     </div>
   )
 }

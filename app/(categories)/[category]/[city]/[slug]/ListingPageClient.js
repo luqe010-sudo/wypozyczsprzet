@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ExternalLink, Flag, Mail, MapPin, MessageSquare, Phone, ShieldCheck } from 'lucide-react';
+import { Building2, CalendarDays, ExternalLink, Flag, Mail, MapPin, MessageSquare, Phone, ShieldCheck } from 'lucide-react';
 import ClaimCompanyModal from '../../../../../components/ClaimCompanyModal';
 import InquiryForm from '../../../../../components/listing/InquiryForm';
 import ListingGallery from '../../../../../components/listing/ListingGallery';
@@ -25,7 +25,6 @@ const secondaryButton = 'flex min-h-[44px] w-full items-center justify-center ga
 
 export default function ListingPageClient({ listing, description, related, categorySlug, categoryName }) {
   const router = useRouter();
-  const supabaseRef = useRef(null);
   const [showPhone, setShowPhone] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
   const [user, setUser] = useState(null);
@@ -42,7 +41,6 @@ export default function ListingPageClient({ listing, description, related, categ
 
   useEffect(() => {
     const supabase = createClient();
-    supabaseRef.current = supabase;
     let cancelled = false;
 
     (async () => {
@@ -81,74 +79,47 @@ export default function ListingPageClient({ listing, description, related, categ
 
   return (
     <>
-      <header className="mb-5">
-        <h1 className="text-2xl font-bold leading-tight text-slate-900 dark:text-white md:text-3xl">{name}</h1>
-        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
-          <p className="text-xl font-bold text-slate-900 dark:text-white">{priceText(listing)}</p>
-          <p className="flex items-center gap-1 text-sm text-slate-600 dark:text-slate-400">
-            <MapPin className="h-4 w-4" aria-hidden="true" />
-            {listing.Miasto}
-          </p>
+      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:gap-x-6">
+        <div className="min-w-0">
+          <ListingGallery key={listing.ID_sprzetu} images={listing.gallery} name={name} city={listing.Miasto} category={listing.Kategoria} />
         </div>
-      </header>
 
-      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12 lg:gap-8">
-        <div className="min-w-0 space-y-6 lg:col-span-8">
-          <ListingGallery images={listing.gallery} name={name} city={listing.Miasto} category={listing.Kategoria} />
-
-          {facts.length > 0 && (
-            <section aria-labelledby="facts-heading">
-              <h2 id="facts-heading" className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">Parametry i warunki</h2>
-              <dl className="grid grid-cols-1 divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white dark:divide-slate-700 dark:border-slate-700 dark:bg-slate-800 sm:grid-cols-2 sm:divide-y-0">
-                {facts.map((fact) => (
-                  <div key={fact.label} className="flex justify-between gap-4 px-4 py-3 text-sm sm:border-b sm:border-slate-200 sm:dark:border-slate-700">
-                    <dt className="text-slate-600 dark:text-slate-400">{fact.label}</dt>
-                    <dd className="text-right font-medium text-slate-900 dark:text-white">{fact.value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </section>
-          )}
-
-          <section aria-labelledby="description-heading">
-            <h2 id="description-heading" className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">Opis</h2>
-            {paragraphs.length > 0 ? (
-              <div className="space-y-3 text-base leading-relaxed text-slate-700 dark:text-slate-300">
-                {paragraphs.map((paragraph, index) => (
-                  <p key={index} className="whitespace-pre-line">{paragraph.trim()}</p>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-slate-600 dark:text-slate-400">Wynajmujący nie dodał opisu. Szczegóły ustalisz bezpośrednio z nim.</p>
+        <div className="listing-panel">
+          <header className="mb-4">
+            {listing.isVerified && (
+              <p className="mb-2.5 inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-950 dark:bg-amber-400/20 dark:text-amber-200">
+                <ShieldCheck size={15} aria-hidden="true" /> Zweryfikowany wynajmujący
+              </p>
             )}
-          </section>
+            <h1 className="break-words text-2xl font-extrabold leading-tight tracking-tight text-slate-950 dark:text-white sm:text-3xl">{name}</h1>
+            <p className="mt-2 flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-400">
+              <MapPin size={16} aria-hidden="true" /> {listing.Miasto}
+            </p>
+          </header>
 
-          {listing.lat != null && listing.lng != null && (
-            <section aria-labelledby="location-heading">
-              <h2 id="location-heading" className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">Lokalizacja</h2>
-              <ListingMap listing={listing} />
-            </section>
-          )}
-        </div>
+          <div className="mb-3 rounded-lg bg-slate-100 px-4 py-3 dark:bg-slate-900">
+            <p className="text-xl font-extrabold tracking-tight text-slate-950 dark:text-white sm:text-2xl">{priceText(listing)}</p>
+          </div>
 
-        <aside className="space-y-4 lg:sticky lg:top-24 lg:col-span-4">
-          <div className="space-y-3 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800 md:p-5">
+          <div className="space-y-2">
+            <a href="#zapytanie" className="market-action w-full">
+              <Mail size={17} aria-hidden="true" /> Wyślij zapytanie
+            </a>
             {phone && (
               showPhone ? (
-                <a href={telHref} className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 font-semibold text-white hover:bg-brand-700">
+                <a href={telHref} className={secondaryButton}>
                   <Phone className="h-4 w-4" aria-hidden="true" />
                   {phone}
                 </a>
               ) : (
-                <button type="button" onClick={revealPhone} className="flex min-h-[48px] w-full items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 font-semibold text-white hover:bg-brand-700">
+                <button type="button" onClick={revealPhone} className={secondaryButton}>
                   <Phone className="h-4 w-4" aria-hidden="true" />
                   Pokaż numer telefonu
                 </button>
               )
             )}
-            <a href="#zapytanie" className={secondaryButton}>
-              <Mail className="h-4 w-4" aria-hidden="true" />
-              Zapytaj o dostępność
+            <a href="#inquiry-from" className={secondaryButton}>
+              <CalendarDays size={17} aria-hidden="true" /> Zapytaj o termin
             </a>
             {olxUsable && (
               <a
@@ -179,10 +150,59 @@ export default function ListingPageClient({ listing, description, related, categ
               </a>
             )}
           </div>
+        </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800 md:p-5">
-            <h2 className="text-sm font-medium text-slate-600 dark:text-slate-400">Wynajmujący</h2>
-            <p className="mt-1 font-semibold text-slate-900 dark:text-white">{company.Nazwa}</p>
+        <nav aria-label="Sekcje ogłoszenia" className="flex flex-wrap gap-x-4 border-b border-slate-200 dark:border-slate-700 lg:col-span-2">
+          <a href="#opis" className="listing-section-link">Opis</a>
+          {facts.length > 0 && <a href="#parametry" className="listing-section-link">Parametry</a>}
+          {listing.lat != null && listing.lng != null && <a href="#lokalizacja" className="listing-section-link">Lokalizacja</a>}
+          <a href="#wynajmujacy" className="listing-section-link">Wynajmujący</a>
+          <a href="#zapytanie" className="listing-section-link">Zapytanie</a>
+        </nav>
+
+        <div className="min-w-0 space-y-4">
+          <section id="opis" aria-labelledby="description-heading" className="listing-panel scroll-mt-24">
+            <h2 id="description-heading" className="market-heading mb-3">Opis sprzętu</h2>
+            {paragraphs.length > 0 ? (
+              <div className="space-y-3 text-base leading-relaxed text-slate-700 dark:text-slate-300">
+                {paragraphs.map((paragraph, index) => (
+                  <p key={index} className="whitespace-pre-line">{paragraph.trim()}</p>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-slate-600 dark:text-slate-400">Wynajmujący nie dodał opisu. Szczegóły ustalisz bezpośrednio z nim.</p>
+            )}
+          </section>
+
+          {facts.length > 0 && (
+            <section id="parametry" aria-labelledby="facts-heading" className="listing-panel scroll-mt-24">
+              <h2 id="facts-heading" className="market-heading mb-3">Parametry i warunki</h2>
+              <dl className="grid grid-cols-1 divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white dark:divide-slate-700 dark:border-slate-700 dark:bg-slate-800 sm:grid-cols-2 sm:divide-y-0">
+                {facts.map((fact) => (
+                  <div key={fact.label} className="flex justify-between gap-4 px-4 py-3 text-sm sm:border-b sm:border-slate-200 sm:dark:border-slate-700">
+                    <dt className="text-slate-600 dark:text-slate-400">{fact.label}</dt>
+                    <dd className="text-right font-medium text-slate-900 dark:text-white">{fact.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+          )}
+
+          {listing.lat != null && listing.lng != null && (
+            <section id="lokalizacja" aria-labelledby="location-heading" className="listing-panel scroll-mt-24">
+              <h2 id="location-heading" className="market-heading mb-3">Lokalizacja</h2>
+              <ListingMap listing={listing} />
+            </section>
+          )}
+        </div>
+
+        <aside className="min-w-0 space-y-4">
+          <section id="wynajmujacy" className="listing-panel scroll-mt-24">
+            <h2 className="market-heading mb-3">Wynajmujący</h2>
+            <p className="flex items-center gap-2.5 break-words font-bold text-slate-900 dark:text-white">
+              <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-slate-950 text-amber-400 dark:bg-slate-700"><Building2 size={18} aria-hidden="true" /></span>
+              {company.Nazwa}
+            </p>
             {listing.isVerified && (
               <p className="mt-2 flex items-center gap-1.5 text-sm font-medium text-emerald-700 dark:text-emerald-400">
                 <ShieldCheck className="h-4 w-4" aria-hidden="true" />
@@ -207,13 +227,13 @@ export default function ListingPageClient({ listing, description, related, categ
                 </button>
               </div>
             )}
-          </div>
+          </section>
 
-          <div id="zapytanie" className="scroll-mt-24 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800 md:p-5">
+          <section id="zapytanie" className="listing-panel scroll-mt-24">
             <h2 className="mb-1 text-base font-semibold text-slate-900 dark:text-white">Zapytaj o dostępność</h2>
             <p className="mb-4 text-sm text-slate-600 dark:text-slate-400">Bez rejestracji. Odpowiedź otrzymasz bezpośrednio od wynajmującego.</p>
             <InquiryForm equipmentId={listing.ID_sprzetu} equipmentName={name} />
-          </div>
+          </section>
 
           <a href={reportHref} className="flex min-h-[44px] items-center justify-center gap-1.5 text-xs text-slate-600 hover:underline dark:text-slate-400">
             <Flag className="h-3.5 w-3.5" aria-hidden="true" />
@@ -224,7 +244,7 @@ export default function ListingPageClient({ listing, description, related, categ
 
       {related.length > 0 && (
         <section className="mt-10" aria-labelledby="related-heading">
-          <h2 id="related-heading" className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">Podobne oferty w pobliżu</h2>
+          <h2 id="related-heading" className="market-heading mb-4">Podobne oferty w pobliżu</h2>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
             {related.map((item) => <ListingCard key={item.ID_sprzetu} listing={item} />)}
           </div>
@@ -239,12 +259,12 @@ export default function ListingPageClient({ listing, description, related, categ
 
       <div className="fixed inset-x-0 bottom-0 z-40 flex gap-2 border-t border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900 lg:hidden" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}>
         {phone && (
-          <a href={telHref} onClick={() => recordPhone('sticky')} className="flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-lg bg-brand-600 font-semibold text-white">
+          <a href={telHref} onClick={() => recordPhone('sticky')} className="flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-lg border border-slate-300 font-semibold text-slate-900 dark:border-slate-600 dark:text-white">
             <Phone className="h-4 w-4" aria-hidden="true" />
             Zadzwoń
           </a>
         )}
-        <a href="#zapytanie" className="flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-lg border border-slate-300 font-semibold text-slate-900 dark:border-slate-600 dark:text-white">
+        <a href="#zapytanie" className="market-action flex-1">
           <Mail className="h-4 w-4" aria-hidden="true" />
           Zapytaj
         </a>

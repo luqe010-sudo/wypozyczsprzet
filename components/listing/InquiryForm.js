@@ -68,7 +68,7 @@ export default function InquiryForm({ equipmentId, equipmentName }) {
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label htmlFor="inquiry-from" className={labelClass}>Od kiedy</label>
-          <input id="inquiry-from" name="date_from" type="date" min={today} className={inputClass} />
+          <input id="inquiry-from" name="date_from" type="date" min={today} className={`${inputClass} scroll-mt-24`} />
         </div>
         <div>
           <label htmlFor="inquiry-to" className={labelClass}>Do kiedy</label>
@@ -94,7 +94,7 @@ export default function InquiryForm({ equipmentId, equipmentName }) {
 
       {state.error && <p role="alert" className="text-sm text-red-700 dark:text-red-400">{state.error}</p>}
 
-      <button type="submit" disabled={state.status === 'sending'} className="flex min-h-[48px] w-full items-center justify-center rounded-lg bg-brand-600 px-4 font-semibold text-white hover:bg-brand-700 disabled:opacity-60">
+      <button type="submit" disabled={state.status === 'sending'} className="market-action w-full">
         {state.status === 'sending' ? 'Wysyłanie…' : 'Wyślij zapytanie'}
       </button>
     </form>

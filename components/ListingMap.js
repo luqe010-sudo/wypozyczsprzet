@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from 'react';
 import Map, { Marker, NavigationControl, Popup } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import * as maplibregl from 'maplibre-gl';
+import maplibregl from '../lib/mapLibre';
 import { MapPin } from 'lucide-react';
 import { FIORD_STYLE } from '../lib/mapStyleConfig';
 import { priceText } from '../lib/format';
@@ -57,26 +57,28 @@ export default function ListingMap({ listing }) {
           latitude={lat}
           longitude={lng}
           anchor="bottom"
-          onClick={(event) => {
-            event.originalEvent.stopPropagation();
-            setShowPopup((open) => !open);
-          }}
         >
-          <div className="cursor-pointer rounded-full border-2 border-white bg-brand-600 p-2 text-white shadow-lg">
+          <button
+            type="button"
+            aria-label="Pokaż lokalizację sprzętu"
+            aria-expanded={showPopup}
+            onClick={(event) => { event.stopPropagation(); setShowPopup((open) => !open); }}
+            className="grid size-10 place-items-center rounded-full border-2 border-white bg-amber-400 text-slate-950 shadow-lg hover:bg-amber-300"
+          >
             <MapPin className="h-5 w-5" aria-hidden="true" />
-          </div>
+          </button>
         </Marker>
         {showPopup && (
-          <Popup latitude={lat} longitude={lng} anchor="bottom" offset={[0, -44]} closeOnClick={false} onClose={() => setShowPopup(false)}>
-            <div className="min-w-[180px] p-2 text-slate-900">
+          <Popup latitude={lat} longitude={lng} anchor="bottom" offset={[0, -44]} closeOnClick={false} onClose={() => setShowPopup(false)} className="market-map-popup">
+            <div className="min-w-[180px] p-2">
               <p className="text-sm font-semibold leading-tight">{listing['Sprzęt']}</p>
               <p className="mt-1 text-sm">{priceText(listing)}</p>
-              <p className="mt-1 text-xs text-slate-600">{address}</p>
+              <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">{address}</p>
               <a
                 href={`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-2 block rounded-md bg-brand-600 py-2 text-center text-xs font-semibold text-white"
+                className="market-action mt-2 w-full"
               >
                 Wyznacz trasę
               </a>

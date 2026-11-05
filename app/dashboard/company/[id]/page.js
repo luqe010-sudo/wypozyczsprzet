@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { ArrowLeft, Edit, Plus, MapPin, Globe, Phone, Mail, PackageOpen, BarChart3 } from 'lucide-react'
 import EquipmentRowActions from '@/components/dashboard/EquipmentRowActions'
 import { formatDate } from '@/lib/format'
+import ListingImage from '@/components/listing/ListingImage'
 
 const STATUS_INFO = {
   active: { label: 'Opublikowane', className: 'text-green-800 bg-green-100 dark:text-green-300 dark:bg-green-950' },
@@ -17,7 +18,7 @@ const STATUS_INFO = {
 
 export default async function CompanyDetailsPage({ params: routeParams }) {
   const params = await routeParams;
-const supabase = await createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
@@ -50,12 +51,12 @@ const supabase = await createClient()
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <Link href="/dashboard" className="text-sm font-medium text-blue-600 hover:text-blue-500 flex items-center">
           <ArrowLeft className="w-4 h-4 mr-1" />
           Wróć do firm
         </Link>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Link
             href={`/dashboard/company/${company.id}/stats`}
             className="inline-flex items-center px-3 py-1.5 border border-blue-600 shadow-sm text-sm font-medium rounded text-blue-600 bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/20"
@@ -157,17 +158,17 @@ const supabase = await createClient()
       </div>
 
       <div className="mt-8">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h3 className="market-heading flex items-center">
             <PackageOpen className="w-5 h-5 mr-2 text-gray-400" />
-            Sprzęt ({equipment?.length || 0})
+            Moje ogłoszenia ({equipment?.length || 0})
           </h3>
           <Link
             href={`/dashboard/company/${company.id}/equipment/new`}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
+            className="market-action"
           >
             <Plus className="w-4 h-4 mr-2" />
-            Dodaj sprzęt
+            Dodaj ogłoszenie
           </Link>
         </div>
 
@@ -176,33 +177,39 @@ const supabase = await createClient()
             <ul className="divide-y divide-gray-200 dark:divide-slate-700">
               {equipment.map((item) => (
                 <li key={item.id} className="p-4 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      <h4 className="text-lg font-medium text-gray-900 dark:text-white">
-                        {item.name}
-                      </h4>
-                      <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                        <span className={`rounded px-2 py-0.5 text-xs font-medium ${(STATUS_INFO[item.status] || STATUS_INFO.inactive).className}`}>
-                          {(STATUS_INFO[item.status] || { label: item.status }).label}
-                        </span>
-                        {item.last_confirmed_at && <span>Potwierdzono: {formatDate(item.last_confirmed_at)}</span>}
-                      </p>
-                      <div className="mt-2">
-                        <EquipmentRowActions id={item.id} companyId={company.id} status={item.status} />
-                      </div>
+                  <div className="flex items-start gap-3 sm:gap-4">
+                    <div className="relative h-[4.5rem] w-20 shrink-0 overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-700 sm:w-24">
+                      <ListingImage src={item.image_url} alt="" title={item.name} category={item.category} sizes="96px" />
                     </div>
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
-                        <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                          {item.price_type === 'fixed' ? `${item.price_amount} zł` : 'Na zapytanie'}
+                    <div className="flex min-w-0 flex-1 flex-wrap items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <h4 className="break-words font-bold text-slate-950 dark:text-white">
+                          {item.name}
+                        </h4>
+                        <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                          <span className={`rounded px-2 py-0.5 text-xs font-medium ${(STATUS_INFO[item.status] || STATUS_INFO.inactive).className}`}>
+                            {(STATUS_INFO[item.status] || { label: item.status }).label}
+                          </span>
+                          {item.last_confirmed_at && <span>Potwierdzono: {formatDate(item.last_confirmed_at)}</span>}
                         </p>
+                        <div className="mt-2">
+                          <EquipmentRowActions id={item.id} companyId={company.id} status={item.status} />
+                        </div>
                       </div>
-                      <Link
-                        href={`/dashboard/equipment/${item.id}/edit`}
-                        className="p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
-                      >
-                        <Edit className="w-5 h-5" />
-                      </Link>
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <p className="text-sm font-bold text-slate-900 dark:text-white">
+                            {item.price_type === 'fixed' ? `${item.price_amount} zł` : 'Na zapytanie'}
+                          </p>
+                        </div>
+                        <Link
+                          href={`/dashboard/equipment/${item.id}/edit`}
+                          aria-label={`Edytuj ogłoszenie ${item.name}`}
+                          className="rounded-lg p-2 text-slate-600 hover:bg-amber-100 dark:text-slate-300 dark:hover:bg-slate-700"
+                        >
+                          <Edit className="w-5 h-5" />
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 </li>

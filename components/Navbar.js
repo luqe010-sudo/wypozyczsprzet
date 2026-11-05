@@ -5,11 +5,13 @@ import Link from 'next/link';
 import { trackEvent } from '../lib/gtag';
 import { usePathname } from 'next/navigation';
 import { createClient } from '../utils/supabase/client';
+import { ChevronDown, CirclePlus, House, LayoutGrid, Menu, Moon, Plus, Search, Sun, UserRound, X } from 'lucide-react';
+import SiteBrand from './SiteBrand';
 import { SEO_CATEGORIES } from '../lib/categories';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [mobileCatsOpen, setMobileCatsOpen] = useState(false);
+  const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [user, setUser] = useState(null);
@@ -69,7 +71,7 @@ export default function Navbar() {
 
   useEffect(() => {
     if (!isOpen) {
-      setMobileCatsOpen(false);
+      setCategoriesOpen(false);
     }
   }, [isOpen]);
 
@@ -95,127 +97,96 @@ export default function Navbar() {
     }
   };
 
+  const accountHref = user ? '/dashboard' : '/login';
+  const addHref = user ? '/dashboard' : '/login?returnTo=/dashboard';
+  const closeMenu = () => {
+    setIsOpen(false);
+    setCategoriesOpen(false);
+  };
+  const trackAdd = () => {
+    closeMenu();
+    trackEvent('click_add_listing', { source: 'navbar' });
+  };
+
+  const links = [
+    { href: '/#jak-to-dziala', label: 'Jak to działa?' },
+    { href: '/#dla-wynajmujacych', label: 'Dla wynajmujących' },
+    { href: '/katalog', label: 'Katalog firm' },
+    { href: '/kontakt', label: 'Kontakt' },
+  ];
+
   return (
-    <nav className="navbar dark:bg-slate-900 transition-colors">
-      <div className="navbar-container">
-        <Link href="/" className="nav-brand group">
-          <span className="text-xl font-black tracking-tight text-gray-900 dark:text-white">
-            Wypozycz<span className="text-brand-600 dark:text-brand-400">.online</span>
-          </span>
-        </Link>
-
-        <div className="nav-tools">
-          <a
-            href="https://www.facebook.com/profile.php?id=61561285692729"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors text-gray-500 dark:text-gray-400"
-            aria-label="Facebook Fanpage"
-          >
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-            </svg>
-          </a>
-
+    <>
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950 text-white" onKeyDown={(event) => { if (event.key === 'Escape') closeMenu(); }}>
+        <nav aria-label="Nawigacja główna" className="relative mx-auto flex h-16 max-w-7xl items-center justify-between gap-2 px-4 sm:px-6 lg:gap-5">
           <button
-            onClick={toggleDarkMode}
-            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors text-gray-500 dark:text-gray-400"
-            aria-label="Przełącz tryb ciemny"
-          >
-            {isDark ? (
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" /></svg>
-            ) : (
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" /></svg>
-            )}
-          </button>
-
-          <button
-            className="mobile-menu-toggle dark:text-white"
+            type="button"
             onClick={() => setIsOpen(!isOpen)}
-            aria-label="Menu"
+            aria-label={isOpen ? 'Zamknij menu' : 'Otwórz menu'}
+            aria-expanded={isOpen}
+            aria-controls="site-menu"
+            className="-ml-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg hover:bg-white/10 lg:hidden"
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              {isOpen ? <path d="M18 6L6 18M6 6l12 12" /> : <path d="M3 12h18M3 6h18M3 18h18" />}
-            </svg>
+            {isOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
-        </div>
+          <SiteBrand />
 
-        <div className={`nav-links ${isOpen ? 'active' : ''} dark:bg-slate-900`}>
-          <Link href="/" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">Strona główna</Link>
-
-          <div className="relative group">
-            <button
-              onClick={() => setMobileCatsOpen(!mobileCatsOpen)}
-              className="mobile-menu-item dark:text-gray-300 dark:hover:text-white flex items-center justify-between w-full gap-1 font-medium group/btn"
-            >
-              <span>Kategorie</span>
-              <svg className={`w-4 h-4 transition-transform group-hover:rotate-180 ${mobileCatsOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-            </button>
-
-            <div className="nav-category-desktop absolute top-full left-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-200 dark:border-slate-700 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-              {Object.values(SEO_CATEGORIES).map((cat) => (
-                <Link
-                  key={cat.slug}
-                  href={`/${cat.slug}`}
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 transition-colors"
-                >
-                  <span>{cat.name}</span>
-                </Link>
-              ))}
+          <div id="site-menu" className={`${isOpen ? 'flex' : 'hidden'} absolute inset-x-0 top-full max-h-[calc(100dvh-4rem)] flex-col overflow-y-auto border-b border-white/10 bg-slate-950 px-4 pb-4 pt-2 text-sm font-medium shadow-xl lg:static lg:flex lg:max-h-none lg:flex-row lg:items-center lg:gap-1 lg:overflow-visible lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none`}>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setCategoriesOpen(!categoriesOpen)}
+                aria-expanded={categoriesOpen}
+                aria-controls="nav-categories"
+                className="flex min-h-11 w-full items-center justify-between gap-1.5 rounded-lg px-3 hover:bg-white/10"
+              >
+                Kategorie <ChevronDown size={15} className={categoriesOpen ? 'rotate-180' : ''} aria-hidden="true" />
+              </button>
+              <div id="nav-categories" hidden={!categoriesOpen} className="rounded-lg bg-slate-900 p-1.5 lg:absolute lg:top-full lg:w-56 lg:border lg:border-white/10 lg:shadow-xl">
+                {Object.values(SEO_CATEGORIES).map((cat) => (
+                  <Link key={cat.slug} href={`/${cat.slug}`} onClick={closeMenu} className="block rounded-md px-3 py-2.5 hover:bg-white/10">
+                    {cat.name}
+                  </Link>
+                ))}
+              </div>
             </div>
 
-            {mobileCatsOpen && (
-              <div className="nav-category-mobile overflow-hidden transition-all duration-300">
-                <div className="space-y-1 bg-gray-50 dark:bg-slate-800/50 rounded-xl p-2 mt-2">
-                  {Object.values(SEO_CATEGORIES).map((cat) => (
-                    <Link
-                      key={cat.slug}
-                      href={`/${cat.slug}`}
-                      onClick={() => setIsOpen(false)}
-                      className="flex items-center gap-2 pl-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600"
-                    >
-                      <span>{cat.name}</span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
+            {links.map(({ href, label }) => (
+              <Link key={href} href={href} onClick={closeMenu} className="flex min-h-11 items-center rounded-lg px-3 hover:bg-white/10">{label}</Link>
+            ))}
+            <Link href="/blog" onClick={closeMenu} className="flex min-h-11 items-center rounded-lg px-3 hover:bg-white/10 lg:hidden">Poradniki</Link>
+            <Link href="/umowy" onClick={closeMenu} className="flex min-h-11 items-center rounded-lg px-3 hover:bg-white/10 lg:hidden">Wzory umów</Link>
+            {isAdmin && (
+              <Link href="/admin" onClick={closeMenu} className="flex min-h-11 items-center rounded-lg px-3 text-amber-300 hover:bg-white/10">Admin</Link>
             )}
+            <button type="button" onClick={toggleDarkMode} aria-label="Przełącz tryb ciemny" aria-pressed={isDark} className="flex min-h-11 items-center gap-2 rounded-lg px-3 hover:bg-white/10">
+              {isDark ? <Sun size={17} /> : <Moon size={17} />}
+              <span className="lg:sr-only">Tryb ciemny</span>
+            </button>
+            <Link href={addHref} onClick={trackAdd} className="market-action mt-2 lg:hidden"><Plus size={17} /> Dodaj ogłoszenie</Link>
           </div>
 
-          <Link href="/blog" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">Poradniki</Link>
-          <Link href="/katalog" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">Katalog firm</Link>
-          <Link href="/umowy" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">Umowy</Link>
-          <Link href="/kontakt" onClick={() => setIsOpen(false)} className="dark:text-gray-300 dark:hover:text-white">Kontakt</Link>
-
-          {user && isAdmin && (
-            <Link
-              href="/admin"
-              onClick={() => setIsOpen(false)}
-              className="admin-nav-link flex items-center gap-2 font-bold text-red-600 dark:text-red-400 hover:text-red-700 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-xl transition-colors"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-              Panel Admina
+          <div className="flex shrink-0 items-center gap-2">
+            <Link href={accountHref} onClick={closeMenu} aria-label={user ? 'Mój panel' : 'Zaloguj się'} className="flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-lg px-2.5 text-sm font-medium hover:bg-white/10">
+              <UserRound size={18} aria-hidden="true" />
+              <span className="hidden xl:inline">{user ? 'Mój panel' : 'Zaloguj się'}</span>
             </Link>
-          )}
+            <Link href={addHref} onClick={trackAdd} className="market-action hidden whitespace-nowrap lg:inline-flex">
+              <Plus size={17} aria-hidden="true" /> Dodaj ogłoszenie
+            </Link>
+          </div>
+        </nav>
+      </header>
 
-          <Link
-            href={user ? "/dashboard" : "/login"}
-            onClick={() => setIsOpen(false)}
-            className="btn-secondary-panel"
-          >
-            Mój Panel
-          </Link>
-
-          <Link
-            href={user ? "/dashboard" : "/login?returnTo=/dashboard"}
-            className="btn-primary"
-            onClick={() => { setIsOpen(false); trackEvent('click_add_listing', { source: 'navbar' }); }}
-          >
-            Dodaj ogłoszenie
-          </Link>
-        </div>
-      </div>
-    </nav>
+      {pathname === '/' && (
+        <nav aria-label="Skróty" className="mobile-market-nav fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-white/10 bg-slate-950 px-2 pb-[env(safe-area-inset-bottom)] text-white lg:hidden">
+          <Link href="/" onClick={closeMenu} className="market-shortcut text-amber-400" aria-current="page"><House size={19} aria-hidden="true" /> Start</Link>
+          <Link href="/#szukaj" onClick={closeMenu} className="market-shortcut"><Search size={19} aria-hidden="true" /> Szukaj</Link>
+          <Link href={addHref} onClick={trackAdd} className="market-shortcut"><CirclePlus size={19} aria-hidden="true" /> Dodaj</Link>
+          <Link href="/#kategorie" onClick={closeMenu} className="market-shortcut"><LayoutGrid size={19} aria-hidden="true" /> Kategorie</Link>
+          <Link href={accountHref} onClick={closeMenu} className="market-shortcut"><UserRound size={19} aria-hidden="true" /> Konto</Link>
+        </nav>
+      )}
+    </>
   );
 }
