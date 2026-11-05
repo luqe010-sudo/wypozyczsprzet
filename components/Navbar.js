@@ -165,7 +165,7 @@ export default function Navbar() {
             </div>
 
             {onboardingLinks.map(({ href, label }) => (
-              <Link key={href} href={href} onClick={closeMenu} className={`${navItem} lg:hidden xl:flex`}>{label}</Link>
+              <Link key={href} href={href} onClick={closeMenu} className={`${navItem} lg:hidden`}>{label}</Link>
             ))}
             {primaryLinks.map(({ href, label }) => (
               <Link key={href} href={href} onClick={closeMenu} className={navItem}>{label}</Link>
@@ -176,7 +176,7 @@ export default function Navbar() {
               </button>
               <div id="nav-resources" hidden={openDropdown !== 'resources'} className={`${dropdown} lg:right-0`}>
                 {onboardingLinks.map(({ href, label }) => (
-                  <Link key={href} href={href} onClick={closeMenu} className={`${navItem} max-lg:hidden xl:hidden`}>{label}</Link>
+                  <Link key={href} href={href} onClick={closeMenu} className={`${navItem} max-lg:hidden`}>{label}</Link>
                 ))}
                 {resourceLinks.map(({ href, label }) => (
                   <Link key={href} href={href} onClick={closeMenu} className={navItem}>{label}</Link>
