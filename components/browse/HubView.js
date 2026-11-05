@@ -22,7 +22,7 @@ export default function HubView({
 }) {
   return (
     <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 md:py-8">
-      <nav aria-label="Ścieżka" className="mb-3 flex items-center gap-2 overflow-x-auto whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">
+      <nav aria-label="Ścieżka" data-no-tab-swipe className="mb-3 flex items-center gap-2 overflow-x-auto whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">
         <Link href="/" className="hover:underline">Strona główna</Link>
         {breadcrumbs.map((crumb) => (
           <span key={crumb.label} className="flex items-center gap-2">

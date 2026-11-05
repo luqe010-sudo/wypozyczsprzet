@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { trackEvent } from '../lib/gtag';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '../utils/supabase/client';
-import { ChevronDown, CirclePlus, Heart, House, Menu, Moon, Plus, Search, Sun, UserRound, X } from 'lucide-react';
+import { ChevronDown, CirclePlus, Heart, House, Map as MapIcon, Menu, Moon, Plus, Search, Sun, UserRound, X } from 'lucide-react';
 import SiteBrand from './SiteBrand';
 import { MARKET_CATEGORIES, SEO_CATEGORY_SLUGS } from '../lib/categories';
 
@@ -28,6 +28,78 @@ const resourceLinks = [
 
 const navItem = 'flex min-h-11 items-center whitespace-nowrap rounded-lg px-3 hover:bg-white/10 lg:px-2 xl:px-3';
 const dropdown = 'rounded-lg bg-slate-900 p-1.5 lg:absolute lg:top-full lg:w-60 lg:border lg:border-white/10 lg:shadow-xl';
+
+function browseShortcuts(searchParams) {
+  const params = new URLSearchParams(searchParams?.toString());
+  params.delete('view');
+  const searchHref = params.size ? `/szukaj?${params}` : '/szukaj';
+  params.set('view', 'map');
+
+  return [
+    { id: 'home', href: '/', label: 'Start', icon: House },
+    { id: 'map', href: `/szukaj?${params}`, label: 'Mapa', icon: MapIcon },
+    { id: 'search', href: searchHref, label: 'Szukaj', icon: Search },
+    { id: 'favorites', href: '/ulubione', label: 'Ulubione', icon: Heart },
+  ];
+}
+
+function ShortcutLinks({ shortcuts, actions, active, closeMenu }) {
+  return [...shortcuts, ...actions].map(({ id, href, label, icon: Icon, action }) => (
+    <Link key={id} href={href} onClick={action || closeMenu} className={`market-shortcut ${id === active ? 'text-market-yellow' : ''}`} aria-current={id === active ? 'page' : undefined}>
+      <Icon size={19} aria-hidden="true" /> {label}
+    </Link>
+  ));
+}
+
+function MobileShortcuts({ active, onSearchPage, menuOpen, ...props }) {
+  const router = useRouter();
+  const params = useSearchParams();
+  const shortcuts = browseShortcuts(onSearchPage ? params : null);
+  const current = onSearchPage && params.get('view') === 'map' ? 'map' : active;
+  const currentIndex = shortcuts.findIndex(({ id }) => id === current);
+  const previous = shortcuts[currentIndex - 1]?.href;
+  const next = shortcuts[currentIndex + 1]?.href;
+
+  useEffect(() => {
+    if (menuOpen) return;
+    const mobile = window.matchMedia('(max-width: 1023px)');
+    let start = null;
+
+    const startSwipe = (event) => {
+      start = null;
+      const target = event.target;
+      if (!mobile.matches || event.touches.length !== 1 || !(target instanceof Element)) return;
+      if (!target.closest('body > main, .mobile-market-nav')) return;
+      if (target.closest('button, input, select, textarea, label, [contenteditable], dialog, [data-no-tab-swipe]')) return;
+
+      const { clientX: x, clientY: y } = event.touches[0];
+      // Keep the browser's edge gestures available.
+      if (x < 20 || x > window.innerWidth - 20) return;
+      start = { x, y, scrollY: window.scrollY };
+    };
+
+    const endSwipe = (event) => {
+      if (!start) return;
+      const { clientX, clientY } = event.changedTouches[0];
+      const { x, y, scrollY } = start;
+      start = null;
+      if (event.touches.length || Math.abs(window.scrollY - scrollY) > 12) return;
+      const dx = clientX - x;
+      const dy = clientY - y;
+      if (Math.abs(dx) < 65 || Math.abs(dx) < Math.abs(dy) * 1.5 || window.getSelection()?.isCollapsed === false) return;
+
+      const destination = dx < 0 ? next : previous;
+      if (destination) router.push(destination);
+    };
+
+    const cancelSwipe = () => { start = null; };
+    const events = { touchstart: startSwipe, touchend: endSwipe, touchcancel: cancelSwipe };
+    Object.entries(events).forEach(([type, handler]) => document.addEventListener(type, handler, { passive: true, capture: true }));
+    return () => Object.entries(events).forEach(([type, handler]) => document.removeEventListener(type, handler, true));
+  }, [menuOpen, next, previous, router]);
+
+  return <ShortcutLinks {...props} active={current} shortcuts={shortcuts} />;
+}
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -119,13 +191,12 @@ export default function Navbar() {
   const toggleDropdown = (name) => setOpenDropdown((current) => current === name ? null : name);
   const pathParts = pathname?.split('/').filter(Boolean) || [];
   const categoryPage = SEO_CATEGORY_SLUGS.includes(pathParts[0]) && pathParts.length < 3;
-  const showShortcuts = categoryPage || ['/', '/szukaj', '/ulubione'].includes(pathname);
-  const shortcuts = [
-    { href: '/', label: 'Start', icon: House, active: pathname === '/' },
-    { href: '/szukaj', label: 'Szukaj', icon: Search, active: categoryPage || pathname === '/szukaj' },
-    { href: addHref, label: 'Dodaj', icon: CirclePlus, action: trackAdd },
-    { href: '/ulubione', label: 'Ulubione', icon: Heart, active: pathname === '/ulubione' },
-    { href: accountHref, label: 'Konto', icon: UserRound },
+  const activeShortcut = pathname === '/' ? 'home'
+    : categoryPage || pathname === '/szukaj' ? 'search'
+    : pathname === '/ulubione' ? 'favorites' : null;
+  const shortcutActions = [
+    { id: 'add', href: addHref, label: 'Dodaj', icon: CirclePlus, action: trackAdd },
+    { id: 'account', href: accountHref, label: 'Konto', icon: UserRound },
   ];
 
   return (
@@ -208,13 +279,11 @@ export default function Navbar() {
         </nav>
       </header>
 
-      {showShortcuts && (
-        <nav aria-label="Skróty" className="mobile-market-nav fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-white/10 bg-market-navy px-2 pb-[env(safe-area-inset-bottom)] text-white lg:hidden">
-          {shortcuts.map(({ href, label, icon: Icon, active, action }) => (
-            <Link key={label} href={href} onClick={action || closeMenu} className={`market-shortcut ${active ? 'text-market-yellow' : ''}`} aria-current={active ? 'page' : undefined}>
-              <Icon size={19} aria-hidden="true" /> {label}
-            </Link>
-          ))}
+      {activeShortcut && (
+        <nav aria-label="Skróty" className="mobile-market-nav fixed inset-x-0 bottom-0 z-40 grid grid-cols-6 border-t border-white/10 bg-market-navy px-1 pb-[env(safe-area-inset-bottom)] text-white lg:hidden">
+          <Suspense fallback={<ShortcutLinks shortcuts={browseShortcuts()} actions={shortcutActions} active={activeShortcut} closeMenu={closeMenu} />}>
+            <MobileShortcuts actions={shortcutActions} active={activeShortcut} closeMenu={closeMenu} onSearchPage={pathname === '/szukaj'} menuOpen={isOpen} />
+          </Suspense>
         </nav>
       )}
     </>

@@ -65,7 +65,7 @@ function filterQuery(filters, view) {
 
 function writeUrlFilters(filters, view) {
   const { pathname, hash } = window.location;
-  window.history.replaceState(window.history.state, '', `${pathname}${filterQuery(filters, view)}${hash}`);
+  window.history.replaceState(null, '', `${pathname}${filterQuery(filters, view)}${hash}`);
 }
 
 function cityCenter(listings, city) {
@@ -130,9 +130,9 @@ export default function BrowseListings({
     const next = { ...currentFilters.current, ...patch };
     currentFilters.current = next;
     setFilters(next);
-    writeUrlFilters(next, view);
+    writeUrlFilters(next, new URLSearchParams(window.location.search).get('view'));
     setVisible(PAGE_SIZE);
-  }, [view]);
+  }, []);
 
   const changeView = (nextView) => {
     setView(nextView);
@@ -460,7 +460,7 @@ export default function BrowseListings({
               )}
             </div>
           )}
-          <div className="relative h-[65vh] min-h-[22rem] lg:h-[34rem]">
+          <div data-no-tab-swipe className="relative h-[65vh] min-h-[22rem] lg:h-[34rem]">
             <MapComponent listings={results} searchCenter={center} radius={center ? Number(filters.radius) : 0} rentalQuery={rentalQuery} isCompact />
           </div>
         </div>
