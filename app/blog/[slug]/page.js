@@ -117,7 +117,7 @@ export default async function ArticlePage({ params }) {
         <article className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 overflow-hidden shadow-sm">
           <header className="p-8 md:p-12 border-b border-gray-100 dark:border-slate-700 bg-gray-50/50 dark:bg-slate-800/50">
             <div className="flex items-center gap-3 mb-6">
-              <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+              <span className="bg-market-yellow text-market-navy px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
                 {article.category}
               </span>
               <span className="text-sm text-gray-500 dark:text-gray-400">{article.date}</span>

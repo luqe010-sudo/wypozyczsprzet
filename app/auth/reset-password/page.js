@@ -41,7 +41,7 @@ export default function ResetPasswordPage() {
       
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center mb-6">
-          <div className="bg-blue-600 p-3 rounded-2xl text-white">
+          <div className="bg-market-yellow p-3 rounded-2xl text-market-navy">
             <ShieldCheck className="w-8 h-8" />
           </div>
         </div>
@@ -87,7 +87,7 @@ export default function ResetPasswordPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-black py-4 rounded-2xl shadow-lg shadow-blue-500/30 transition-all active:scale-[0.98]"
+              className="w-full bg-market-yellow hover:bg-amber-300 disabled:opacity-50 text-market-navy font-black py-4 rounded-2xl shadow-lg transition-all active:scale-[0.98]"
             >
               {isLoading ? 'Przetwarzanie...' : 'Zapisz nowe hasło'}
             </button>

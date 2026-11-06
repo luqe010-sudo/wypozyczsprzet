@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense, useState, useEffect } from 'react';
+import React, { Suspense, useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { trackEvent } from '../lib/gtag';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -9,17 +9,14 @@ import { ChevronDown, CirclePlus, Heart, House, Map as MapIcon, Menu, Moon, Plus
 import SiteBrand from './SiteBrand';
 import { MARKET_CATEGORIES, SEO_CATEGORY_SLUGS } from '../lib/categories';
 
-const onboardingLinks = [
-  { href: '/jak-to-dziala', label: 'Jak to działa?' },
-  { href: '/dla-wynajmujacych', label: 'Dla wynajmujących' },
-];
-
 const primaryLinks = [
-  { href: '/katalog', label: 'Katalog firm' },
-  { href: '/umowy', label: 'Wzory umów' },
+  { href: '/jak-to-dziala', label: 'Jak to działa' },
+  { href: '/dla-wynajmujacych', label: 'Dla wypożyczalni' },
 ];
 
 const resourceLinks = [
+  { href: '/katalog', label: 'Katalog firm' },
+  { href: '/umowy', label: 'Wzory umów' },
   { href: '/blog', label: 'Poradniki' },
   { href: '/kontakt', label: 'Pomoc i kontakt' },
   { href: '/regulamin', label: 'Regulamin' },
@@ -108,6 +105,16 @@ export default function Navbar() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [user, setUser] = useState(null);
   const pathname = usePathname();
+  const header = useRef(null);
+
+  useEffect(() => {
+    if (!openDropdown) return undefined;
+    const closeOutside = (event) => {
+      if (!header.current?.contains(event.target)) setOpenDropdown(null);
+    };
+    document.addEventListener('pointerdown', closeOutside);
+    return () => document.removeEventListener('pointerdown', closeOutside);
+  }, [openDropdown]);
 
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains('dark'));
@@ -178,7 +185,7 @@ export default function Navbar() {
   };
 
   const accountHref = user ? '/dashboard' : '/login';
-  const addHref = user ? '/dashboard/ogloszenia#dodaj' : '/login?returnTo=/dashboard/ogloszenia';
+  const addHref = user ? '/dashboard/ogloszenia#dodaj' : '/login?returnTo=%2Fdashboard%2Fogloszenia%23dodaj';
   const closeMenu = () => {
     setIsOpen(false);
     setOpenDropdown(null);
@@ -190,7 +197,7 @@ export default function Navbar() {
 
   const toggleDropdown = (name) => setOpenDropdown((current) => current === name ? null : name);
   const pathParts = pathname?.split('/').filter(Boolean) || [];
-  const categoryPage = SEO_CATEGORY_SLUGS.includes(pathParts[0]) && pathParts.length < 3;
+  const categoryPage = SEO_CATEGORY_SLUGS.includes(pathParts[0]) && pathParts.length <= 3;
   const activeShortcut = pathname === '/' ? 'home'
     : categoryPage || pathname === '/szukaj' ? 'search'
     : pathname === '/ulubione' ? 'favorites' : null;
@@ -201,21 +208,15 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-market-navy text-white" onKeyDown={(event) => { if (event.key === 'Escape') closeMenu(); }}>
+      <header ref={header} className="sticky top-0 z-50 border-b border-white/10 bg-market-navy text-white" onKeyDown={(event) => { if (event.key === 'Escape') closeMenu(); }}>
         <nav aria-label="Nawigacja główna" className="relative mx-auto flex h-16 max-w-7xl items-center justify-between gap-2 px-4 sm:px-6 xl:gap-4">
-          <button
-            type="button"
-            onClick={() => isOpen ? closeMenu() : setIsOpen(true)}
-            aria-label={isOpen ? 'Zamknij menu' : 'Otwórz menu'}
-            aria-expanded={isOpen}
-            aria-controls="site-menu"
-            className="-ml-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg hover:bg-white/10 lg:hidden"
-          >
-            {isOpen ? <X size={22} /> : <Menu size={22} />}
-          </button>
           <SiteBrand />
 
           <div id="site-menu" className={`${isOpen ? 'flex' : 'hidden'} absolute inset-x-0 top-full max-h-[calc(100dvh-4rem)] flex-col overflow-y-auto border-b border-white/10 bg-market-navy px-4 pb-4 pt-2 text-sm font-medium shadow-xl lg:static lg:flex lg:max-h-none lg:flex-row lg:items-center lg:overflow-visible lg:border-0 lg:bg-transparent lg:p-0 lg:text-[13px] lg:shadow-none xl:gap-1 xl:text-sm`}>
+            <Link href="/szukaj" onClick={closeMenu} className={navItem} aria-label="Znajdź sprzęt">
+              <span className="lg:max-xl:hidden">Znajdź sprzęt</span>
+              <span className="hidden lg:max-xl:inline">Szukaj</span>
+            </Link>
             <div className="relative">
               <button
                 type="button"
@@ -235,9 +236,6 @@ export default function Navbar() {
               </div>
             </div>
 
-            {onboardingLinks.map(({ href, label }) => (
-              <Link key={href} href={href} onClick={closeMenu} className={`${navItem} lg:hidden`}>{label}</Link>
-            ))}
             {primaryLinks.map(({ href, label }) => (
               <Link key={href} href={href} onClick={closeMenu} className={navItem}>{label}</Link>
             ))}
@@ -246,21 +244,15 @@ export default function Navbar() {
                 Więcej <ChevronDown size={15} className={openDropdown === 'resources' ? 'rotate-180' : ''} aria-hidden="true" />
               </button>
               <div id="nav-resources" hidden={openDropdown !== 'resources'} className={`${dropdown} lg:right-0`}>
-                {onboardingLinks.map(({ href, label }) => (
-                  <Link key={href} href={href} onClick={closeMenu} className={`${navItem} max-lg:hidden`}>{label}</Link>
-                ))}
                 {resourceLinks.map(({ href, label }) => (
                   <Link key={href} href={href} onClick={closeMenu} className={navItem}>{label}</Link>
                 ))}
+                {isAdmin && <Link href="/admin" onClick={closeMenu} className={`${navItem} text-amber-300`}>Admin</Link>}
+                <button type="button" onClick={toggleDarkMode} aria-pressed={isDark} className={`${navItem} w-full gap-2`}>
+                  {isDark ? <Sun size={17} aria-hidden="true" /> : <Moon size={17} aria-hidden="true" />} Tryb ciemny
+                </button>
               </div>
             </div>
-            {isAdmin && (
-              <Link href="/admin" onClick={closeMenu} className="flex min-h-11 items-center rounded-lg px-3 text-amber-300 hover:bg-white/10">Admin</Link>
-            )}
-            <button type="button" onClick={toggleDarkMode} aria-label="Przełącz tryb ciemny" aria-pressed={isDark} className={`${navItem} gap-2`}>
-              {isDark ? <Sun size={17} /> : <Moon size={17} />}
-              <span className="lg:sr-only">Tryb ciemny</span>
-            </button>
             <Link href={addHref} onClick={trackAdd} className="market-action mt-2 lg:hidden"><Plus size={17} /> Dodaj ogłoszenie</Link>
           </div>
 
@@ -270,11 +262,21 @@ export default function Navbar() {
             </Link>
             <Link href={accountHref} onClick={closeMenu} aria-label={user ? 'Mój panel' : 'Zaloguj się'} className="flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-lg px-2.5 text-sm font-medium hover:bg-white/10">
               <UserRound size={18} aria-hidden="true" />
-              <span className="hidden 2xl:inline">{user ? 'Mój panel' : 'Zaloguj się'}</span>
+              <span className="hidden xl:inline">{user ? 'Mój panel' : 'Zaloguj się'}</span>
             </Link>
             <Link href={addHref} onClick={trackAdd} className="market-action hidden whitespace-nowrap lg:inline-flex">
               <Plus size={17} aria-hidden="true" /> Dodaj ogłoszenie
             </Link>
+            <button
+              type="button"
+              onClick={() => isOpen ? closeMenu() : setIsOpen(true)}
+              aria-label={isOpen ? 'Zamknij menu' : 'Otwórz menu'}
+              aria-expanded={isOpen}
+              aria-controls="site-menu"
+              className="-mr-2 flex size-11 shrink-0 items-center justify-center rounded-lg hover:bg-white/10 lg:hidden"
+            >
+              {isOpen ? <X size={24} aria-hidden="true" /> : <Menu size={24} aria-hidden="true" />}
+            </button>
           </div>
         </nav>
       </header>

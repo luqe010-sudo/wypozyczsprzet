@@ -3,55 +3,43 @@
 import React, { useState, useEffect } from 'react';
 import Script from 'next/script';
 import Link from 'next/link';
+import { CONSENT_KEY, GA_MEASUREMENT_ID, initializeAnalytics, readCookieConsent } from '../lib/gtag';
 
 export default function CookieConsent() {
-  const [showBanner, setShowBanner] = useState(false);
+  const [storedConsent, setStoredConsent] = useState(readCookieConsent);
   const [showSettings, setShowSettings] = useState(false);
-  const [showPrivacy, setShowPrivacy] = useState(false);
-  const [consent, setConsent] = useState({ analytics: false, necessary: true });
+  const [consent, setConsent] = useState({ analytics: storedConsent?.analytics === true, necessary: true });
+  const showBanner = !storedConsent;
 
   useEffect(() => {
-    const storedConsent = localStorage.getItem('cookieConsent');
-    if (!storedConsent) {
-      setShowBanner(true);
-    } else {
-      setConsent(JSON.parse(storedConsent));
-    }
+    initializeAnalytics();
   }, []);
 
   const saveConsent = (newConsent) => {
-    localStorage.setItem('cookieConsent', JSON.stringify(newConsent));
-    setConsent(newConsent);
-    setShowBanner(false);
     setShowSettings(false);
-    
-    // Reload if needed or trigger GA
-    if (newConsent.analytics) {
-      window.location.reload(); // Simplest way to trigger GA script if it checks consent on load
+    try {
+      localStorage.setItem(CONSENT_KEY, JSON.stringify(newConsent));
+    } catch {
+      setStoredConsent({ analytics: false, necessary: true });
+      return;
     }
+    setStoredConsent(newConsent);
+
+    // Reload so page events start from the first render after analytics consent.
+    if (newConsent.analytics) window.location.reload();
   };
 
   const acceptAll = () => saveConsent({ analytics: true, necessary: true });
   const rejectOptional = () => saveConsent({ analytics: false, necessary: true });
 
-  if (!showBanner && !showSettings && !showPrivacy) {
+  if (!showBanner && !showSettings) {
     // Load GA if consent given
-    if (consent.analytics) {
+    if (storedConsent.analytics === true) {
       return (
-        <>
-          <Script
-            src="https://www.googletagmanager.com/gtag/js?id=G-02JHGY66TQ"
-            strategy="lazyOnload"
-          />
-          <Script id="google-analytics-consent" strategy="lazyOnload">
-            {`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-02JHGY66TQ');
-            `}
-          </Script>
-        </>
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+          strategy="lazyOnload"
+        />
       );
     }
     return null;

@@ -6,7 +6,7 @@ import StatsDashboard from '@/components/dashboard/StatsDashboard';
 
 export default async function CompanyStatsPage({ params: routeParams }) {
   const params = await routeParams;
-const supabase = await createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
@@ -36,8 +36,7 @@ const supabase = await createClient();
         views_count,
         phone_clicks,
         website_clicks,
-        olx_clicks,
-        favorites_count
+        olx_clicks
       )
     `)
     .eq('company_id', company.id);
@@ -47,24 +46,17 @@ const supabase = await createClient();
   }
 
   // Flatten the stats data
-  const flattenedStats = stats?.map(item => {
-    // Supabase returns an array for joins even if it's a 1-to-1 relationship
+  const flattenedStats = (stats || []).flatMap((item) => {
     const itemStats = Array.isArray(item.equipment_stats) 
       ? item.equipment_stats[0] 
       : item.equipment_stats;
 
-    return {
+    return itemStats ? [{
       equipment_id: item.id,
       equipment_name: item.name,
-      ...(itemStats || {
-        views_count: 0,
-        phone_clicks: 0,
-        website_clicks: 0,
-        olx_clicks: 0,
-        favorites_count: 0
-      })
-    };
-  }) || [];
+      ...itemStats,
+    }] : [];
+  });
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
@@ -80,12 +72,14 @@ const supabase = await createClient();
           <BarChart3 className="w-8 h-8 text-blue-600 dark:text-blue-400" />
         </div>
         <div>
-          <h1 className="text-3xl font-black text-gray-900 dark:text-white">Statystyki: {company.name || company.nazwa}</h1>
-          <p className="text-gray-500 dark:text-gray-400">Analizuj wydajność swoich ogłoszeń w czasie rzeczywistym.</p>
+          <h1 className="market-heading">Statystyki firmy {company.name || company.nazwa}</h1>
+          <p className="text-sm text-muted">Łączne zarejestrowane zdarzenia dla ogłoszeń firmy.</p>
         </div>
       </div>
 
-      <StatsDashboard stats={flattenedStats} />
+      {statsError
+        ? <p role="alert" className="listing-panel text-sm text-red-800 dark:text-red-200">Nie udało się wczytać statystyk. Odśwież stronę.</p>
+        : <StatsDashboard stats={flattenedStats} />}
     </div>
   );
 }

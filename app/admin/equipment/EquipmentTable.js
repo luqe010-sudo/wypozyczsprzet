@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { adminDeleteRecord, updateEquipmentStatus } from '../actions'
+import { adminDeleteRecord, setEquipmentFeatured, updateEquipmentStatus } from '../actions'
 import { toast } from 'react-hot-toast'
 import { useSearchParams } from 'next/navigation'
 import { 
@@ -56,6 +56,16 @@ export default function EquipmentTable({ initialEquipment }) {
       } else {
         toast.error(result.error)
       }
+    }
+  }
+
+  const handleFeatured = async (id, featured) => {
+    const result = await setEquipmentFeatured(id, featured)
+    if (result.success) {
+      setEquipment(equipment.map(e => e.id === id ? { ...e, priority: featured ? 2 : 1 } : e))
+      toast.success(featured ? 'Dodano do polecanych' : 'Usunięto z polecanych')
+    } else {
+      toast.error(result.error)
     }
   }
 
@@ -129,8 +139,8 @@ export default function EquipmentTable({ initialEquipment }) {
                 </div>
               )}
                   <div className="absolute top-2 right-2 flex gap-1">
-                {item.promotion && (
-                  <span className="bg-yellow-400 text-yellow-900 p-1.5 rounded-lg shadow-lg" title="Promowane">
+                {item.priority > 1 && (
+                  <span className="bg-yellow-400 text-yellow-900 p-1.5 rounded-lg shadow-lg" title="Polecane">
                     <Star className="w-4 h-4 fill-current" />
                   </span>
                 )}
@@ -176,6 +186,14 @@ export default function EquipmentTable({ initialEquipment }) {
                   >
                     <Edit2 className="w-4 h-4" />
                   </Link>
+                  <button
+                    onClick={() => handleFeatured(item.id, !(item.priority > 1))}
+                    aria-pressed={item.priority > 1}
+                    className={`p-2 rounded-lg transition-colors ${item.priority > 1 ? 'text-amber-600 bg-amber-50' : 'text-gray-400 hover:bg-gray-100'}`}
+                    title={item.priority > 1 ? 'Polecane - kliknij aby usunąć z polecanych' : 'Dodaj do polecanych'}
+                  >
+                    <Star className={`w-4 h-4 ${item.priority > 1 ? 'fill-current' : ''}`} />
+                  </button>
                   <button
                     onClick={() => handleStatusChange(item.id, item.status === 'active' ? 'hidden' : 'active')}
                     className={`p-2 rounded-lg transition-colors ${item.status === 'active' ? 'text-green-600 bg-green-50' : 'text-gray-400 hover:bg-gray-100'}`}

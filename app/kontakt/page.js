@@ -15,7 +15,7 @@ export default function ContactPage() {
     <div className="max-w-[800px] mx-auto px-4 py-12">
       <header className="text-center mb-12">
         <h1 className="text-4xl font-black text-gray-900 dark:text-white mb-4">
-          Kontakt i <span className="text-blue-600">Współpraca</span>
+          Kontakt i <span className="text-market-yellow">Współpraca</span>
         </h1>
         <p className="text-lg text-gray-600 dark:text-gray-400">
           Jesteś właścicielem wypożyczalni? Chcesz dotrzeć do nowych klientów? Zapraszamy do kontaktu!
@@ -64,7 +64,7 @@ export default function ContactPage() {
         <p className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
           Stale rozwijamy naszą platformę. Jeśli masz pomysł na nową funkcjonalność lub zauważyłeś błąd, daj nam znać!
         </p>
-        <a href={`mailto:${CONTACT_EMAIL}`} className="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-md">
+        <a href={`mailto:${CONTACT_EMAIL}`} className="inline-flex items-center justify-center bg-market-yellow hover:bg-amber-300 text-market-navy font-bold py-3 px-8 rounded-xl transition-all shadow-md">
           Wyślij wiadomość
         </a>
       </div>

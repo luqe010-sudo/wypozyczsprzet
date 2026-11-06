@@ -15,7 +15,7 @@ export function generateStaticParams() {
 
 /** One route serves three kinds of landing page: category, voivodeship and city. */
 function resolveHub(slug, listings, cities) {
-  if (SEO_CATEGORIES[slug]) {
+  if (Object.hasOwn(SEO_CATEGORIES, slug)) {
     return { kind: 'category', category: SEO_CATEGORIES[slug], items: listings.filter((l) => l.seoCategory === slug) };
   }
   if (isVoivodeshipSlug(slug)) {

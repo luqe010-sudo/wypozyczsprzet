@@ -336,6 +336,24 @@ export async function updateEquipmentStatus(id, status) {
   }
 }
 
+/** Featured listings are those with priority above the default of 1. */
+export async function setEquipmentFeatured(id, featured) {
+  try {
+    const { supabase } = await checkAdmin()
+    const { error } = await supabase
+      .from('equipment')
+      .update({ priority: featured ? 2 : 1 })
+      .eq('id', id)
+
+    if (error) throw error
+    revalidatePath('/admin/equipment')
+    updateTag('listings')
+    return { success: true }
+  } catch (error) {
+    return { error: error.message }
+  }
+}
+
 // ─── Company Directory CRUD ──────────────────────────────────────────────────
 
 async function uploadLogoToCloudinary(file) {

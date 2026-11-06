@@ -1,67 +1,54 @@
-import { createClient } from '@/utils/supabase/server'
-import { redirect } from 'next/navigation'
-import EditEquipmentForm from './EditEquipmentForm'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
+import { createClient } from '@/utils/supabase/server'
+import EditEquipmentForm from './EditEquipmentForm'
 
-export default async function EditEquipmentPage({ params: routeParams }) {
-  const params = await routeParams;
-const supabase = await createClient()
+export default async function EditEquipmentPage({ params }) {
+  const { id } = await params
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
 
-  if (!user) {
-    redirect('/login')
-  }
+  const { data: equipment } = await supabase
+    .from('equipment')
+    .select('*')
+    .eq('id', id)
+    .single()
+  if (!equipment) redirect('/dashboard')
 
-  // Fetch equipment and verify company ownership
-  const [
-    equipmentRes,
-    categoriesRes,
-    subcategoriesRes
-  ] = await Promise.all([
-    supabase.from('equipment').select('*, companies!inner(owner_user_id)').eq('id', params.id).eq('companies.owner_user_id', user.id).single(),
-    supabase.from('equipment_categories').select('*').eq('status', 'active').order('sort_order'),
-    supabase.from('equipment_subcategories').select('*').eq('status', 'active').order('sort_order')
+  const { data: company } = await supabase.from('companies').select('id')
+    .eq('id', equipment.company_id).eq('owner_user_id', user.id).maybeSingle()
+  if (!company) redirect('/dashboard')
+
+  const categoriesQuery = supabase.from('equipment_categories').select('id, name, db_key').order('sort_order')
+  const subcategoriesQuery = supabase.from('equipment_subcategories').select('id, name, slug, category_id').order('sort_order')
+  const [categories, subcategories, branches] = await Promise.all([
+    equipment.category_id
+      ? categoriesQuery.or(`status.eq.active,id.eq.${equipment.category_id}`)
+      : categoriesQuery.eq('status', 'active'),
+    equipment.subcategory_id
+      ? subcategoriesQuery.or(`status.eq.active,id.eq.${equipment.subcategory_id}`)
+      : subcategoriesQuery.eq('status', 'active'),
+    supabase.from('company_branches').select('id, name, city, address, is_main')
+      .eq('company_id', equipment.company_id).order('is_main', { ascending: false }).order('created_at'),
   ])
 
-  const equipment = equipmentRes.data
-  const error = equipmentRes.error
-  const categories = categoriesRes.data
-  const subcategories = subcategoriesRes.data
-
-  if (error || !equipment) {
-    redirect('/dashboard')
-  }
-
-  // Fetch branches for this company
-  const { data: branches } = await supabase
-    .from('company_branches')
-    .select('*')
-    .eq('company_id', equipment.company_id)
-    .order('is_main', { ascending: false })
-
   return (
-    <div className="max-w-3xl mx-auto">
-      <div className="mb-6 flex items-center">
-        <Link href={`/dashboard/company/${equipment.company_id}`} className="text-sm font-medium text-blue-600 hover:text-blue-500 flex items-center">
-          <ArrowLeft className="w-4 h-4 mr-1" />
-          Wróć do firmy
-        </Link>
-      </div>
-      
-      <div className="bg-white dark:bg-slate-800 shadow-sm rounded-xl border border-gray-200 dark:border-slate-700 transition-colors">
-        <div className="px-4 py-5 sm:p-6">
-          <h3 className="text-lg leading-6 font-bold text-gray-900 dark:text-white mb-5">
-            Edytuj dane sprzętu
-          </h3>
-          <EditEquipmentForm 
-            equipment={equipment} 
-            categories={categories || []}
-            subcategories={subcategories || []}
-            branches={branches || []}
-          />
-        </div>
-      </div>
+    <div className="mx-auto max-w-3xl">
+      <Link href={`/dashboard/company/${equipment.company_id}`} className="mb-3 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-brand-600 hover:underline dark:text-brand-400">
+        <ArrowLeft size={17} aria-hidden="true" /> Wróć do firmy
+      </Link>
+
+      <section className="listing-panel">
+        <h1 className="market-heading">Edytuj ogłoszenie</h1>
+        <p className="mt-1 break-words text-sm text-muted">{equipment.name}</p>
+        {categories.error || subcategories.error || branches.error ? (
+          <p role="alert" className="mt-4 text-sm text-red-800 dark:text-red-200">Nie udało się wczytać danych formularza. Odśwież stronę.</p>
+        ) : (
+          <EditEquipmentForm equipment={equipment} categories={categories.data || []} subcategories={subcategories.data || []} branches={branches.data || []} />
+        )}
+      </section>
     </div>
   )
 }

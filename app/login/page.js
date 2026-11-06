@@ -95,11 +95,12 @@ export default function LoginPage() {
 
           <form action={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Adres email
+              <label htmlFor="login-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Adres e-mail
               </label>
               <div className="mt-1">
                 <input
+                  id="login-email"
                   name="email"
                   type="email"
                   autoComplete="email"
@@ -111,11 +112,12 @@ export default function LoginPage() {
 
             {!isForgotPassword && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label htmlFor="login-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Hasło
                 </label>
                 <div className="mt-1">
                   <input
+                    id="login-password"
                     name="password"
                     type="password"
                     autoComplete={isLogin ? "current-password" : "new-password"}

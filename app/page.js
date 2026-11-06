@@ -1,12 +1,14 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, ChevronDown, HardHat, MapPin, PhoneCall, Wrench } from 'lucide-react';
-import BrowseListings from '../components/browse/BrowseListings';
+import { ArrowRight, ChevronDown, Clock, Crosshair, LayoutGrid, MapPin, Plus, Search, ShieldCheck, Truck } from 'lucide-react';
 import CategoryHubs from '../components/CategoryHubs';
+import FeaturedListings from '../components/FeaturedListings';
+import ListingCard from '../components/ListingCard';
 import RentalSteps from '../components/RentalSteps';
+import { CompactorIcon, ExcavatorIcon, GeneratorIcon, LiftIcon } from '../components/icons/EquipmentIcons';
 import { fetchMarketplaceData, toCard } from '../lib/listings';
 import { cityLinks } from '../lib/hubs';
-import { offersLabel } from '../lib/format';
+import { SEARCH_DEFAULTS, featuredListings, findListings, listingCityCenter } from '../lib/search';
 import { MIN_LISTINGS_FOR_INDEXING, SITE_NAME, SITE_URL } from '../lib/site';
 
 export const revalidate = 3600;
@@ -15,11 +17,22 @@ export const metadata = {
   alternates: { canonical: '/' },
 };
 
+const searchField = 'relative flex min-h-12 min-w-0 items-center gap-2.5 rounded-lg border border-slate-300 bg-card px-3.5 text-sm text-foreground focus-within:border-brand-500 dark:border-slate-600';
+const pillClass = 'flex min-h-12 shrink-0 items-center gap-2.5 rounded-full border px-5 text-sm font-medium text-foreground shadow-sm transition hover:border-amber-400 hover:bg-brand-100 dark:hover:bg-slate-700';
+const SAMPLE_CITY = 'Wrocław';
+
+const CATEGORY_PILLS = [
+  { icon: ExcavatorIcon, label: 'Minikoparki', query: 'minikoparki' },
+  { icon: CompactorIcon, label: 'Zagęszczarki', query: 'zagęszczarki' },
+  { icon: LiftIcon, label: 'Podnośniki', query: 'podnośniki' },
+  { icon: GeneratorIcon, label: 'Agregaty', query: 'agregaty' },
+];
+
 const BENEFITS = [
-  { icon: MapPin, title: 'Wynajem lokalnie', text: 'Sprzęt blisko Twojej inwestycji' },
-  { icon: Wrench, title: 'Różne rodzaje sprzętu', text: 'Maszyny, narzędzia i sprzęt ogrodowy' },
-  { icon: PhoneCall, title: 'Bezpośredni kontakt', text: 'Zadzwoń lub wyślij zapytanie' },
-  { icon: HardHat, title: 'Wynajem bez prowizji', text: 'Warunki ustalasz z wynajmującym' },
+  { icon: MapPin, title: 'Sprzęt od lokalnych firm', text: 'Wypożyczalnie w Twojej okolicy' },
+  { icon: Truck, title: 'Wygodny wynajem', text: 'Szybki kontakt z wynajmującym' },
+  { icon: ShieldCheck, title: 'Bez pośredników', text: 'Umowę zawierasz bezpośrednio z firmą' },
+  { icon: Clock, title: 'Szeroki wybór sprzętu', text: 'Maszyny budowlane, ogrodowe i narzędzia' },
 ];
 
 const FAQ = [
@@ -44,8 +57,14 @@ const FAQ = [
 
 export default async function Home() {
   const { listings, filters } = await fetchMarketplaceData();
-
-  const popularCities = cityLinks(listings, { minListings: MIN_LISTINGS_FOR_INDEXING });
+  const popularCities = cityLinks(listings, { minListings: MIN_LISTINGS_FOR_INDEXING }).slice(0, 12);
+  const featured = featuredListings(listings).map(toCard);
+  const nearby = findListings(listings, { ...SEARCH_DEFAULTS, city: SAMPLE_CITY }, listingCityCenter(listings, SAMPLE_CITY));
+  const localOffers = nearby.length >= 3;
+  const offers = (localOffers ? nearby : listings)
+    .toSorted((a, b) => Boolean(b.gallery[0]) - Boolean(a.gallery[0]))
+    .slice(0, 3);
+  const moreOffers = localOffers ? `/szukaj?city=${encodeURIComponent(SAMPLE_CITY)}` : '/szukaj';
 
   const websiteJsonLd = {
     '@context': 'https://schema.org',
@@ -71,51 +90,121 @@ export default async function Home() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
 
-      <BrowseListings
-        listings={listings.map(toCard)}
-        allCities={filters.cities}
-        searchIntro={(
-          <>
-            <div className="home-hero-photo" aria-hidden="true">
-              <Image src="/header.png" alt="" fill preload sizes="100vw" quality={75} className="object-cover object-[88%_center] lg:object-[center_58%]" />
-            </div>
-            <div className="relative max-w-xl pb-28 pt-7 sm:pb-36 sm:pt-10 lg:max-w-[41rem] lg:pb-8 lg:pt-12">
-              <p className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-slate-950/55 px-3 py-1.5 text-xs font-semibold text-white">
-                <MapPin size={14} className="text-amber-400" aria-hidden="true" /> Dolny Śląsk
-              </p>
-              <h1 className="text-[clamp(1.9rem,5vw,3.5rem)] font-extrabold leading-[1.06] tracking-[-0.045em] text-white">
-                Wynajmij maszyny, sprzęt i narzędzia <span className="block text-market-yellow">w swojej okolicy</span>
-              </h1>
-              <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-200 sm:text-base">
-                {listings.length > 0 && <>{offersLabel(listings.length)} w {filters.cities.length} {filters.cities.length === 1 ? 'miejscowości' : 'miejscowościach'}. </>}
-                Skontaktuj się bezpośrednio z wynajmującym i ustal warunki.
-              </p>
-            </div>
-          </>
-        )}
-        beforeResults={(
-          <>
-            <div className="hidden border-b border-border bg-card sm:block">
-              <ul className="mx-auto grid max-w-7xl grid-cols-2 gap-x-4 gap-y-5 px-4 py-5 sm:px-6 lg:grid-cols-4">
-                {BENEFITS.map(({ icon: Icon, title, text }) => (
-                  <li key={title} className="flex items-start gap-2.5">
-                    <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-amber-100 text-amber-900 dark:bg-amber-400/15 dark:text-amber-300"><Icon size={18} aria-hidden="true" /></span>
-                    <div>
-                      <p className="text-sm font-bold leading-snug text-slate-900 dark:text-white">{title}</p>
-                      <p className="mt-0.5 text-xs leading-snug text-slate-600 dark:text-slate-400">{text}</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <CategoryHubs listings={listings} />
-          </>
-        )}
-      />
+      <section className="relative isolate" aria-labelledby="home-title">
+        <div className="home-hero-photo" aria-hidden="true">
+          <Image src="/hero-minikoparka.webp" alt="" fill preload sizes="(max-width: 1023px) 100vw, 64vw" className="object-cover object-[62%_50%] lg:object-[85%_30%]" />
+        </div>
+        <div className="relative mx-auto max-w-7xl px-4 pt-7 sm:px-6 lg:pt-14">
+          <div className="pb-48 lg:pb-14">
+            <h1 id="home-title" className="text-[clamp(2.25rem,5vw,4rem)] font-extrabold leading-[1.05] tracking-[-0.04em] text-market-navy dark:text-white">
+              Sprzęt do wynajęcia.<span className="block text-market-yellow">Blisko Ciebie.</span>
+            </h1>
+            <p className="mt-3 flex items-center gap-2 text-sm font-medium text-slate-800 dark:text-slate-200 sm:text-lg lg:mt-5">
+              <ShieldCheck size={24} className="shrink-0 text-amber-500" aria-hidden="true" /> Bez pośredników i prowizji
+            </p>
+          </div>
+          <form action="/szukaj" method="get" role="search" aria-label="Wyszukiwarka sprzętu" className="grid gap-2.5 rounded-2xl border border-border bg-card p-3 shadow-xl sm:grid-cols-2 lg:grid-cols-[1.35fr_1fr_0.85fr_auto]">
+            <label className={searchField}>
+              <Search size={19} className="shrink-0" aria-hidden="true" />
+              <span className="sr-only">Szukany sprzęt</span>
+              <input name="q" type="search" maxLength={120} placeholder="Jakiego sprzętu szukasz?" className="h-12 w-full min-w-0 bg-transparent placeholder:text-slate-600 focus:outline-none dark:placeholder:text-slate-400" />
+            </label>
+            <label className={searchField}>
+              <MapPin size={19} className="shrink-0" aria-hidden="true" />
+              <span className="sr-only">Miejscowość</span>
+              <input name="city" list="home-cities" maxLength={80} placeholder="Wpisz miejscowość" className="h-12 w-full min-w-0 bg-transparent placeholder:text-slate-600 focus:outline-none dark:placeholder:text-slate-400" />
+            </label>
+            <datalist id="home-cities">
+              {filters.cities.map((city) => <option key={city} value={city} />)}
+            </datalist>
+            <label className={searchField}>
+              <Crosshair size={18} className="shrink-0" aria-hidden="true" />
+              <span className="sr-only">Promień wyszukiwania</span>
+              <select name="radius" defaultValue="25" className="h-12 w-full min-w-0 appearance-none bg-transparent pr-6 font-medium focus:outline-none [&>option]:bg-card">
+                <option value="0">Tylko miejscowość</option>
+                {[10, 25, 50, 100].map((distance) => <option key={distance} value={distance}>Promień {distance} km</option>)}
+              </select>
+              <ChevronDown size={17} className="pointer-events-none absolute right-3" aria-hidden="true" />
+            </label>
+            <button className="market-action min-h-12 px-8 text-base" type="submit"><Search size={19} aria-hidden="true" /> Szukaj sprzętu</button>
+          </form>
+        </div>
+      </section>
 
+      <nav aria-label="Popularny sprzęt" data-no-tab-swipe className="no-scrollbar mx-auto flex max-w-7xl gap-3 overflow-x-auto px-4 pb-1 pt-5 sm:px-6 lg:justify-center">
+        {CATEGORY_PILLS.map(({ icon: Icon, label, query }, index) => (
+          <Link key={label} href={`/szukaj?q=${encodeURIComponent(query)}`} className={`${pillClass} ${index === 0 ? 'border-brand-200 bg-brand-100 dark:border-slate-600 dark:bg-slate-700' : 'border-border bg-card'}`}>
+            <Icon /> {label}
+          </Link>
+        ))}
+        <a href="#kategorie" className={`${pillClass} border-border bg-card`}>
+          <LayoutGrid size={19} aria-hidden="true" /> Wszystkie kategorie <ArrowRight size={16} aria-hidden="true" />
+        </a>
+      </nav>
+
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <ul className="grid grid-cols-2 gap-4 border-b border-border py-5 lg:grid-cols-4 lg:gap-0 lg:divide-x lg:divide-border">
+          {BENEFITS.map(({ icon: Icon, title, text }) => (
+            <li key={title} className="flex items-center gap-3 lg:px-5 lg:first:pl-0">
+              <Icon size={28} strokeWidth={1.75} className="shrink-0 text-amber-500" aria-hidden="true" />
+              <div>
+                <p className="text-xs font-bold leading-snug sm:text-sm">{title}</p>
+                <p className="mt-0.5 hidden text-xs leading-snug text-slate-600 dark:text-slate-400 sm:block">{text}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <FeaturedListings listings={featured} className="mx-auto max-w-7xl px-4 pt-7 sm:px-6" />
+
+      <section className="mx-auto max-w-7xl px-4 pb-8 pt-7 sm:px-6" aria-labelledby="home-offers">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-1">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
+            <h2 id="home-offers" className="market-heading">{localOffers ? 'Sprzęt dostępny w okolicy' : 'Oferty wynajmu sprzętu'}</h2>
+            {localOffers && (
+              <p className="flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-300">
+                <MapPin size={15} aria-hidden="true" /> {SAMPLE_CITY} i okolice (do {SEARCH_DEFAULTS.radius} km)
+              </p>
+            )}
+          </div>
+          <Link href={moreOffers} className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold hover:underline">
+            Zobacz wszystkie oferty <ArrowRight size={16} aria-hidden="true" />
+          </Link>
+        </div>
+        {offers.length > 0 ? (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {offers.map((listing) => <ListingCard key={listing.ID_sprzetu} listing={toCard(listing)} />)}
+          </div>
+        ) : (
+          <div className="rounded-xl border border-border bg-card p-5">
+            <p>W tej chwili nie ma opublikowanych ofert. Sprawdź firmy, które wynajmują sprzęt w Twojej okolicy.</p>
+            <Link href="/katalog" className="mt-3 inline-flex min-h-11 items-center gap-2 font-semibold hover:underline">Otwórz katalog firm <ArrowRight size={16} aria-hidden="true" /></Link>
+          </div>
+        )}
+      </section>
+
+      <section id="dla-wynajmujacych" className="mx-auto max-w-7xl scroll-mt-20 px-4 pb-8 sm:px-6">
+        <div className="relative isolate flex flex-col items-start justify-between gap-5 overflow-hidden rounded-2xl bg-market-navy p-6 sm:px-8 md:flex-row md:items-center">
+          <Image src="/hero-minikoparka.webp" alt="" fill sizes="(max-width: 1280px) 100vw, 1280px" className="-z-20 object-cover object-[50%_35%] opacity-25" />
+          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-market-navy via-market-navy/90 to-market-navy/40" aria-hidden="true" />
+          <div className="flex items-center gap-5">
+            <ExcavatorIcon size={56} strokeWidth={1.4} className="hidden shrink-0 text-market-yellow sm:block" />
+            <div>
+              <h2 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">Masz sprzęt? <span className="text-market-yellow">Dodaj ofertę za darmo.</span></h2>
+              <p className="mt-1.5 text-sm leading-relaxed text-slate-200 sm:text-base">Dotrzyj do klientów w swojej okolicy i wynajmuj bez prowizji.</p>
+            </div>
+          </div>
+          <Link href="/dashboard/ogloszenia#dodaj" className="market-action min-h-12 shrink-0 px-6">
+            <Plus size={18} aria-hidden="true" /> Dodaj ogłoszenie
+          </Link>
+        </div>
+      </section>
+
+      <CategoryHubs listings={listings} />
 
       {popularCities.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 pb-10 sm:px-6">
+        <section className="mx-auto max-w-7xl px-4 pb-10 pt-8 sm:px-6">
           <h2 className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">Najwięcej ofert w miejscowościach</h2>
           <ul className="flex flex-wrap gap-2">
             {popularCities.map((link) => (
@@ -156,18 +245,6 @@ export default async function Home() {
         </div>
       </section>
 
-      <section id="dla-wynajmujacych" className="mx-auto max-w-7xl scroll-mt-20 px-4 pb-12 sm:px-6">
-        <div className="flex flex-col items-start justify-between gap-5 rounded-xl bg-market-navy p-6 sm:p-8 md:flex-row md:items-center">
-          <div className="max-w-xl">
-            <p className="mb-2 text-xs font-bold uppercase tracking-widest text-amber-400">Dla wynajmujących</p>
-            <h2 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">Masz sprzęt na wynajem?</h2>
-            <p className="mt-2 text-sm leading-relaxed text-slate-300">Dodaj ogłoszenie za darmo. Zapytania klientów trafią bezpośrednio do Ciebie.</p>
-          </div>
-          <Link href="/dashboard/ogloszenia#dodaj" className="market-action shrink-0">
-            Dodaj ogłoszenie <ArrowRight size={17} aria-hidden="true" />
-          </Link>
-        </div>
-      </section>
     </>
   );
 }

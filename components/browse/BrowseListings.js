@@ -1,16 +1,21 @@
 'use client';
 
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { CalendarDays, List, LocateFixed, Map as MapIcon, MapPin, Search, SlidersHorizontal, X } from 'lucide-react';
+import { ChevronDown, List, LocateFixed, Map as MapIcon, MapPin, Search, SlidersHorizontal, X } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import FeaturedListings from '../FeaturedListings';
 import ListingCard from '../ListingCard';
 import { MARKET_CATEGORIES, SEO_CATEGORIES, matchesMarketCategory } from '../../lib/categories';
 import { getVoivodeshipSlugForCity, VOIVODESHIPS } from '../../lib/regions';
-import { haversineDistance } from '../../lib/distance';
 import { offersLabel } from '../../lib/format';
 import { rentalDates, todayInPoland } from '../../lib/rentalDates';
+import { trackEvent } from '../../lib/gtag';
+import {
+  PRICE_UNITS, RADIUS_OPTIONS, SEARCH_DEFAULTS, featuredListings, findListings, listingCityCenter,
+  listingCoordinates, normalizeSearchText, readSearchFilters, readSearchView, searchQuery,
+} from '../../lib/search';
 
 const MapComponent = dynamic(() => import('../MapComponent'), {
   ssr: false,
@@ -22,30 +27,10 @@ const MapComponent = dynamic(() => import('../MapComponent'), {
 });
 
 const PAGE_SIZE = 24;
-const RADIUS_OPTIONS = [10, 25, 50, 100];
-const SORT_OPTIONS = [
-  { value: '', label: 'Najnowsze' },
-  { value: 'price', label: 'Najniższa cena' },
-  { value: 'distance', label: 'Najbliżej' },
-];
-const DEFAULTS = {
-  q: '', category: '', sub: '', city: '', radius: '25', from: '', to: '',
-  minPrice: '', maxPrice: '', delivery: '', operator: '', availability: '', spec: '', specValue: '', sort: '',
-};
+const FACET_KEYS = ['category', 'sub', 'minPrice', 'maxPrice', 'priceUnit', 'delivery', 'operator', 'availability', 'spec', 'from', 'to'];
 
 const selectClass = 'h-11 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-400/40 disabled:opacity-55 dark:border-slate-600 dark:bg-slate-800 dark:text-white';
 const labelClass = 'mb-1 block text-xs font-medium text-slate-600 dark:text-slate-400';
-
-function readUrlFilters(params) {
-  const next = { ...DEFAULTS };
-  Object.keys(DEFAULTS).forEach((key) => {
-    const value = params.get(key);
-    if (value !== null) next[key] = value;
-  });
-  // Links from before the search moved here used ?s=
-  if (params.get('s') && !next.q) next.q = params.get('s');
-  return { ...next, ...rentalDates(next) };
-}
 
 function SearchUrlSync({ onChange }) {
   const params = useSearchParams();
@@ -53,44 +38,65 @@ function SearchUrlSync({ onChange }) {
   return null;
 }
 
-function filterQuery(filters, view) {
-  const params = new URLSearchParams();
-  Object.entries(filters).forEach(([key, value]) => {
-    if (value && value !== DEFAULTS[key]) params.set(key, value);
-  });
-  if (view === 'map') params.set('view', 'map');
-  const query = params.toString();
-  return query ? `?${query}` : '';
+function writeUrlFilters(filters, view, addHistoryEntry = false) {
+  const { pathname, search, hash } = window.location;
+  const query = searchQuery(filters, view);
+  if (query === search) return;
+  window.history[addHistoryEntry ? 'pushState' : 'replaceState'](null, '', `${pathname}${query}${hash}`);
 }
 
-function writeUrlFilters(filters, view) {
-  const { pathname, hash } = window.location;
-  window.history.replaceState(null, '', `${pathname}${filterQuery(filters, view)}${hash}`);
+function RadiusOptions({ city, radius, prefix = 'Do', zeroLabel = 'Tylko miejscowość' }) {
+  return (
+    <>
+      {city && <option value="0">{zeroLabel}</option>}
+      {RADIUS_OPTIONS.map((km) => <option key={km} value={km}>{prefix} {km} km</option>)}
+      {Number(radius) > 0 && !RADIUS_OPTIONS.includes(Number(radius)) && <option value={radius}>{prefix} {radius} km</option>}
+    </>
+  );
 }
 
-function cityCenter(listings, city) {
-  const points = listings.filter((l) => l.Miasto === city && l.lat != null && l.lng != null);
-  if (points.length === 0) return null;
-  return {
-    lat: points.reduce((sum, l) => sum + Number(l.lat), 0) / points.length,
-    lng: points.reduce((sum, l) => sum + Number(l.lng), 0) / points.length,
-  };
+const clearSearchCancel = '[&::-webkit-search-cancel-button]:appearance-none';
+
+function SearchFields({ filters, cities, userLocation, pending, onSubmit, onClearQuery }) {
+  const [city, setCity] = useState(filters.city);
+  const [query, setQuery] = useState(filters.q);
+  const hasLocation = Boolean(city.trim()) || Boolean(userLocation);
+
+  return (
+    <form action="/szukaj" onSubmit={onSubmit} aria-label="Znajdź sprzęt w okolicy" className="mb-4 grid grid-cols-[minmax(0,1fr)_auto] gap-2 sm:rounded-2xl sm:border sm:border-border sm:bg-card sm:p-3 sm:shadow-sm lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_auto_auto]">
+      <div className="relative col-span-2 min-w-0 lg:col-span-1">
+        <Search className="pointer-events-none absolute left-3 top-3 size-5 text-slate-500" aria-hidden="true" />
+        <label htmlFor="search-equipment" className="sr-only">Czego szukasz?</label>
+        <input id="search-equipment" name="q" type="search" maxLength={120} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Jakiego sprzętu szukasz?" className={`${selectClass} pl-10 pr-10 text-base ${clearSearchCancel}`} />
+        {query && (
+          <button type="button" aria-label="Wyczyść wyszukiwane słowo" onClick={() => { setQuery(''); if (filters.q) onClearQuery(); }} className="absolute right-0 top-0 grid size-11 place-items-center text-slate-500 hover:text-foreground">
+            <X size={18} aria-hidden="true" />
+          </button>
+        )}
+      </div>
+      <div className="flex min-w-0 items-center rounded-lg border border-slate-300 bg-white focus-within:border-amber-500 dark:border-slate-600 dark:bg-slate-800 lg:contents">
+        <div className="relative min-w-0 flex-1">
+          <MapPin className="pointer-events-none absolute left-3 top-3 size-5 text-slate-500" aria-hidden="true" />
+          <label htmlFor="search-city" className="sr-only">Miejscowość</label>
+          <input id="search-city" name="city" type="text" maxLength={80} value={city} onChange={(event) => setCity(event.target.value)} list="search-city-suggestions" placeholder={userLocation ? 'Moja lokalizacja' : 'Wpisz miejscowość'} className={`${selectClass} border-0 bg-transparent pl-10 text-base focus:ring-0 dark:bg-transparent lg:border lg:bg-white lg:focus:ring-2 lg:dark:bg-slate-800`} />
+          <datalist id="search-city-suggestions">{cities.map((name) => <option key={name} value={name} />)}</datalist>
+        </div>
+        <label htmlFor="search-radius" className="sr-only">Promień wyszukiwania</label>
+        <div className="relative shrink-0">
+          <select id="search-radius" name="radius" className={`${selectClass} w-[5.75rem] appearance-none border-0 lg:w-28 bg-transparent pr-8 font-medium focus:ring-0 dark:bg-transparent lg:border lg:bg-white lg:focus:ring-2 lg:dark:bg-slate-800`} defaultValue={filters.radius} disabled={!hasLocation}>
+            <RadiusOptions city={city.trim()} radius={filters.radius} prefix="+" zeroLabel="+ 0 km" />
+          </select>
+          <ChevronDown size={17} className="pointer-events-none absolute right-2.5 top-3.5" aria-hidden="true" />
+        </div>
+      </div>
+      <button type="submit" disabled={pending} aria-label="Szukaj" className="market-action px-3.5 lg:px-6">
+        <Search size={18} aria-hidden="true" /><span className="hidden lg:inline">{pending ? 'Szukam…' : 'Szukaj sprzętu'}</span>
+      </button>
+    </form>
+  );
 }
 
-function normalizeText(text) {
-  return String(text || '').toLowerCase().normalize('NFD').replace(/\p{M}/gu, '').replace(/ł/g, 'l');
-}
-
-function matchesText(listing, text) {
-  const haystack = normalizeText(`${listing['Sprzęt']} ${listing.Kategoria} ${listing.subcategoryLabel} ${listing.companyName} ${listing.Miasto}`);
-  return normalizeText(text).split(/\s+/).filter(Boolean).every((word) => haystack.includes(word));
-}
-
-/**
- * Search and filtering over listings already sent by the server. The first render
- * uses default filters, so the server HTML always contains the list; filters from
- * the URL are applied after mount, which is why useSearchParams is not used here.
- */
+/** Shared browsing controls for the marketplace search and the static SEO hubs. */
 export default function BrowseListings({
   listings,
   allCities = [],
@@ -99,50 +105,51 @@ export default function BrowseListings({
   fixedSubcategories = null,
   heading = null,
   emptyHint = null,
-  searchIntro = null,
-  beforeResults = null,
+  initialFilters = SEARCH_DEFAULTS,
+  initialView = 'list',
+  cityCenter = null,
   splitMap = false,
 }) {
   const router = useRouter();
-  const [filters, setFilters] = useState(DEFAULTS);
-  const currentFilters = useRef(DEFAULTS);
-  const [view, setView] = useState('list');
+  const [filters, setFilters] = useState(initialFilters);
+  const currentFilters = useRef(initialFilters);
+  const [view, setView] = useState(initialView);
+  const [pending, startTransition] = useTransition();
   const [visible, setVisible] = useState(PAGE_SIZE);
   const [userLocation, setUserLocation] = useState(null);
   const [locating, setLocating] = useState(false);
   const [locationError, setLocationError] = useState('');
+  const [activeListingId, setActiveListingId] = useState(null);
   const filterDialog = useRef(null);
-  const dateDialog = useRef(null);
-  const resultsRef = useRef(null);
 
   const syncUrl = useCallback((params) => {
-    const next = readUrlFilters(params);
-    if (filterQuery(next, 'list') !== filterQuery(currentFilters.current, 'list')) {
+    const next = readSearchFilters(params);
+    if (searchQuery(next) !== searchQuery(currentFilters.current)) {
       currentFilters.current = next;
       setFilters(next);
       setVisible(PAGE_SIZE);
       if (next.city) setUserLocation(null);
     }
-    setView(params.get('view') === 'map' ? 'map' : 'list');
+    setView(readSearchView(params));
   }, []);
 
-  const update = useCallback((patch) => {
+  const update = useCallback((patch, addHistoryEntry = false) => {
     const next = { ...currentFilters.current, ...patch };
     currentFilters.current = next;
     setFilters(next);
-    writeUrlFilters(next, new URLSearchParams(window.location.search).get('view'));
+    writeUrlFilters(next, readSearchView(new URLSearchParams(window.location.search)), addHistoryEntry);
     setVisible(PAGE_SIZE);
   }, []);
 
   const changeView = (nextView) => {
     setView(nextView);
-    writeUrlFilters(filters, nextView);
+    writeUrlFilters(filters, nextView, true);
   };
 
   const reset = () => {
     setUserLocation(null);
     setLocationError('');
-    update(DEFAULTS);
+    update(SEARCH_DEFAULTS, true);
   };
 
   const cityOptions = useMemo(() => {
@@ -185,53 +192,40 @@ export default function BrowseListings({
 
   const center = useMemo(() => {
     if (userLocation) return userLocation;
-    if (filters.city) return cityCenter(listings, filters.city);
-    return null;
-  }, [userLocation, filters.city, listings]);
+    if (filters.city && cityCenter && normalizeSearchText(filters.city) === normalizeSearchText(initialFilters.city)) return cityCenter;
+    return listingCityCenter(listings, filters.city);
+  }, [userLocation, filters.city, cityCenter, initialFilters.city, listings]);
 
-  const results = useMemo(() => {
-    const minPrice = Number(filters.minPrice);
-    const maxPrice = Number(filters.maxPrice);
-    const radius = Number(filters.radius);
-    const specValue = normalizeText(filters.specValue).trim();
+  const results = useMemo(() => findListings(listings, filters, center), [listings, filters, center]);
+  const featured = useMemo(() => featuredListings(listings, filters), [listings, filters]);
+  const activeListing = view === 'map' ? results.find((listing) => listing.ID_sprzetu === activeListingId) : null;
+  // With the default order the featured strip would be repeated right below itself.
+  const showFeatured = view !== 'map' && featured.length > 0;
+  const listOrder = showFeatured && !filters.sort && !center
+    ? [...results.filter((listing) => !listing.isFeatured), ...results.filter((listing) => listing.isFeatured)]
+    : results;
+  const displayed = listOrder.slice(0, visible);
+  const mapListings = activeListing && !displayed.includes(activeListing) ? [activeListing, ...displayed] : displayed;
+  const hasMapPoints = view === 'map' && results.some(listingCoordinates);
+  const activeCount = FACET_KEYS.filter((key) => filters[key]).length + (!splitMap && filters.city ? 1 : 0);
+  const trackedSearch = useRef('');
 
-    const matched = listings
-      .map((listing) => {
-        if (!center || listing.lat == null || listing.lng == null) return listing;
-        return { ...listing, _distance: Math.round(haversineDistance(center.lat, center.lng, Number(listing.lat), Number(listing.lng))) };
-      })
-      .filter((listing) => {
-        if (filters.q && !matchesText(listing, filters.q)) return false;
-        if (filters.category && !matchesMarketCategory(listing, filters.category)) return false;
-        if (filters.sub && listing.subcategory !== filters.sub) return false;
-        if (filters.delivery && listing.deliveryAvailable !== true) return false;
-        if (filters.operator && listing.withOperator !== true) return false;
-        if (filters.availability && listing.availability !== filters.availability) return false;
-        if (filters.spec && (!Object.hasOwn(listing.specs || {}, filters.spec) || !normalizeText(listing.specs[filters.spec]).includes(specValue))) return false;
-        if (filters.minPrice || filters.maxPrice) {
-          if (listing.priceType !== 'fixed' || listing.priceAmount == null) return false;
-          if (filters.minPrice && listing.priceAmount < minPrice) return false;
-          if (filters.maxPrice && listing.priceAmount > maxPrice) return false;
-        }
-        if (center) {
-          if (radius > 0) {
-            if (listing._distance == null) return listing.Miasto === filters.city;
-            return listing._distance <= radius;
-          }
-          return listing.Miasto === filters.city;
-        }
-        if (filters.city && listing.Miasto !== filters.city) return false;
-        return true;
+  useEffect(() => {
+    const hasCriteria = activeCount > 0 || filters.q || filters.city || userLocation;
+    const signature = `${searchQuery(filters)}|${Boolean(userLocation)}`;
+    if (!hasCriteria || trackedSearch.current === signature || pending) return;
+    const timer = setTimeout(() => {
+      trackedSearch.current = signature;
+      trackEvent('search', {
+        result_count: results.length,
+        filter_count: activeCount,
+        has_query: Boolean(filters.q),
+        location_mode: userLocation ? 'device' : filters.city ? 'city' : 'none',
+        page_location: window.location.origin + window.location.pathname,
       });
-
-    if (filters.sort === 'price') {
-      return [...matched].sort((a, b) => (a.priceAmount ?? Infinity) - (b.priceAmount ?? Infinity));
-    }
-    if (filters.sort === 'distance' || (center && !filters.sort)) {
-      return [...matched].sort((a, b) => (a._distance ?? Infinity) - (b._distance ?? Infinity));
-    }
-    return matched;
-  }, [listings, filters, center]);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [activeCount, filters, pending, results.length, userLocation]);
 
   const dateParams = new URLSearchParams();
   const dates = rentalDates(filters);
@@ -242,6 +236,12 @@ export default function BrowseListings({
   const filterPriceError = filters.minPrice && filters.maxPrice && Number(filters.minPrice) > Number(filters.maxPrice);
   const hasAvailability = listings.some((listing) => listing.availability === 'immediately');
 
+  const applyDeviceLocation = (coordinates) => {
+    setUserLocation(coordinates);
+    setLocationError('');
+    update({ city: '', radius: currentFilters.current.radius === '0' ? '25' : currentFilters.current.radius, sort: 'distance' }, true);
+  };
+
   const locate = () => {
     if (!navigator.geolocation) {
       setLocationError('Twoja przeglądarka nie udostępnia lokalizacji.');
@@ -251,9 +251,8 @@ export default function BrowseListings({
     setLocationError('');
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setUserLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
+        applyDeviceLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
         setLocating(false);
-        update({ city: '', sort: 'distance' });
       },
       () => {
         setLocating(false);
@@ -263,11 +262,29 @@ export default function BrowseListings({
     );
   };
 
-  const activeCount = ['category', 'sub', 'city', 'minPrice', 'maxPrice', 'delivery', 'operator', 'availability', 'spec'].filter((key) => filters[key]).length
-    + (userLocation ? 1 : 0);
+  const submitSearch = (event) => {
+    event.preventDefault();
+    const fields = new FormData(event.currentTarget);
+    const typedCity = String(fields.get('city') || '').trim();
+    const city = allCities.find((name) => normalizeSearchText(name) === normalizeSearchText(typedCity)) || typedCity;
+    const patch = readSearchFilters({
+      ...currentFilters.current,
+      q: String(fields.get('q') || '').trim(),
+      city,
+      radius: String(fields.get('radius') || SEARCH_DEFAULTS.radius),
+    });
+
+    setLocationError('');
+    if (city) setUserLocation(null);
+    if (city && normalizeSearchText(city) !== normalizeSearchText(initialFilters.city) && !listingCityCenter(listings, city)) {
+      startTransition(() => router.push(`/szukaj${searchQuery(patch, view)}`, { scroll: false }));
+      return;
+    }
+    update(patch, true);
+  };
 
   const citySelect = (id, className = selectClass, placeholder = 'Wszystkie miejscowości') => (
-    <select id={id} className={className} value={filters.city} onChange={(event) => { setUserLocation(null); update({ city: event.target.value }); }}>
+    <select id={id} className={className} value={filters.city} onChange={(event) => { setUserLocation(null); setLocationError(''); update({ city: event.target.value, radius: event.target.value ? filters.radius : SEARCH_DEFAULTS.radius }); }}>
       <option value="">{placeholder}</option>
       {cityOptions.map(([group, cities]) => (
         <optgroup key={group} label={group}>
@@ -277,10 +294,9 @@ export default function BrowseListings({
     </select>
   );
 
-  const radiusSelect = (id, className = selectClass) => (
-    <select id={id} className={className} value={filters.radius} disabled={!center} onChange={(event) => update({ radius: event.target.value })}>
-      {filters.city && <option value="0">Tylko ta miejscowość</option>}
-      {RADIUS_OPTIONS.map((km) => <option key={km} value={km}>Do {km} km</option>)}
+  const radiusSelect = (id) => (
+    <select id={id} className={selectClass} value={filters.radius} onChange={(event) => update({ radius: event.target.value })}>
+      <RadiusOptions city={filters.city} radius={filters.radius} />
     </select>
   );
 
@@ -322,14 +338,14 @@ export default function BrowseListings({
         </div>
       )}
 
-      {!lockCity && !searchIntro && (
+      {!lockCity && !splitMap && (
         <div>
           <label htmlFor={idPrefix + '-city'} className={labelClass}>Miejscowość</label>
           {citySelect(idPrefix + '-city')}
         </div>
       )}
 
-      {center && !searchIntro && (
+      {center && (
         <div>
           <label htmlFor={idPrefix + '-radius'} className={labelClass}>Odległość</label>
           {radiusSelect(idPrefix + '-radius')}
@@ -337,7 +353,12 @@ export default function BrowseListings({
       )}
 
       <fieldset>
-        <legend className={labelClass}>Cena w ofercie (zł)</legend>
+        <legend className={labelClass}>Stawka z ogłoszenia (zł)</legend>
+        <label htmlFor={idPrefix + '-price-unit'} className="sr-only">Jednostka rozliczenia</label>
+        <select id={idPrefix + '-price-unit'} className={`${selectClass} mb-2`} value={filters.priceUnit} onChange={(e) => update({ priceUnit: e.target.value })}>
+          <option value="">Dowolna jednostka</option>
+          {Object.entries(PRICE_UNITS).map(([value, unit]) => <option key={value} value={value}>{unit}</option>)}
+        </select>
         <div className="grid grid-cols-2 gap-2">
           {[['minPrice', 'Od'], ['maxPrice', 'Do']].map(([key, label]) => (
             <div key={key} className="min-w-0">
@@ -367,18 +388,11 @@ export default function BrowseListings({
         </div>
       )}
 
-      <div>
-        <label htmlFor={idPrefix + '-sort'} className={labelClass}>Sortowanie</label>
-        <select id={idPrefix + '-sort'} className={selectClass} value={filters.sort} onChange={(e) => update({ sort: e.target.value })}>
-          {SORT_OPTIONS.filter((o) => o.value !== 'distance' || center).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </select>
-      </div>
-
       <div className="flex flex-col items-start">
         {hasAvailability && (
           <label className="flex min-h-11 cursor-pointer items-center gap-2 text-sm text-slate-800 dark:text-slate-200">
             <input type="checkbox" className="size-4 accent-brand-600" checked={filters.availability === 'immediately'} onChange={(e) => update({ availability: e.target.checked ? 'immediately' : '' })} />
-            Dostępny od ręki
+            Deklarowana dostępność od ręki
           </label>
         )}
         <label className="flex min-h-[44px] cursor-pointer items-center gap-2 text-sm text-slate-800 dark:text-slate-200">
@@ -395,19 +409,18 @@ export default function BrowseListings({
             {locating ? 'Sprawdzam lokalizację…' : 'Blisko mnie'}
           </button>
         )}
-        {activeCount > 0 && (
+        {(activeCount > 0 || filters.q || filters.city || userLocation) && (
           <button type="button" onClick={reset} className="min-h-[44px] text-sm font-medium text-slate-600 underline hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">
             Wyczyść filtry
           </button>
         )}
       </div>
-      {locationError && <p role="alert" className="text-sm text-red-700 dark:text-red-400">{locationError}</p>}
       {splitMap && dateControls(idPrefix)}
     </div>
   );
 
   const searchField = (
-    <div className="relative min-w-0 flex-1">
+    <div className="relative mb-4 min-w-0">
       <Search className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-slate-500 dark:text-slate-400" aria-hidden="true" />
       <label htmlFor="filter-q" className="sr-only">Czego szukasz?</label>
       <input
@@ -416,68 +429,99 @@ export default function BrowseListings({
         placeholder="Np. minikoparka"
         className={`${selectClass} pl-10 text-base sm:text-sm`}
         value={filters.q}
+        maxLength={120}
         onChange={(event) => update({ q: event.target.value })}
       />
     </div>
   );
 
   const filtersButton = (
-    <button type="button" onClick={() => filterDialog.current?.showModal()} className={`flex min-h-11 shrink-0 items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-sm font-semibold text-slate-800 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 ${searchIntro ? '' : 'lg:hidden'}`}>
+    <button type="button" onClick={() => filterDialog.current?.showModal()} className="order-1 flex min-h-11 shrink-0 items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-800 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 lg:hidden">
       <SlidersHorizontal size={17} aria-hidden="true" />
       Filtry{activeCount > 0 ? ` (${activeCount})` : ''}
     </button>
   );
 
+  const moreButton = results.length > visible && (
+    <button type="button" onClick={() => setVisible((count) => count + PAGE_SIZE)} className="min-h-11 rounded-lg border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-800 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
+      Pokaż więcej ({results.length - visible})
+    </button>
+  );
+
   const resultsContent = (
-    <div id="oferty" ref={resultsRef} tabIndex={-1} className="min-w-0 scroll-mt-20 focus:outline-none">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          {heading || <h2 className="market-heading">{searchIntro ? 'Oferty w Twojej okolicy' : 'Wyniki wyszukiwania'}</h2>}
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400" aria-live="polite">{offersLabel(results.length)}</p>
+    <div id="oferty" className="min-w-0 scroll-mt-20">
+      <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2">
+        <div className="order-4 mr-auto min-w-0 lg:order-1">
+          <h2 className="market-heading text-lg sm:text-xl">{heading || 'Wyniki'} ({results.length})</h2>
+          <p className="sr-only" aria-live="polite">{offersLabel(results.length)}</p>
         </div>
-        <div className="flex items-center gap-2">
-          {searchIntro && filtersButton}
-          <div className="flex rounded-lg border border-slate-300 bg-white p-0.5 dark:border-slate-600 dark:bg-slate-800" aria-label="Widok wyników" role="group">
-            <button type="button" aria-label="Lista" aria-pressed={view === 'list'} onClick={() => changeView('list')} className="market-view-button">
-              <List size={16} aria-hidden="true" /><span>Lista</span>
-            </button>
-            <button type="button" aria-label="Mapa" aria-pressed={view === 'map'} onClick={() => changeView('map')} className="market-view-button">
-              <MapIcon size={16} aria-hidden="true" /><span>Mapa</span>
-            </button>
-          </div>
+        {filtersButton}
+        <div className="order-2 ml-auto flex rounded-lg border border-slate-300 bg-white p-0.5 dark:border-slate-600 dark:bg-slate-800 lg:ml-0" aria-label="Widok wyników" role="group">
+          <button type="button" aria-label="Lista" aria-pressed={view === 'list'} onClick={() => changeView('list')} className="market-view-button">
+            <List size={16} aria-hidden="true" /><span>Lista</span>
+          </button>
+          <button type="button" aria-label="Mapa" aria-pressed={view === 'map'} onClick={() => changeView('map')} className="market-view-button">
+            <MapIcon size={16} aria-hidden="true" /><span>Mapa</span>
+          </button>
         </div>
+        <span className="order-3 w-full lg:hidden" aria-hidden="true" />
+        <label htmlFor="results-sort" className="relative order-5 flex min-h-11 items-center gap-1 text-sm">
+          <span className="text-slate-600 dark:text-slate-400">Sortuj:</span>
+          <select id="results-sort" className="min-h-11 max-w-[11rem] appearance-none bg-transparent pr-6 font-semibold text-foreground outline-none [&>option]:bg-card" value={filters.sort === 'distance' || (filters.sort === 'newest' && !center) ? '' : filters.sort} onChange={(e) => update({ sort: e.target.value })}>
+            <option value="">{center ? 'Najbliżej' : 'Najnowsze'}</option>
+            {center && <option value="newest">Najnowsze</option>}
+            <option value="price">Najniższa stawka</option>
+          </select>
+          <ChevronDown size={16} className="pointer-events-none absolute right-0" aria-hidden="true" />
+        </label>
       </div>
 
-      {view === 'map' && results.length > 0 ? (
-        <div className={`grid overflow-hidden rounded-xl border border-border bg-card ${searchIntro ? 'lg:grid-cols-[19rem_minmax(0,1fr)]' : splitMap ? 'xl:grid-cols-[16rem_minmax(0,1fr)]' : ''}`}>
-          {(searchIntro || splitMap) && (
-            <div className={`hidden h-[34rem] space-y-2 overflow-y-auto border-r border-border p-2 ${searchIntro ? 'lg:block' : 'xl:block'}`}>
-              {results.slice(0, visible).map((listing) => <ListingCard key={listing.ID_sprzetu} listing={listing} layout="compact" rentalQuery={rentalQuery} />)}
-              {results.length > visible && (
-                <button type="button" onClick={() => setVisible((count) => count + PAGE_SIZE)} className="min-h-11 w-full rounded-lg border border-slate-300 text-sm font-semibold hover:bg-slate-100 dark:border-slate-600 dark:hover:bg-slate-700">
-                  Pokaż więcej ({results.length - visible})
-                </button>
-              )}
-            </div>
-          )}
-          <div data-no-tab-swipe className="relative h-[65vh] min-h-[22rem] lg:h-[34rem]">
-            <MapComponent listings={results} searchCenter={center} radius={center ? Number(filters.radius) : 0} rentalQuery={rentalQuery} isCompact />
+      {filters.sort === 'price' && !filters.priceUnit && (
+        <p className="mb-3 text-sm text-slate-600 dark:text-slate-400">Aby porównać ceny za ten sam okres, wybierz jednostkę rozliczenia w filtrach.</p>
+      )}
+      {filters.city && !center && filters.radius !== '0' && (
+        <p className="mb-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-slate-800 dark:bg-slate-800 dark:text-slate-200" role="status">
+          Nie udało się ustalić środka miejscowości. Wyświetlamy oferty tylko dla „{filters.city}”.
+        </p>
+      )}
+      {locationError && <p role="alert" className="mb-3 text-sm text-red-700 dark:text-red-400">{locationError}</p>}
+
+      {hasMapPoints ? (
+        <div className="grid overflow-hidden rounded-xl border border-border bg-card xl:grid-cols-[minmax(0,1fr)_17rem]">
+          <div data-no-tab-swipe className="relative h-[55dvh] min-h-[20rem] lg:h-[34rem]">
+            <MapComponent
+              listings={results}
+              searchCenter={center}
+              radius={center ? Number(filters.radius) : 0}
+              onLocationShared={applyDeviceLocation}
+              rentalQuery={rentalQuery}
+              selectedId={activeListingId}
+              onSelect={setActiveListingId}
+            />
+          </div>
+          <div aria-label="Oferty na liście" className="max-h-[28rem] space-y-2 overflow-y-auto border-t border-border p-2 xl:h-[34rem] xl:max-h-none xl:border-l xl:border-t-0">
+            {mapListings.map((listing) => (
+              <div key={listing.ID_sprzetu} className={`rounded-lg border p-1 ${activeListingId === listing.ID_sprzetu ? 'border-amber-500 bg-amber-50 dark:bg-amber-950/30' : 'border-transparent'}`}>
+                <ListingCard listing={listing} layout="compact" rentalQuery={rentalQuery} />
+                {listingCoordinates(listing) && (
+                  <button type="button" onClick={() => setActiveListingId(listing.ID_sprzetu)} aria-label={`Pokaż na mapie: ${listing['Sprzęt']}`} aria-pressed={activeListingId === listing.ID_sprzetu} className="flex min-h-11 w-full items-center gap-1.5 rounded-lg px-2 text-left text-xs font-semibold text-brand-700 hover:bg-slate-100 dark:text-brand-400 dark:hover:bg-slate-700">
+                    <MapPin size={15} aria-hidden="true" />Pokaż na mapie
+                  </button>
+                )}
+              </div>
+            ))}
+            {moreButton}
           </div>
         </div>
       ) : results.length > 0 ? (
         <>
-          <div className={searchIntro ? 'grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 md:gap-4 xl:grid-cols-4' : 'grid grid-cols-1 gap-3'}>
-            {results.slice(0, visible).map((listing) => (
-              <ListingCard key={listing.ID_sprzetu} listing={listing} layout={searchIntro ? 'grid' : 'row'} rentalQuery={rentalQuery} />
+          {view === 'map' && <p role="status" className="mb-4 rounded-lg border border-border bg-card p-3 text-sm">Te oferty mają podaną miejscowość. Mapę wyświetlamy dla ofert ze współrzędnymi.</p>}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {displayed.map((listing) => (
+              <ListingCard key={listing.ID_sprzetu} listing={listing} rentalQuery={rentalQuery} />
             ))}
           </div>
-          {results.length > visible && (
-            <div className="mt-6 text-center">
-              <button type="button" onClick={() => setVisible((count) => count + PAGE_SIZE)} className="min-h-11 rounded-lg border border-slate-300 bg-white px-6 text-sm font-semibold text-slate-800 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
-                Pokaż więcej ({results.length - visible})
-              </button>
-            </div>
-          )}
+          {moreButton && <div className="mt-6 text-center">{moreButton}</div>}
         </>
       ) : (
         <div className="rounded-xl border border-slate-200 bg-white p-6 text-center dark:border-slate-700 dark:bg-slate-800 sm:p-8">
@@ -502,69 +546,25 @@ export default function BrowseListings({
   return (
     <section aria-label="Wyszukiwarka ofert">
       <Suspense><SearchUrlSync onChange={syncUrl} /></Suspense>
-      {searchIntro ? (
-        <>
-          <div id="szukaj" className="relative isolate scroll-mt-16 overflow-hidden bg-market-navy">
-            <div className="relative mx-auto max-w-7xl px-4 pb-5 sm:px-6 sm:pb-6 lg:pb-8">
-              {searchIntro}
-              <form onSubmit={(event) => {
-                event.preventDefault();
-                if (userLocation) {
-                  resultsRef.current?.focus({ preventScroll: true });
-                  resultsRef.current?.scrollIntoView({ block: 'start' });
-                } else {
-                  router.push(`/szukaj${filterQuery(currentFilters.current, view)}`);
-                }
-              }} className="relative grid gap-2 rounded-xl border border-border bg-card p-2 shadow-xl lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1.35fr)_minmax(0,.75fr)_minmax(0,1fr)_auto]">
-                {searchField}
-                <div className="grid min-w-0 grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] gap-2 lg:contents">
-                  <div className="relative min-w-0">
-                    <MapPin className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-500 dark:text-slate-400" aria-hidden="true" />
-                    <label htmlFor="hero-city" className="sr-only">Miejscowość</label>
-                    {citySelect('hero-city', `${selectClass} pl-9`, 'Miejscowość')}
-                  </div>
-                  <div className="relative min-w-0">
-                    <LocateFixed className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-500 dark:text-slate-400" aria-hidden="true" />
-                    <label htmlFor="hero-radius" className="sr-only">Promień wyszukiwania</label>
-                    {radiusSelect('hero-radius', `${selectClass} pl-9`)}
-                  </div>
-                </div>
-                <button type="button" onClick={() => dateDialog.current?.showModal()} className={`${selectClass} flex items-center gap-2 text-left`}>
-                  <CalendarDays size={17} className="shrink-0 text-slate-500 dark:text-slate-400" aria-hidden="true" />
-                  <span className="truncate">{rentalQuery ? 'Termin wybrany' : 'Termin wynajmu'}</span>
-                </button>
-                <button type="submit" className="market-action px-6"><Search size={17} aria-hidden="true" /> Szukaj</button>
-              </form>
-            </div>
-          </div>
-          {beforeResults}
-          <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">{resultsContent}</div>
-        </>
-      ) : (
-        <>
-          <div className="mb-5 flex gap-2">{searchField}{filtersButton}</div>
-          <div className="grid items-start gap-5 lg:grid-cols-[15rem_minmax(0,1fr)] xl:grid-cols-[17rem_minmax(0,1fr)]">
-            <aside className="hidden rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800 lg:block">
-              <h2 className="mb-4 flex items-center gap-2 font-bold"><SlidersHorizontal size={17} aria-hidden="true" /> Filtry</h2>
-              {filterControls('sidebar')}
-            </aside>
-            {resultsContent}
-          </div>
-        </>
-      )}
-
-      {searchIntro && (
-        <dialog ref={dateDialog} aria-labelledby="rental-period-heading" className="market-dialog">
-          <div className="mb-4 flex items-center justify-between gap-4">
-            <h2 id="rental-period-heading" className="text-lg font-bold">Termin wynajmu</h2>
-            <button type="button" aria-label="Zamknij wybór terminu" className="grid size-11 place-items-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800" onClick={() => dateDialog.current?.close()}>
-              <X size={20} aria-hidden="true" />
-            </button>
-          </div>
-          {dateControls('hero-date')}
-          <button type="button" onClick={() => dateDialog.current?.close()} className="market-action mt-4 w-full">Gotowe</button>
-        </dialog>
-      )}
+      {splitMap ? (
+        <SearchFields
+          key={JSON.stringify([filters.q, filters.city, filters.radius])}
+          filters={filters}
+          cities={allCities}
+          userLocation={userLocation}
+          pending={pending}
+          onSubmit={submitSearch}
+          onClearQuery={() => update({ q: '' }, true)}
+        />
+      ) : searchField}
+      {showFeatured && <FeaturedListings listings={featured} rentalQuery={rentalQuery} className="mb-6" />}
+      <div className="grid items-start gap-5 lg:grid-cols-[15rem_minmax(0,1fr)]">
+        <aside className="hidden rounded-xl border border-border bg-card p-4 lg:block">
+          <h2 className="mb-4 flex items-center gap-2 font-bold"><SlidersHorizontal size={17} aria-hidden="true" /> Filtry{activeCount > 0 ? ` (${activeCount})` : ''}</h2>
+          {filterControls('sidebar')}
+        </aside>
+        {resultsContent}
+      </div>
 
       <dialog ref={filterDialog} aria-labelledby="filters-heading" className="market-dialog">
         <div className="mb-4 flex items-center justify-between gap-4">

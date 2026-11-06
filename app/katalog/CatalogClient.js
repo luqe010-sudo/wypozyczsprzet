@@ -126,7 +126,7 @@ export default function CatalogClient({ companies = [], cities = [], voivodeship
           Katalog firm
         </div>
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-gray-900 dark:text-white mb-4 leading-tight">
-          Wypożyczalnie <span className="text-blue-600 dark:text-blue-400">sprzętu budowlanego</span>
+          Wypożyczalnie <span className="text-market-yellow">sprzętu budowlanego</span>
         </h1>
         <p className="text-base md:text-lg text-gray-500 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
           Wypożyczalnie sprzętu budowlanego z danymi kontaktowymi z publicznych rejestrów i wizytówek.

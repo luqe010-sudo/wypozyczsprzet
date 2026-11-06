@@ -3,15 +3,18 @@
 import { createHash } from 'crypto';
 import { headers } from 'next/headers';
 import { revalidatePath } from 'next/cache';
+import { after } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { createSupabaseAdminClient } from '@/lib/supabaseAdmin';
 import { adminEmail, sendEmail } from '@/lib/email';
-import { getCitySlug } from '@/lib/categories';
+import { getCitySlug, getSeoSlugByDbKey, SEO_CATEGORIES } from '@/lib/categories';
 import { CONTACT_EMAIL, SITE_URL } from '@/lib/site';
-import { isRentalDate } from '@/lib/rentalDates';
+import { isRentalDate, todayInPoland } from '@/lib/rentalDates';
 
 const MAX_INQUIRIES_PER_HOUR = 5;
 const STATUSES = new Set(['new', 'contacted', 'closed', 'spam']);
+const UUID = /^[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}$/i;
+const SEND_ERROR = 'Nie udało się wysłać zapytania. Spróbuj ponownie albo zadzwoń.';
 
 function clean(value, maxLength) {
   return String(value ?? '').trim().slice(0, maxLength);
@@ -19,7 +22,8 @@ function clean(value, maxLength) {
 
 async function hashedIp() {
   const headerList = await headers();
-  const ip = headerList.get('x-forwarded-for')?.split(',')[0]?.trim() || headerList.get('x-real-ip') || 'unknown';
+  const forwarded = headerList.get('x-vercel-forwarded-for') || headerList.get('x-forwarded-for');
+  const ip = forwarded?.split(',')[0]?.trim() || headerList.get('x-real-ip') || 'unknown';
   const salt = process.env.IP_HASH_SALT || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
   return createHash('sha256').update(`${salt}:${ip}`).digest('hex');
 }
@@ -46,6 +50,7 @@ function inquiryText({ inquiry, listingName, listingUrl, forFirm }) {
 }
 
 export async function submitInquiry(formData) {
+  if (!(formData instanceof FormData)) return { error: SEND_ERROR };
   // A filled honeypot means a bot. It gets a normal-looking answer and nothing is stored.
   if (clean(formData.get('website'), 200)) return { success: true };
 
@@ -55,12 +60,17 @@ export async function submitInquiry(formData) {
   const equipmentId = clean(formData.get('equipment_id'), 40);
   const from = String(formData.get('date_from') || '').trim();
   const to = String(formData.get('date_to') || '').trim();
+  const today = todayInPoland();
 
+  if (!UUID.test(equipmentId)) return { error: 'To ogłoszenie nie jest już aktywne.' };
   if (!customerName) return { error: 'Podaj imię lub nazwę firmy.' };
-  if (customerPhone.replace(/\D/g, '').length < 9) return { error: 'Podaj poprawny numer telefonu.' };
+  const phoneDigits = customerPhone.replace(/\D/g, '');
+  if (!/^\+?[\d\s().-]+$/.test(customerPhone) || phoneDigits.length < 9 || phoneDigits.length > 15) {
+    return { error: 'Podaj poprawny numer telefonu.' };
+  }
   if (customerEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) return { error: 'Podaj poprawny adres e-mail.' };
   if (formData.get('consent') !== 'on') return { error: 'Zaznacz zgodę na przekazanie danych wynajmującemu.' };
-  if ((from && !isRentalDate(from)) || (to && !isRentalDate(to)) || (from && to && to < from)) {
+  if ((from && (!isRentalDate(from) || from < today)) || (to && (!isRentalDate(to) || to < (from || today)))) {
     return { error: 'Podaj poprawny termin wynajmu.' };
   }
 
@@ -69,22 +79,24 @@ export async function submitInquiry(formData) {
 
   const ipHash = await hashedIp();
   const hourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-  const { count } = await admin
+  const { count, error: limitError } = await admin
     .from('inquiries')
     .select('id', { count: 'exact', head: true })
     .eq('ip_hash', ipHash)
     .gte('created_at', hourAgo);
+  if (limitError) return { error: SEND_ERROR };
   if ((count || 0) >= MAX_INQUIRIES_PER_HOUR) {
     return { error: 'Wysłano zbyt wiele zapytań. Spróbuj ponownie za godzinę albo zadzwoń.' };
   }
 
   const { data: listing, error: listingError } = await admin
     .from('equipment')
-    .select('id, name, slug, status, company_id, equipment_categories (slug), companies (name, email), company_branches (city, email)')
+    .select('id, name, slug, category, company_id, equipment_categories (slug), companies (city, email, status), company_branches (company_id, city, email)')
     .eq('id', equipmentId)
     .in('status', ['active', 'incomplete'])
     .maybeSingle();
-  if (listingError || !listing) return { error: 'To ogłoszenie nie jest już aktywne.' };
+  if (listingError) return { error: SEND_ERROR };
+  if (!listing?.companies || listing.companies.status === 'pending') return { error: 'To ogłoszenie nie jest już aktywne.' };
 
   const inquiry = {
     equipment_id: listing.id,
@@ -102,35 +114,42 @@ export async function submitInquiry(formData) {
 
   const { data: saved, error: insertError } = await admin.from('inquiries').insert(inquiry).select('id').single();
   if (insertError) {
-    console.error('[inquiry] insert failed', insertError);
-    return { error: 'Nie udało się wysłać zapytania. Spróbuj ponownie albo zadzwoń.' };
+    console.error('[inquiry] insert failed', insertError.code);
+    return { error: SEND_ERROR };
   }
 
-  const listingUrl = `${SITE_URL}/${listing.equipment_categories?.slug || 'narzedzia'}/${getCitySlug(listing.company_branches?.city)}/${listing.slug}`;
-  const firmEmail = listing.company_branches?.email || listing.companies?.email;
-  const notified = {};
+  revalidatePath('/dashboard/inquiries');
+  revalidatePath('/admin/inquiries');
 
-  const adminResult = await sendEmail({
-    to: adminEmail(),
-    subject: `Zapytanie: ${listing.name}`,
-    text: inquiryText({ inquiry, listingName: listing.name, listingUrl, forFirm: false }),
-    replyTo: customerEmail || undefined,
-  });
-  if (adminResult.sent) notified.admin_notified_at = new Date().toISOString();
-
-  if (firmEmail) {
-    const firmResult = await sendEmail({
-      to: firmEmail,
+  after(async () => {
+    const branch = listing.company_branches?.company_id === listing.company_id ? listing.company_branches : null;
+    const city = branch?.city || listing.companies.city;
+    const categorySlug = listing.equipment_categories?.slug;
+    const category = Object.hasOwn(SEO_CATEGORIES, categorySlug) ? categorySlug : getSeoSlugByDbKey(listing.category);
+    const listingUrl = `${SITE_URL}/${category}/${getCitySlug(city)}/${listing.slug}`;
+    const emailData = { inquiry, listingName: listing.name, listingUrl };
+    const replyTo = customerEmail || undefined;
+    const [adminResult, firmResult] = await Promise.all([sendEmail({
+      to: adminEmail(),
+      subject: `Zapytanie: ${listing.name}`,
+      text: inquiryText({ ...emailData, forFirm: false }),
+      replyTo,
+    }), sendEmail({
+      to: branch?.email || listing.companies.email,
       subject: `Zapytanie o wynajem: ${listing.name}`,
-      text: inquiryText({ inquiry, listingName: listing.name, listingUrl, forFirm: true }),
-      replyTo: customerEmail || undefined,
-    });
-    if (firmResult.sent) notified.firm_notified_at = new Date().toISOString();
-  }
+      text: inquiryText({ ...emailData, forFirm: true }),
+      replyTo,
+    })]);
 
-  if (Object.keys(notified).length > 0) {
-    await admin.from('inquiries').update(notified).eq('id', saved.id);
-  }
+    const notified = {};
+    if (adminResult.sent) notified.admin_notified_at = new Date().toISOString();
+    if (firmResult.sent) notified.firm_notified_at = new Date().toISOString();
+
+    if (Object.keys(notified).length > 0) {
+      const { error } = await admin.from('inquiries').update(notified).eq('id', saved.id);
+      if (error) console.error('[inquiry] notification update failed', error.code);
+    }
+  });
 
   return { success: true };
 }

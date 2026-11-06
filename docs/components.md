@@ -48,21 +48,29 @@ Ta lista została wygenerowana automatycznie przez skrypt narzędziowy `Living D
 *   **[DocumentCard.js](file:///e:/sprzety_budowlane/components/DocumentCard.js)**: Karta pobierania wzorów umów najmu sprzętu budowlanego.
 *   **[DynamicPlaceholder.js](file:///e:/sprzety_budowlane/components/DynamicPlaceholder.js)**: Dynamiczne grafiki zastępcze generowane z logo lub nazwą firmy dla ofert bez wgranych zdjęć.
 *   **[FAQSchema.js](file:///e:/sprzety_budowlane/components/FAQSchema.js)**: Wstrzykuje dane FAQ w standardzie JSON-LD bezpośrednio do nagłówków SEO.
+*   **[FavoriteButton.js](file:///e:/sprzety_budowlane/components/FavoriteButton.js)**: Reużywalny komponent interfejsu React w systemie.
+*   **[FeaturedListings.js](file:///e:/sprzety_budowlane/components/FeaturedListings.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[ListingCard.js](file:///e:/sprzety_budowlane/components/ListingCard.js)**: Premium karta prezentacyjna oferta z animacjami najechania myszką (hover), zdjęciem i ceną.
 *   **[ListingMap.js](file:///e:/sprzety_budowlane/components/ListingMap.js)**: Mapa szczegółów oferty zintegrowana z Maplibre GL, wektorowymi kafelkami i fallbackiem do CartoDB.
 *   **[MapComponent.js](file:///e:/sprzety_budowlane/components/MapComponent.js)**: Zaawansowana, pełnoekranowa mapa klastrująca lokalizacje wielu maszyn na rynku.
 *   **[Navbar.js](file:///e:/sprzety_budowlane/components/Navbar.js)**: Pasek nawigacji u góry ekranu z obsługą logowania, rejestracji i stanu sesji użytkownika.
+*   **[RentalSteps.js](file:///e:/sprzety_budowlane/components/RentalSteps.js)**: Reużywalny komponent interfejsu React w systemie.
+*   **[SiteBrand.js](file:///e:/sprzety_budowlane/components/SiteBrand.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[ToastProvider.js](file:///e:/sprzety_budowlane/components/ToastProvider.js)**: Kontekst obsługi powiadomień toast (react-hot-toast).
-*   **[browse/BrowseListings.js](file:///e:/sprzety_budowlane/components/browse/BrowseListings.js)**: Search and filtering over listings already sent by the server. The first render
+*   **[browse/BrowseListings.js](file:///e:/sprzety_budowlane/components/browse/BrowseListings.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[browse/HubView.js](file:///e:/sprzety_budowlane/components/browse/HubView.js)**: Reużywalny komponent interfejsu React w systemie.
+*   **[browse/SavedListings.js](file:///e:/sprzety_budowlane/components/browse/SavedListings.js)**: Reużywalny komponent interfejsu React w systemie.
+*   **[dashboard/DashboardNav.js](file:///e:/sprzety_budowlane/components/dashboard/DashboardNav.js)**: Reużywalny komponent interfejsu React w systemie.
+*   **[dashboard/EquipmentList.js](file:///e:/sprzety_budowlane/components/dashboard/EquipmentList.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[dashboard/EquipmentRowActions.js](file:///e:/sprzety_budowlane/components/dashboard/EquipmentRowActions.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[dashboard/ListingDetailsFields.js](file:///e:/sprzety_budowlane/components/dashboard/ListingDetailsFields.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[dashboard/StatsDashboard.js](file:///e:/sprzety_budowlane/components/dashboard/StatsDashboard.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[directory/CompanyCard.js](file:///e:/sprzety_budowlane/components/directory/CompanyCard.js)**: Bogata karta profilowa firmy w katalogu (adresy oddziałów, mapa, recenzje, formularz roszczenia).
 *   **[directory/CompanyListCard.js](file:///e:/sprzety_budowlane/components/directory/CompanyListCard.js)**: Element listy firm prezentujący podsumowanie profilu w katalogu głównym.
 *   **[directory/DirectoryBreadcrumbs.js](file:///e:/sprzety_budowlane/components/directory/DirectoryBreadcrumbs.js)**: Specjalne ścieżki nawigacji dla katalogu firm.
+*   **[icons/EquipmentIcons.js](file:///e:/sprzety_budowlane/components/icons/EquipmentIcons.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[inquiries/InquiryList.js](file:///e:/sprzety_budowlane/components/inquiries/InquiryList.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[listing/InquiryForm.js](file:///e:/sprzety_budowlane/components/listing/InquiryForm.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[listing/ListingGallery.js](file:///e:/sprzety_budowlane/components/listing/ListingGallery.js)**: Reużywalny komponent interfejsu React w systemie.
-*   **[listing/ListingImage.js](file:///e:/sprzety_budowlane/components/listing/ListingImage.js)**: Listing photo with a graceful fallback: images linked from third-party sites can
+*   **[listing/ListingImage.js](file:///e:/sprzety_budowlane/components/listing/ListingImage.js)**: Reużywalny komponent interfejsu React w systemie.
 <!-- END_COMPONENTS_LIST -->

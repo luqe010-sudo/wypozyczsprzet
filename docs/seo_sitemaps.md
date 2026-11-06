@@ -60,11 +60,11 @@ Next.js udostępnia główny plik indeksu mapy witryny (`app/sitemap.xml/route.j
 - `/sitemaps/categories.xml` - strony główne kategorii.
 - `/sitemaps/local-hubs.xml` - warianty lokalne kategorii.
 - `/sitemaps/cities.xml` / `/sitemaps/voivodeships.xml` - wykazy miast i województw.
-- `/sitemaps/katalog.xml` - dynamiczny indeks katalogu firm.
+- `/sitemaps/katalog` — kanoniczne strony katalogu firm.
 
 ### 2. Generator Sitemapy Katalogu (`/sitemaps/katalog`)
-Plik `/app/sitemaps/katalog/route.js` w czasie rzeczywistym generuje dynamiczną mapę XML dla wszystkich placówek w katalogu firm:
+Plik `/app/sitemaps/katalog/route.js` generuje mapę XML katalogu.
 - Pobiera z bazy danych pełną listę firm oraz ich placówek (`supabaseDirectory.fetchAllCompanies()`).
-- Iteruje po oddziałach każdej firmy i generuje zestaw wariantów dla miast (`/katalog/[city]/[companySlug]`) z priorytetem `0.7` i częstotliwością zmian `monthly`.
-- Generuje warianty dla województw (`/katalog/woj/[voivodeship]/[companySlug]`) z priorytetem `0.6`.
+- Uwzględnia kanoniczny adres firmy z jej główną miejscowością (`/katalog/[city]/[companySlug]`).
+- Jeśli firma nie ma głównej miejscowości, uwzględnia kanoniczne warianty wojewódzkie (`/katalog/woj/[voivodeship]/[companySlug]`).
 - Ustawia datę ostatniej modyfikacji (`lastmod`) na podstawie pola `updated_at` lub `created_at` z bazy danych Supabase.

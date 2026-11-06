@@ -1,230 +1,78 @@
 'use client'
 
 import { useState } from 'react'
-import { updateEquipment, deleteEquipment } from '../../actions'
-import { toast } from 'react-hot-toast'
-import { Trash2 } from 'lucide-react'
-import CustomSelect from '../../../../../components/CustomSelect'
-import { ListingDetailsFields, GalleryField } from '../../../../../components/dashboard/ListingDetailsFields'
+import { useRouter } from 'next/navigation'
+import { Save, Trash2 } from 'lucide-react'
+import { ListingBasics, ListingRentalFields } from '@/components/dashboard/ListingDetailsFields'
+import { deleteEquipment, updateEquipment } from '../../actions'
 
-export default function EditEquipmentForm({ equipment, categories = [], subcategories = [], branches = [] }) {
-  const [isLoading, setIsLoading] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
-  
-  // Find initial DB IDs based on current equipment fields (with fallback for legacy records)
-  const initialCategoryId = (() => {
-    if (equipment.category_id) return equipment.category_id
-    const found = categories.find(c => c.db_key === equipment.category || c.name === equipment.category)
-    return found ? found.id : ''
-  })()
+export default function EditEquipmentForm({ equipment, categories, subcategories, branches }) {
+  const router = useRouter()
+  const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState('')
+  const busy = saving || deleting || uploading
 
-  const initialSubcategoryId = (() => {
-    if (equipment.subcategory_id) return equipment.subcategory_id
-    const found = subcategories.find(s => s.slug === equipment.subcategory || s.name === equipment.subcategory)
-    return found ? found.id : ''
-  })()
+  async function handleSubmit(event) {
+    event.preventDefault()
+    if (busy) return
 
-  const initialBranchId = equipment.branch_id || (branches.find(b => b.is_main)?.id || branches[0]?.id || '')
-
-  const [categoryId, setCategoryId] = useState(initialCategoryId)
-  const [subcategoryId, setSubcategoryId] = useState(initialSubcategoryId)
-  const [branchId, setBranchId] = useState(initialBranchId)
-  const [availability, setAvailability] = useState(equipment.availability || 'immediately')
-  const [rentalPeriod, setRentalPeriod] = useState(equipment.rental_period || 'day')
-
-  const selectedCategory = categories.find(c => c.id === categoryId)
-  const selectedSubcategory = subcategories.find(s => s.id === subcategoryId)
-
-  const categoryDbKey = selectedCategory ? selectedCategory.db_key : ''
-  const subcategorySlug = selectedSubcategory ? selectedSubcategory.slug : ''
-
-  // Filter subcategories based on selected category_id
-  const filteredSubcategories = subcategories.filter(s => s.category_id === categoryId)
-
-  async function handleSubmit(formData) {
-        setIsLoading(true)
+    const data = new FormData(event.currentTarget)
+    setSaving(true)
+    setError('')
     try {
-      const result = await updateEquipment(equipment.id, equipment.company_id, formData)
-      if (result?.error) {
-        toast.error(result.error)
-        setIsLoading(false)
-      }
-    } catch (error) {
-      if (error?.digest?.startsWith('NEXT_REDIRECT')) throw error
-      toast.error('Nie udało się zapisać zmian. Spróbuj ponownie.')
-      setIsLoading(false)
+      const result = await updateEquipment(equipment.id, equipment.company_id, data)
+      if (result?.error) setError(result.error)
+      else router.replace(`/dashboard/company/${equipment.company_id}`)
+    } catch {
+      setError('Nie udało się zapisać zmian. Spróbuj ponownie.')
+    } finally {
+      setSaving(false)
     }
   }
 
   async function handleDelete() {
-    if (confirm('Czy na pewno chcesz usunąć ten sprzęt?')) {
-      setIsDeleting(true)
+    if (busy || !confirm('Czy na pewno chcesz usunąć to ogłoszenie?')) return
+
+    setDeleting(true)
+    setError('')
+    try {
       const result = await deleteEquipment(equipment.id, equipment.company_id)
-      if (result?.error) {
-        toast.error(result.error)
-        setIsDeleting(false)
-      }
+      if (result?.error) setError(result.error)
+      else router.replace(`/dashboard/company/${equipment.company_id}`)
+    } catch {
+      setError('Nie udało się usunąć ogłoszenia. Spróbuj ponownie.')
+    } finally {
+      setDeleting(false)
     }
   }
 
   return (
-    <div>
-      <form action={handleSubmit} className="space-y-6">
-        {/* Hidden fields for FK and legacy compatibility */}
-        <input type="hidden" name="category_id" value={categoryId} />
-        <input type="hidden" name="category" value={categoryDbKey} />
-        <input type="hidden" name="subcategory_id" value={subcategoryId} />
-        <input type="hidden" name="subcategory" value={subcategorySlug} />
-        <input type="hidden" name="branch_id" value={branchId} />
-        <input type="hidden" name="availability" value={availability} />
-        <input type="hidden" name="rental_period" value={rentalPeriod} />
+    <form onSubmit={handleSubmit} className="mt-6 space-y-6">
+      <fieldset className="space-y-4" disabled={saving || deleting}>
+        <legend className="mb-4 text-lg font-bold">Sprzęt i lokalizacja</legend>
+        <ListingBasics listing={equipment} categories={categories} subcategories={subcategories} branches={branches} />
+      </fieldset>
+      <fieldset className="space-y-4 border-t border-border" disabled={saving || deleting}>
+        <legend className="pr-3 text-lg font-bold">Zdjęcia i warunki wynajmu</legend>
+        <ListingRentalFields listing={equipment} onUploadingChange={setUploading} />
+        <label className="flex items-center gap-2 text-sm">
+          <input name="promotion" type="checkbox" defaultChecked={equipment.promotion} className="size-4 shrink-0 accent-brand-600" />
+          Chcę promować to ogłoszenie w przyszłości
+        </label>
+      </fieldset>
 
-        <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-          <div className="sm:col-span-6">
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Nazwa Sprzętu <span className="text-red-500">*</span>
-            </label>
-            <div className="mt-1">
-              <input type="text" name="name" id="name" required defaultValue={equipment.name || equipment.Sprzęt}
-                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border outline-none" />
-            </div>
-          </div>
+      {error && <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-800 dark:bg-red-950 dark:text-red-200">{error}</p>}
 
-          <div className="sm:col-span-3">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Kategoria <span className="text-red-500">*</span>
-            </label>
-            <CustomSelect
-              options={categories.map(c => ({ value: c.id, label: c.name }))}
-              value={categoryId}
-              onChange={(val) => {
-                setCategoryId(val);
-                setSubcategoryId('');
-              }}
-              placeholder="Wybierz kategorię..."
-              variant="field"
-            />
-          </div>
-
-          <div className="sm:col-span-3">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Podkategoria
-            </label>
-            <CustomSelect
-              options={filteredSubcategories.map(s => ({ value: s.id, label: s.name }))}
-              value={subcategoryId}
-              onChange={setSubcategoryId}
-              placeholder="Wybierz typ..."
-              variant="field"
-              disabled={!categoryId}
-            />
-          </div>
-
-          <div className="sm:col-span-6">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Lokalizacja / Oddział Firmy <span className="text-red-500">*</span>
-            </label>
-            <CustomSelect
-              options={branches.map(b => ({ 
-                value: b.id, 
-                label: b.name ? `${b.name} (${b.city})` : `${b.city}, ${b.address}` 
-              }))}
-              value={branchId}
-              onChange={setBranchId}
-              placeholder="Wybierz oddział..."
-              variant="field"
-            />
-            <p className="mt-1 text-xs text-gray-500 italic">Lokalizacja sprzętu pochodzi z wybranego oddziału firmy.</p>
-          </div>
-
-          <div className="sm:col-span-3">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Dostępność
-            </label>
-            <CustomSelect
-              options={[
-                { value: 'immediately', label: 'Dostępny od ręki' },
-                { value: 'on_call', label: 'Na telefon' }
-              ]}
-              value={availability}
-              onChange={setAvailability}
-              variant="field"
-            />
-          </div>
-
-          <div className="sm:col-span-3">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Cena za
-            </label>
-            <CustomSelect
-              options={[
-                { value: 'hour', label: '/ godzina' },
-                { value: 'day', label: '/ doba' },
-                { value: 'week', label: '/ tydzień' },
-                { value: 'month', label: '/ miesiąc' }
-              ]}
-              value={rentalPeriod}
-              onChange={setRentalPeriod}
-              variant="field"
-            />
-          </div>
-
-          <div className="sm:col-span-6">
-            <label htmlFor="external_olx_url" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Link do OLX (Opcjonalnie)
-            </label>
-            <div className="mt-1">
-              <input type="url" name="external_olx_url" id="external_olx_url" defaultValue={equipment.external_olx_url} placeholder="https://olx.pl/..."
-                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border outline-none" />
-            </div>
-          </div>
-
-<GalleryField initialImages={[equipment.image_url, ...(equipment.gallery_urls || [])]} />
-
-          <ListingDetailsFields listing={equipment} />
-
-          <div className="sm:col-span-6">
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Opis (Opcjonalnie)
-            </label>
-            <div className="mt-1">
-              <textarea name="description" id="description" rows={4} defaultValue={equipment.description || equipment.Opis}
-                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border outline-none" />
-            </div>
-          </div>
-
-          <div className="sm:col-span-6">
-            <div className="relative flex items-start">
-              <div className="flex items-center h-5">
-                <input id="promotion" name="promotion" type="checkbox" defaultChecked={equipment.promotion}
-                  className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded" />
-              </div>
-              <div className="ml-3 text-sm">
-                <label htmlFor="promotion" className="font-medium text-gray-700 dark:text-gray-300">Chcę promować to ogłoszenie</label>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="pt-5 border-t border-gray-200 dark:border-slate-700 flex justify-between items-center">
-          <button
-            type="button"
-            onClick={handleDelete}
-            disabled={isDeleting || isLoading}
-            className="inline-flex items-center justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 transition-colors"
-          >
-            <Trash2 className="w-4 h-4 mr-2" />
-            Usuń sprzęt
-          </button>
-          <button
-            type="submit"
-            disabled={isLoading || isDeleting}
-            className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors"
-          >
-            {isLoading ? 'Zapisywanie...' : 'Zapisz zmiany'}
-          </button>
-        </div>
-      </form>
-    </div>
+      <div className="flex flex-wrap justify-between gap-2 border-t border-border pt-4">
+        <button type="button" onClick={handleDelete} disabled={busy} className="inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-60 dark:text-red-300 dark:hover:bg-red-950">
+          <Trash2 size={17} aria-hidden="true" /> {deleting ? 'Usuwanie…' : 'Usuń ogłoszenie'}
+        </button>
+        <button type="submit" disabled={busy} className="market-action">
+          <Save size={17} aria-hidden="true" /> {saving ? 'Zapisywanie…' : uploading ? 'Wysyłanie zdjęć…' : 'Zapisz zmiany'}
+        </button>
+      </div>
+    </form>
   )
 }

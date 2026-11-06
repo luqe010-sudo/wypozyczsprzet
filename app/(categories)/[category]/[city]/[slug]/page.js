@@ -2,8 +2,8 @@ import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { SEO_CATEGORIES, SEO_CATEGORY_SLUGS } from '../../../../../lib/categories';
 import { fetchListingBySlug, fetchSuggestions, isUnpublishedSlug, toCard } from '../../../../../lib/listings';
-import { formatMoney, plainTextExcerpt, priceText } from '../../../../../lib/format';
-import { SITE_NAME, SITE_URL } from '../../../../../lib/site';
+import { formatDate, formatMoney, plainTextExcerpt, priceText } from '../../../../../lib/format';
+import { CONFIRMATION_REMINDER_DAYS, SITE_NAME, SITE_URL } from '../../../../../lib/site';
 import ListingPageClient from './ListingPageClient';
 import InactiveListingPage from './InactiveListingPage';
 
@@ -17,6 +17,14 @@ export function generateStaticParams() {
 const jsonLdScript = (data) => (
   <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data).replace(/</g, '\\u003c') }} />
 );
+
+function recentDeclaredAvailability(listing) {
+  const ageInDays = (Date.now() - Date.parse(listing.lastConfirmedAt)) / 86_400_000;
+  if (!listing.isClaimed || !listing.availability || !(ageInDays >= 0 && ageInDays <= CONFIRMATION_REMINDER_DAYS)) {
+    return null;
+  }
+  return listing['Dostępność'];
+}
 
 export async function generateMetadata({ params }) {
   const { category, slug } = await params;
@@ -32,7 +40,7 @@ export async function generateMetadata({ params }) {
 
   const { listing, canonicalPath } = data;
   const name = listing['Sprzęt'] || 'Sprzęt budowlany';
-  const price = listing.priceType === 'fixed' ? ` od ${formatMoney(listing.priceAmount)}` : '';
+  const price = listing.priceType === 'fixed' && Number.isFinite(listing.priceAmount) ? ` od ${formatMoney(listing.priceAmount)}` : '';
   const title = `${name} – wynajem, ${listing.Miasto}${price} | ${SITE_NAME}`;
   const description = plainTextExcerpt(listing.Opis) || `${name} na wynajem, ${listing.Miasto}. ${priceText(listing)}.`;
 
@@ -82,7 +90,7 @@ export default async function ListingPage({ params }) {
   };
 
   // Only stated facts go into structured data: no ratings or reviews exist, so none are declared.
-  const productJsonLd = listing.priceType === 'fixed' ? {
+  const productJsonLd = listing.priceType === 'fixed' && Number.isFinite(listing.priceAmount) ? {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name,
@@ -91,10 +99,15 @@ export default async function ListingPage({ params }) {
     offers: {
       '@type': 'Offer',
       url: `${SITE_URL}${canonicalPath}`,
+      businessFunction: 'http://purl.org/goodrelations/v1#LeaseOut',
       price: String(listing.priceAmount),
       priceCurrency: 'PLN',
-      ...(listing.availability === 'immediately' ? { availability: 'https://schema.org/InStock' } : {}),
-      ...(['rented', 'unavailable'].includes(listing.availability) ? { availability: 'https://schema.org/OutOfStock' } : {}),
+      priceSpecification: {
+        '@type': 'UnitPriceSpecification',
+        price: String(listing.priceAmount),
+        priceCurrency: 'PLN',
+        unitText: listing.Czas,
+      },
       areaServed: { '@type': 'City', name: listing.Miasto },
       seller: { '@type': 'Organization', name: listing.companyDetails.Nazwa },
     },
@@ -115,11 +128,14 @@ export default async function ListingPage({ params }) {
         </nav>
 
         <ListingPageClient
+          key={listing.ID_sprzetu}
           listing={listing}
-          description={listing.Opis}
           related={related.map(toCard)}
           categorySlug={category}
           categoryName={categoryInfo?.name || category}
+          canonicalPath={canonicalPath}
+          confirmedDate={formatDate(listing.lastConfirmedAt)}
+          declaredAvailability={recentDeclaredAvailability(listing)}
         />
       </div>
     </>

@@ -83,7 +83,7 @@ export default function SettingsPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-black py-4 rounded-2xl shadow-lg shadow-blue-500/30 transition-all active:scale-[0.98]"
+              className="w-full bg-market-yellow hover:bg-amber-300 disabled:opacity-50 text-market-navy font-black py-4 rounded-2xl shadow-lg transition-all active:scale-[0.98]"
             >
               {isLoading ? 'Przetwarzanie...' : 'Zaktualizuj hasło'}
             </button>

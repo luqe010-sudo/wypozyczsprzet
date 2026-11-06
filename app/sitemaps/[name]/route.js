@@ -3,9 +3,7 @@ import { SEO_CATEGORIES } from '../../../lib/categories';
 import { articles } from '../../../lib/articles';
 import { documents } from '../../../lib/umowy-data';
 import { getVoivodeshipSlugForCity } from '../../../lib/regions';
-import { MIN_LISTINGS_FOR_INDEXING } from '../../../lib/site';
-
-const BASE_URL = 'https://wypozycz.online';
+import { MIN_LISTINGS_FOR_INDEXING, SITE_URL as BASE_URL } from '../../../lib/site';
 
 function countBy(slugData, keyOf) {
   const counts = new Map();
@@ -58,8 +56,10 @@ export async function GET(request, { params }) {
     }
   } catch (error) {
     console.error(`[Sitemap] Error generating ${name}:`, error);
-    // Return a valid but empty sitemap so Google doesn't mark it as "failed to fetch"
-    xml = wrapInUrlset('');
+    return new Response('Sitemap temporarily unavailable', {
+      status: 503,
+      headers: { 'Cache-Control': 'no-store', 'Retry-After': '300' },
+    });
   }
 
   return new Response(xml, {
@@ -79,7 +79,6 @@ function generateCategoriesSitemap(slugData) {
   const urls = categories.map(({ slug }) => `
     <url>
       <loc>${BASE_URL}/${slug}</loc>
-      <lastmod>${new Date().toISOString()}</lastmod>
       <changefreq>daily</changefreq>
       <priority>0.9</priority>
     </url>`).join('');
@@ -88,7 +87,7 @@ function generateCategoriesSitemap(slugData) {
 }
 
 function generateOffersSitemap(slugData) {
-  const urls = slugData.map(item => {
+  const urls = slugData.filter((item) => item.citySlug && item.slug).map(item => {
     const date = item.updated_at || item.created_at ? new Date(item.updated_at || item.created_at).toISOString() : new Date().toISOString();
     return `
     <url>
@@ -134,6 +133,8 @@ function generateStaticSitemap() {
   const staticUrls = [
     '',
     '/kontakt',
+    '/jak-to-dziala',
+    '/dla-wynajmujacych',
     '/regulamin',
     '/polityka-prywatnosci',
     '/blog',
@@ -143,7 +144,6 @@ function generateStaticSitemap() {
   const urls = staticUrls.map(path => `
     <url>
       <loc>${BASE_URL}${path}</loc>
-      <lastmod>2026-05-19T20:00:00.000Z</lastmod>
       <changefreq>weekly</changefreq>
       <priority>${path === '' ? '1.0' : '0.5'}</priority>
     </url>`).join('');

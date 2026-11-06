@@ -1,63 +1,40 @@
 import {
   fetchAllCompanies,
-  citySlug,
+  getPrimaryCitySlug,
   voivodeshipSlug,
   slugify,
 } from '../../../lib/supabaseDirectory';
+import { SITE_URL } from '../../../lib/site';
 
 /**
  * Generates a sitemap XML for all /katalog/* pages.
- * Includes:
- *  - /katalog (main listing)
- *  - /katalog/[city]/[companySlug] (city variants)
- *  - /katalog/woj/[voivodeship]/[companySlug] (voivodeship variants)
+ * Includes the catalog and the canonical URL for each company.
  */
 export async function GET() {
-  const BASE = 'https://wypozycz.online';
   const companies = await fetchAllCompanies();
 
   const urls = [];
 
   // Main catalog page
   urls.push({
-    loc: `${BASE}/katalog`,
+    loc: `${SITE_URL}/katalog`,
     priority: '0.8',
     changefreq: 'weekly',
   });
 
   for (const company of companies) {
     const compSlug = company.slug || slugify(company.name);
-    const seenCities = new Set();
-    const seenVoivodeships = new Set();
-
-    for (const branch of company.branches || []) {
-      // City variants
-      if (branch.city) {
-        const cSlug = citySlug(branch.city);
-        if (!seenCities.has(cSlug)) {
-          seenCities.add(cSlug);
-          urls.push({
-            loc: `${BASE}/katalog/${cSlug}/${compSlug}`,
-            priority: '0.7',
-            changefreq: 'monthly',
-            lastmod: company.updated_at || company.created_at || undefined,
-          });
-        }
-      }
-
-      // Voivodeship variants
-      if (branch.voivodeship) {
-        const vSlug = voivodeshipSlug(branch.voivodeship);
-        if (!seenVoivodeships.has(vSlug)) {
-          seenVoivodeships.add(vSlug);
-          urls.push({
-            loc: `${BASE}/katalog/woj/${vSlug}/${compSlug}`,
-            priority: '0.6',
-            changefreq: 'monthly',
-            lastmod: company.updated_at || company.created_at || undefined,
-          });
-        }
-      }
+    const primaryCity = getPrimaryCitySlug(company);
+    const places = primaryCity
+      ? [primaryCity]
+      : [...new Set((company.branches || []).filter((branch) => branch.voivodeship).map((branch) => `woj/${voivodeshipSlug(branch.voivodeship)}`))];
+    for (const place of places) {
+      urls.push({
+        loc: `${SITE_URL}/katalog/${place}/${encodeURIComponent(compSlug)}`,
+        priority: '0.7',
+        changefreq: 'monthly',
+        lastmod: company.updated_at || company.created_at || undefined,
+      });
     }
   }
 

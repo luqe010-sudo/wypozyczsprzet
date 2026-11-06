@@ -161,7 +161,7 @@ export default async function DocumentDetailPage({ params }) {
               <a 
                 href={doc.pdfUrl}
                 download
-                className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl transition-all shadow-xl shadow-blue-500/20 active:scale-95 flex items-center justify-center gap-2"
+                className="w-full py-4 bg-market-yellow hover:bg-amber-300 text-market-navy font-black rounded-2xl transition-all shadow-xl active:scale-95 flex items-center justify-center gap-2"
               >
                 <Download size={20} />
                 Pobierz teraz PDF
@@ -172,14 +172,14 @@ export default async function DocumentDetailPage({ params }) {
             </div>
 
             {/* Marketplace CTA */}
-            <div className="bg-gray-900 dark:bg-blue-600 rounded-3xl p-8 text-white text-center">
+            <div className="bg-market-navy rounded-2xl p-8 text-white text-center">
               <h3 className="text-xl font-bold mb-4">Szukasz sprzętu?</h3>
-              <p className="text-gray-400 dark:text-blue-100 text-sm mb-6">
+              <p className="text-slate-300 text-sm mb-6">
                 Sprawdź ogłoszenia w Twojej okolicy. Bezpośredni kontakt, bez prowizji.
               </p>
               <Link 
                 href="/"
-                className="block w-full py-3 bg-white text-gray-900 dark:text-blue-600 font-bold rounded-xl hover:bg-gray-100 transition-colors"
+                className="market-action w-full"
               >
                 Przejdź do ogłoszeń
               </Link>

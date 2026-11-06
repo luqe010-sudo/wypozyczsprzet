@@ -4,24 +4,47 @@ import { Plus } from 'lucide-react'
 import { createClient } from '@/utils/supabase/server'
 import EquipmentList from '@/components/dashboard/EquipmentList'
 
-export default async function MyListingsPage() {
+const filters = [
+  { key: '', label: 'Wszystkie', statuses: [] },
+  { key: 'active', label: 'Opublikowane', statuses: ['active', 'incomplete'] },
+  { key: 'inactive', label: 'Wstrzymane', statuses: ['inactive'] },
+  { key: 'pending', label: 'W moderacji', statuses: ['pending'] },
+  { key: 'stale', label: 'Do potwierdzenia', statuses: ['stale'] },
+]
+
+export default async function MyListingsPage({ searchParams }) {
+  const { status } = await searchParams
+  const filter = filters.find(({ key }) => key === status) || filters[0]
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login?returnTo=/dashboard/ogloszenia')
 
-  const { data: companies = [], error } = await supabase
+  const { data: companies, error: companyError } = await supabase
     .from('companies')
-    .select('id, name, equipment(id, company_id, name, image_url, category, price_type, price_amount, rental_period, last_confirmed_at, status, created_at)')
+    .select('id, name')
     .eq('owner_user_id', user.id)
     .order('name')
 
-  const equipment = (companies || [])
-    .flatMap((company) => (company.equipment || []).map((item) => ({ ...item, companyName: company.name })))
-    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+  const companiesById = new Map((companies || []).map((company) => [company.id, company.name]))
+  let equipment = []
+  let error = companyError
+  if (companiesById.size) {
+    const query = supabase.from('equipment')
+      .select('id, company_id, name, image_url, category, price_type, price_amount, rental_period, last_confirmed_at, status')
+      .in('company_id', [...companiesById.keys()])
+      .order('created_at', { ascending: false })
+    if (filter.statuses.length) query.in('status', filter.statuses)
+    const result = await query
+    error = result.error
+    equipment = (result.data || []).map((item) => ({ ...item, companyName: companiesById.get(item.company_id) }))
+  }
 
   return (
     <div className="space-y-4">
-      <h1 className="market-heading">Moje ogłoszenia{error ? '' : ` (${equipment.length})`}</h1>
+      <header>
+        <h1 className="market-heading">Moje ogłoszenia</h1>
+        <p className="mt-1 text-sm text-muted">Edytuj sprzęt, wstrzymuj publikację i potwierdzaj aktualność ofert.</p>
+      </header>
       {!error && (
         <section id="dodaj" className="listing-panel scroll-mt-24">
           <h2 className="font-bold">Dodaj ogłoszenie</h2>
@@ -38,7 +61,16 @@ export default async function MyListingsPage() {
           </div>
         </section>
       )}
-      <EquipmentList equipment={equipment} error={error} />
+      {!error && (
+        <nav aria-label="Filtruj ogłoszenia według statusu" className="flex flex-wrap gap-2">
+          {filters.map(({ key, label }) => (
+            <Link key={key} href={key ? `/dashboard/ogloszenia?status=${key}` : '/dashboard/ogloszenia'} aria-current={key === filter.key ? 'page' : undefined} className={`inline-flex min-h-11 items-center rounded-lg border px-3 text-sm font-semibold ${key === filter.key ? 'border-market-navy bg-market-navy text-white dark:border-market-yellow dark:bg-market-yellow dark:text-market-navy' : 'border-border bg-card hover:border-amber-400'}`}>
+              {label}
+            </Link>
+          ))}
+        </nav>
+      )}
+      <EquipmentList equipment={equipment} error={error} filtered={Boolean(filter.key)} />
     </div>
   )
 }

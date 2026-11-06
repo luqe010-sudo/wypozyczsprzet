@@ -15,7 +15,7 @@ export default async function DashboardLayout({ children }) {
   return (
     <div className="mx-auto grid min-h-[65vh] max-w-7xl items-start gap-5 px-4 py-5 sm:px-6 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-6 lg:py-8">
       <aside className="listing-panel min-w-0">
-        <div className="mb-3 border-b border-slate-200 pb-3 dark:border-slate-700">
+        <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-3 border-b border-border pb-2 lg:block">
           <p className="font-bold text-slate-950 dark:text-white">Panel wynajmującego</p>
           <p className="mt-1 truncate text-xs text-slate-600 dark:text-slate-400" title={user.email}>{user.email}</p>
         </div>

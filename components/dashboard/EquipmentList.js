@@ -15,7 +15,7 @@ const statuses = {
 }
 const periods = { hour: 'godzina', day: 'doba', week: 'tydzień', month: 'miesiąc' }
 
-export default function EquipmentList({ equipment = [], error = null }) {
+export default function EquipmentList({ equipment = [], error = null, filtered = false }) {
   if (error) return <p role="alert" className="listing-panel text-sm text-red-800 dark:text-red-200">Nie udało się wczytać ogłoszeń. Spróbuj odświeżyć stronę.</p>
 
   if (!equipment.length) {
@@ -23,7 +23,7 @@ export default function EquipmentList({ equipment = [], error = null }) {
       <div className="listing-panel text-center">
         <PackageOpen size={28} className="mx-auto text-muted" aria-hidden="true" />
         <p className="mt-2 font-bold">Brak ogłoszeń</p>
-        <p className="mt-1 text-sm text-muted">Dodaj sprzęt, aby zacząć odbierać zapytania.</p>
+        <p className="mt-1 text-sm text-muted">{filtered ? 'Brak ogłoszeń o wybranym statusie.' : 'Dodaj sprzęt, aby zacząć odbierać zapytania.'}</p>
       </div>
     )
   }
@@ -31,7 +31,7 @@ export default function EquipmentList({ equipment = [], error = null }) {
   return (
     <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card shadow-sm">
       {equipment.map((item) => {
-        const [status, statusStyle] = statuses[item.status] || statuses.inactive
+        const [status, statusStyle] = statuses[item.status] || ['Status nieznany', 'bg-background text-foreground']
         return (
           <li key={item.id} className="flex items-start gap-3 p-3 sm:gap-4 sm:p-4">
             <div className="relative h-[4.5rem] w-16 shrink-0 overflow-hidden rounded-lg bg-background sm:w-24">
@@ -47,8 +47,9 @@ export default function EquipmentList({ equipment = [], error = null }) {
               </p>
               <div className="mt-2"><EquipmentRowActions id={item.id} companyId={item.company_id} status={item.status} /></div>
             </div>
-            <Link href={`/dashboard/equipment/${item.id}/edit`} aria-label={`Edytuj ogłoszenie ${item.name}`} className="grid size-11 shrink-0 place-items-center rounded-lg text-muted hover:bg-background">
+            <Link href={`/dashboard/equipment/${item.id}/edit`} aria-label={`Edytuj ogłoszenie ${item.name}`} className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1.5 rounded-lg text-sm font-semibold text-muted hover:bg-background sm:px-3">
               <Edit size={18} aria-hidden="true" />
+              <span className="hidden sm:inline">Edytuj</span>
             </Link>
           </li>
         )

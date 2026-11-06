@@ -6,28 +6,28 @@ import CookieConsent from '../components/CookieConsentLoader';
 import ToastProvider from '../components/ToastProvider';
 import Script from 'next/script';
 import Link from 'next/link';
+import { SITE_URL } from '../lib/site';
 
 const inter = Inter({ 
-  subsets: ['latin'],
+  subsets: ['latin', 'latin-ext'],
   display: 'swap',
   variable: '--font-inter',
 });
 
 export const metadata = {
-  metadataBase: new URL('https://wypozycz.online'),
+  metadataBase: new URL(SITE_URL),
   title: 'Wynajem sprzętu budowlanego i ogrodowego na Dolnym Śląsku | WypożyczSprzęt',
   description: 'Koparki, minikoparki, zagęszczarki, agregaty i narzędzia na wynajem. Kontakt bezpośrednio z wynajmującym, bez prowizji.',
 
   openGraph: {
     title: 'Wynajem sprzętu budowlanego i ogrodowego na Dolnym Śląsku',
     description: 'Koparki, minikoparki, zagęszczarki, agregaty i narzędzia na wynajem. Kontakt bezpośrednio z wynajmującym, bez prowizji.',
-    url: '/',
     siteName: 'WypożyczSprzęt',
     images: [
       {
-        url: '/header.png',
-        width: 1200,
-        height: 630,
+        url: '/header.webp',
+        width: 1774,
+        height: 887,
         alt: 'Wynajem sprzętu budowlanego',
       },
     ],
@@ -51,9 +51,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="pl" suppressHydrationWarning className={`${inter.variable} ${inter.className}`}>
       <head>
-        <link rel="icon" href="/favicon.png" />
         <link rel="preconnect" href="https://res.cloudinary.com" />
-        <link rel="preconnect" href="https://www.googletagmanager.com" />
         {/* Preconnect to Supabase if used for images */}
         {process.env.NEXT_PUBLIC_SUPABASE_URL && (
           <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL} />
@@ -75,8 +73,9 @@ export default function RootLayout({ children }) {
       <body>
         <ToastProvider />
         <CookieConsent />
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:z-[100] focus:rounded-md focus:bg-card focus:px-4 focus:py-2">Przejdź do treści</a>
         <Navbar />
-        <main className="min-h-screen bg-background">{children}</main>
+        <main id="main-content" className="min-h-screen scroll-mt-16 bg-background">{children}</main>
         <footer className="border-t border-white/10 bg-market-navy text-slate-300">
           <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
             <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">

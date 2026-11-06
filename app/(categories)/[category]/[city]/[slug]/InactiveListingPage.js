@@ -14,7 +14,7 @@ export default function InactiveListingPage({ suggestions = [], category }) {
         </p>
         <div className="flex flex-wrap justify-center gap-3">
           {categoryInfo && (
-            <Link href={`/${category}`} className="flex h-11 items-center rounded-lg bg-brand-600 px-5 text-sm font-semibold text-white hover:bg-brand-700">
+            <Link href={`/${category}`} className="flex h-11 items-center rounded-lg bg-market-yellow px-5 text-sm font-semibold text-market-navy hover:bg-amber-300">
               {categoryInfo.name}: wszystkie oferty
             </Link>
           )}

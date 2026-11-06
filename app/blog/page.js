@@ -27,7 +27,7 @@ export default function BlogIndexPage() {
     <div className="max-w-[1000px] mx-auto px-4 py-8">
       <header className="text-center mb-12 mt-8">
         <h1 className="text-4xl md:text-5xl font-extrabold mb-4 text-gray-900 dark:text-white">
-          Poradniki i <span className="text-blue-600">Wiedza</span>
+          Poradniki i <span className="text-market-yellow">Wiedza</span>
         </h1>
         <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
           Praktyczne porady, zestawienia cenowe i wskazówki, które pomogą Ci wybrać najlepszy sprzęt do Twojego projektu budowlanego.

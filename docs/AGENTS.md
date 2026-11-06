@@ -42,6 +42,7 @@ W pliku [utils/supabase/middleware.js](file:///e:/sprzety_budowlane/utils/supaba
 - **Slug jest stały**: powstaje raz, przy tworzeniu ogłoszenia (`generateUniqueSlug`), i nie zmienia się przy edycji nazwy ani miasta. Strona oferty szuka po samym slugu i przekierowuje 308 na kanoniczną ścieżkę.
 - **Prawda w treści**: nie dodawaj zaszytych na stałe opinii, liczb ani plakietek. Fakty o ofercie pokazujemy tylko, gdy są w danych (`listingFacts` w `lib/format.js`). Plakietka „Zweryfikowana firma” wynika wyłącznie z `companies.verified_at`.
 - **Moderacja w bazie**: triggery `guard_equipment_write` i `guard_company_write` pilnują statusu, priorytetu, sluga i `verified_at` dla zwykłych użytkowników. Pierwsze ogłoszenie niezweryfikowanej firmy dostaje status `pending`.
+- **Polecane**: ogłoszenie jest polecane, gdy `priority > 1`. Ustawia to tylko administrator gwiazdką w `/admin/equipment`. Pole `promotion` to jedynie deklaracja właściciela, że chce promować ogłoszenie w przyszłości.
 - **Zapytania** (`inquiries`): tworzy wyłącznie serwer przez `app/actions/inquiryActions.js`. Maile idą przez Resend (`lib/email.js`); bez `RESEND_API_KEY` zapytania nadal zapisują się i są widoczne w panelach.
 - **Zdjęcia**: przeglądarka wysyła je bezpośrednio do Cloudinary po podpisie z `/api/upload-signature`.
 

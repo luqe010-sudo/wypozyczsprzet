@@ -18,7 +18,7 @@ export default function ProviderPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
       <header className="relative isolate overflow-hidden rounded-xl bg-market-navy p-6 text-white sm:p-10">
-        <Image src="/header.png" alt="" fill sizes="(max-width: 1280px) 100vw, 1280px" className="-z-20 object-cover object-[center_60%]" />
+        <Image src="/hero-minikoparka.webp" alt="" fill sizes="(max-width: 1280px) 100vw, 1280px" className="-z-20 object-cover object-[center_60%]" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-market-navy via-market-navy/90 to-market-navy/35" aria-hidden="true" />
         <p className="mb-2 flex items-center gap-2 text-sm font-bold text-market-yellow"><Building2 size={18} aria-hidden="true" /> Dla wynajmujących</p>
         <h1 className="max-w-lg text-3xl font-extrabold tracking-tight sm:text-4xl">Wynajmujesz sprzęt? Dotrzyj do klientów w swojej okolicy.</h1>

@@ -36,7 +36,7 @@ const jsonLdScript = (data) => (
 export async function generateMetadata({ params }) {
   const { category: categorySlug, city: slug } = await params;
   const category = SEO_CATEGORIES[categorySlug];
-  if (!category) return {};
+  if (!Object.hasOwn(SEO_CATEGORIES, categorySlug)) return {};
 
   const { listings, filters } = await fetchMarketplaceData();
   const place = resolvePlace(slug, filters.cities);
@@ -60,7 +60,7 @@ export async function generateMetadata({ params }) {
 export default async function LocalHubPage({ params }) {
   const { category: categorySlug, city: slug } = await params;
   const category = SEO_CATEGORIES[categorySlug];
-  if (!category) notFound();
+  if (!Object.hasOwn(SEO_CATEGORIES, categorySlug)) notFound();
 
   const { listings, filters } = await fetchMarketplaceData();
   const place = resolvePlace(slug, filters.cities);

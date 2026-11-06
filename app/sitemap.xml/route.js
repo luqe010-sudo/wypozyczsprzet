@@ -1,4 +1,4 @@
-const BASE_URL = 'https://wypozycz.online';
+import { SITE_URL } from '../../lib/site';
 
 export async function GET() {
   const sitemaps = [
@@ -10,13 +10,13 @@ export async function GET() {
     'static-pages.xml',
     'blog.xml',
     'umowy.xml',
+    'katalog',
   ];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${sitemaps.map(s => `  <sitemap>
-    <loc>${BASE_URL}/sitemaps/${s}</loc>
-    <lastmod>${new Date().toISOString()}</lastmod>
+    <loc>${SITE_URL}/sitemaps/${s}</loc>
   </sitemap>`).join('\n')}
 </sitemapindex>`.trim();
 

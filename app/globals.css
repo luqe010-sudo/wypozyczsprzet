@@ -38,7 +38,16 @@
 
 .home-hero-photo {
   position: absolute;
-  inset: 0 calc(50% - 50vw);
+  inset: 10.75rem 0 auto;
+  height: 14rem;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 .market-category-art {
@@ -51,7 +60,11 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, #111d2c 0%, rgb(17 29 44 / 78%) 30%, rgb(17 29 44 / 12%) 66%, #111d2c 100%);
+  background: linear-gradient(180deg, #f5f7fa 0%, transparent 28%, transparent 72%, #f5f7fa 100%);
+}
+
+.dark .home-hero-photo::after {
+  background: linear-gradient(180deg, #0f172a 0%, transparent 28%, transparent 72%, #0f172a 100%);
 }
 
 .market-map-popup .maplibregl-popup-content {
@@ -70,23 +83,41 @@
 }
 
 @media (min-width: 1024px) {
+  .home-hero-photo {
+    inset: 0 0 2.5rem auto;
+    height: auto;
+    width: 60%;
+  }
+
   .home-hero-photo::after {
     background:
-      linear-gradient(90deg, #111d2c 0%, rgb(17 29 44 / 90%) 26%, rgb(17 29 44 / 8%) 73%),
-      linear-gradient(0deg, rgb(17 29 44 / 72%), transparent 46%);
+      linear-gradient(90deg, #f5f7fa 0%, rgb(245 247 250 / 70%) 14%, transparent 34%),
+      linear-gradient(180deg, transparent 70%, #f5f7fa 100%);
+  }
+
+  .dark .home-hero-photo::after {
+    background:
+      linear-gradient(90deg, #0f172a 0%, rgb(15 23 42 / 70%) 14%, transparent 34%),
+      linear-gradient(180deg, transparent 70%, #0f172a 100%);
   }
 }
 
 @media (max-width: 1023px) {
-  body:has(.mobile-market-nav) > footer {
-    margin-bottom: calc(3.5rem + env(safe-area-inset-bottom));
+  body:has(.mobile-market-nav) {
+    --market-nav-height: calc(3.5rem + 1px + env(safe-area-inset-bottom));
   }
+
+  body > footer {
+    margin-bottom: var(--market-nav-height);
+  }
+
   body:has(.mobile-listing-contact) > footer {
-    margin-bottom: calc(4.5rem + env(safe-area-inset-bottom));
+    margin-bottom: calc(var(--market-nav-height) + 4.5rem);
   }
 }
 
 :root {
+  --market-nav-height: 0px;
   --primary: #805700;
   --primary-hover: #684700;
   --primary-light: #fffbeb;

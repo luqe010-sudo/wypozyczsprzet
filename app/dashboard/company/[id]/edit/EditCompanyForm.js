@@ -199,7 +199,7 @@ export default function EditCompanyForm({ company, branches = [] }) {
               <button
                 type="submit"
                 disabled={isLoading || isDeleting}
-                className="inline-flex justify-center py-2.5 px-6 border border-transparent shadow-sm text-sm font-bold rounded-xl text-white bg-blue-600 hover:bg-blue-700 focus:outline-none disabled:opacity-50 transition-colors"
+                className="inline-flex justify-center py-2.5 px-6 border border-transparent shadow-sm text-sm font-bold rounded-xl text-market-navy bg-market-yellow hover:bg-amber-300 focus:outline-none disabled:opacity-50 transition-colors"
               >
                 {isLoading ? 'Zapisywanie...' : 'Zapisz zmiany'}
               </button>
@@ -370,7 +370,7 @@ export default function EditCompanyForm({ company, branches = [] }) {
                 <button
                   type="submit"
                   disabled={isBranchLoading}
-                  className="text-xs text-white bg-blue-600 hover:bg-blue-700 font-bold px-3 py-1.5 rounded-lg transition-colors"
+                  className="text-xs text-market-navy bg-market-yellow hover:bg-amber-300 font-bold px-3 py-1.5 rounded-lg transition-colors"
                 >
                   {isBranchLoading ? 'Zapisywanie...' : 'Dodaj oddział'}
                 </button>

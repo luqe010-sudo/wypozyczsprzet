@@ -27,7 +27,7 @@ export default function UmowyPage() {
         </div>
         <h1 className="text-4xl md:text-6xl font-black text-gray-900 dark:text-white mb-6 tracking-tight">
           Darmowe wzory umów <br className="hidden md:block" />
-          <span className="text-blue-600">wynajmu sprzętu</span>
+          <span className="text-market-yellow">wynajmu sprzętu</span>
         </h1>
         <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
           Gotowe wzory umów i protokołów dla wypożyczalni oraz osób prywatnych. 
@@ -36,7 +36,7 @@ export default function UmowyPage() {
         <div className="mt-10 flex justify-center">
           <a 
             href="#dokumenty"
-            className="px-8 py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold rounded-2xl transition-all hover:scale-105 shadow-xl shadow-gray-200 dark:shadow-none"
+            className="market-action min-h-12 px-8 text-base"
           >
             Przeglądaj dokumenty
           </a>
@@ -99,13 +99,13 @@ export default function UmowyPage() {
       </section>
 
       {/* Final CTA */}
-      <section className="mt-20 text-center bg-blue-600 rounded-3xl p-10 md:p-16 text-white shadow-2xl shadow-blue-500/20">
+      <section className="mt-20 text-center bg-market-navy rounded-2xl p-10 md:p-16 text-white">
         <h2 className="text-3xl md:text-4xl font-black mb-6">Szukasz sprzętu do wynajęcia?</h2>
-        <p className="text-blue-100 text-lg mb-10 max-w-2xl mx-auto">
+        <p className="text-slate-200 text-lg mb-10 max-w-2xl mx-auto">
           Przejrzyj ogłoszenia lokalnych wypożyczalni sprzętu budowlanego, maszyn ogrodowych i narzędzi.
         </p>
-        <Link href="/"
-          className="inline-block px-10 py-4 bg-white text-blue-600 font-black rounded-2xl transition-transform hover:scale-105 shadow-xl"
+        <Link href="/szukaj"
+          className="market-action min-h-12 px-8 text-base"
         >
           Przeglądaj ogłoszenia
         </Link>

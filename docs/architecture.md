@@ -71,7 +71,10 @@ Poniższa lista przedstawia trasy zdefiniowane w katalogu `app/`. Zostały one s
 *   `dashboard/company/new` -> `/dashboard/company/new` - Nowo wykryta dynamiczna trasa w systemie.
 *   `dashboard/equipment/[id]/edit` -> `/dashboard/equipment/[id]/edit` - Nowo wykryta dynamiczna trasa w systemie.
 *   `dashboard/inquiries` -> `/dashboard/inquiries` - Nowo wykryta dynamiczna trasa w systemie.
+*   `dashboard/ogloszenia` -> `/dashboard/ogloszenia` - Nowo wykryta dynamiczna trasa w systemie.
 *   `dashboard/settings` -> `/dashboard/settings` - Nowo wykryta dynamiczna trasa w systemie.
+*   `dla-wynajmujacych` -> `/dla-wynajmujacych` - Nowo wykryta dynamiczna trasa w systemie.
+*   `jak-to-dziala` -> `/jak-to-dziala` - Nowo wykryta dynamiczna trasa w systemie.
 *   `katalog` -> `/katalog` - Publiczny spis i wyszukiwarka firm w katalogu.
 *   `katalog/[city]/[companySlug]` -> `/katalog/[city]/[companySlug]` - Strona profilowa firmy w konkretnym mieście.
 *   `katalog/woj/[voivodeship]/[companySlug]` -> `/katalog/woj/[voivodeship]/[companySlug]` - Strona profilowa firmy w konkretnym województwie.
@@ -82,6 +85,8 @@ Poniższa lista przedstawia trasy zdefiniowane w katalogu `app/`. Zostały one s
 *   `regulamin` -> `/regulamin` - Regulamin świadczenia usług platformy.
 *   `robots.txt` -> `/robots.txt` - Nowo wykryta dynamiczna trasa w systemie.
 *   `sitemap.xml` -> `/sitemap.xml` - Nowo wykryta dynamiczna trasa w systemie.
+*   `szukaj` -> `/szukaj` - Nowo wykryta dynamiczna trasa w systemie.
+*   `ulubione` -> `/ulubione` - Nowo wykryta dynamiczna trasa w systemie.
 *   `umowy` -> `/umowy` - Nowo wykryta dynamiczna trasa w systemie.
 *   `umowy/[slug]` -> `/umowy/[slug]` - Nowo wykryta dynamiczna trasa w systemie.
 <!-- END_ROUTES_LIST -->
