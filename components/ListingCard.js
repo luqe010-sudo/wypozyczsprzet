@@ -34,7 +34,7 @@ function Price({ listing }) {
   );
 }
 
-export default function ListingCard({ listing, layout = 'grid', rentalQuery = '' }) {
+export default function ListingCard({ listing, layout = 'grid', rentalQuery = '', dense = false }) {
   const href = `/${listing.seoCategory}/${listing.citySlug}/${listing.slug}${rentalQuery}`;
   const name = listing['Sprzęt'];
   const isCompact = layout === 'compact';
@@ -58,14 +58,14 @@ export default function ListingCard({ listing, layout = 'grid', rentalQuery = ''
   }
 
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm transition hover:border-amber-500 hover:shadow-md focus-within:ring-2 focus-within:ring-amber-500 dark:hover:border-amber-400">
-      <div className="relative aspect-[16/9] w-full shrink-0 overflow-hidden bg-slate-100 dark:bg-slate-700">
+    <article className={`listing-card group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm hover:border-amber-500 hover:shadow-md focus-within:ring-2 focus-within:ring-amber-500 dark:hover:border-amber-400 ${dense ? 'listing-card-dense' : ''}`}>
+      <div className="listing-card-photo relative w-full shrink-0 overflow-hidden bg-slate-100 dark:bg-slate-700">
         <ListingImage
           src={listing.Zdjecie}
           alt={`${name} na wynajem, ${listing.Miasto}`}
           title={name}
           category={listing.Kategoria}
-          sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 400px"
+          sizes={dense ? '272px' : '(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 400px'}
         />
         {(listing.isFeatured || badge) && (
           <div className="absolute left-2 right-14 top-2 flex flex-wrap gap-1.5">
@@ -81,8 +81,8 @@ export default function ListingCard({ listing, layout = 'grid', rentalQuery = ''
 
       <FavoriteButton id={listing.ID_sprzetu} className="absolute right-2 top-2 z-10" />
 
-      <div className="flex min-w-0 flex-1 flex-col gap-2.5 p-3.5">
-        <h3 className="text-[15px] font-bold leading-snug text-foreground sm:text-base">
+      <div className={`flex min-w-0 flex-1 flex-col ${dense ? 'gap-2 p-3' : 'gap-2.5 p-3.5'}`}>
+        <h3 className={`font-bold leading-snug text-foreground ${dense ? 'text-sm' : 'text-[15px] sm:text-base'}`}>
           <Link href={href} className="after:absolute after:inset-0 hover:underline">
             <span className="line-clamp-2">{name}</span>
           </Link>

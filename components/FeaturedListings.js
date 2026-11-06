@@ -55,10 +55,11 @@ export default function FeaturedListings({ listings, rentalQuery = '', className
           </div>
         )}
       </div>
-      <ul ref={scroller} onScroll={syncEdges} data-no-tab-swipe className="no-scrollbar -mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 py-1 sm:-mx-6 sm:scroll-px-6 sm:px-6 lg:gap-4">
+      {/* The bottom padding leaves room for a hovered card to grow; the scroller would clip it otherwise. */}
+      <ul ref={scroller} onScroll={syncEdges} data-no-tab-swipe className="no-scrollbar -mx-4 -mb-12 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-12 pt-1 sm:-mx-6 sm:scroll-px-6 sm:px-6 lg:gap-4">
         {listings.map((listing) => (
-          <li key={listing.ID_sprzetu} className="w-[82%] max-w-[20rem] shrink-0 snap-start sm:w-72 lg:w-[19.5rem]">
-            <ListingCard listing={listing} rentalQuery={rentalQuery} />
+          <li key={listing.ID_sprzetu} className="w-[78%] max-w-[17rem] shrink-0 snap-start sm:w-[17rem]">
+            <ListingCard listing={listing} rentalQuery={rentalQuery} dense />
           </li>
         ))}
       </ul>

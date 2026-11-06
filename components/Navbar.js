@@ -48,19 +48,59 @@ function ShortcutLinks({ shortcuts, actions, active, closeMenu }) {
   ));
 }
 
+const SLIDE_OUT = { duration: 180, easing: 'ease-in', fill: 'forwards' };
+const SLIDE_IN = { duration: 240, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' };
+const SLIDE_BACK = { duration: 180, easing: 'ease-out' };
+const offset = (x) => `translate3d(${x}, 0, 0)`;
+
 function MobileShortcuts({ active, onSearchPage, menuOpen, ...props }) {
   const router = useRouter();
+  const pathname = usePathname();
   const params = useSearchParams();
+  const leaving = useRef(null);
   const shortcuts = browseShortcuts(onSearchPage ? params : null);
   const current = onSearchPage && params.get('view') === 'map' ? 'map' : active;
   const currentIndex = shortcuts.findIndex(({ id }) => id === current);
   const previous = shortcuts[currentIndex - 1]?.href;
   const next = shortcuts[currentIndex + 1]?.href;
 
+  const route = `${pathname}?${params}`;
+
+  // The new page is in place (still off-screen), so bring it in from the side the finger moved away from.
+  useEffect(() => {
+    if (!leaving.current) return;
+    const { animation, direction, fallback } = leaving.current;
+    leaving.current = null;
+    clearTimeout(fallback);
+    animation.cancel();
+    document.getElementById('main-content')?.animate({ transform: [offset(`${-direction * 100}%`), 'none'] }, SLIDE_IN);
+  }, [route]);
+
   useEffect(() => {
     if (menuOpen) return;
     const mobile = window.matchMedia('(max-width: 1023px)');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const page = document.getElementById('main-content');
     let start = null;
+
+    const settle = (dx) => {
+      page.style.transform = '';
+      if (dx) page.animate({ transform: [offset(`${dx}px`), 'none'] }, SLIDE_BACK);
+    };
+
+    const leave = (destination, dx) => {
+      const direction = Math.sign(dx);
+      page.style.transform = '';
+      const animation = page.animate({ transform: [offset(`${dx}px`), offset(`${direction * 100}%`)] }, SLIDE_OUT);
+      animation.onfinish = () => router.push(destination);
+      // A navigation that never finishes must not leave the page off-screen.
+      const fallback = setTimeout(() => {
+        leaving.current = null;
+        animation.cancel();
+        settle(direction * window.innerWidth);
+      }, 6000);
+      leaving.current = { animation, direction, fallback };
+    };
 
     const startSwipe = (event) => {
       start = null;
@@ -72,27 +112,50 @@ function MobileShortcuts({ active, onSearchPage, menuOpen, ...props }) {
       const { clientX: x, clientY: y } = event.touches[0];
       // Keep the browser's edge gestures available.
       if (x < 20 || x > window.innerWidth - 20) return;
-      start = { x, y, scrollY: window.scrollY };
+      start = { x, y, dx: 0, horizontal: null };
     };
 
-    const endSwipe = (event) => {
+    const moveSwipe = (event) => {
       if (!start) return;
-      const { clientX, clientY } = event.changedTouches[0];
-      const { x, y, scrollY } = start;
-      start = null;
-      if (event.touches.length || Math.abs(window.scrollY - scrollY) > 12) return;
-      const dx = clientX - x;
-      const dy = clientY - y;
-      if (Math.abs(dx) < 65 || Math.abs(dx) < Math.abs(dy) * 1.5 || window.getSelection()?.isCollapsed === false) return;
-
-      const destination = dx < 0 ? next : previous;
-      if (destination) router.push(destination);
+      if (event.touches.length !== 1) return cancelSwipe();
+      const dx = event.touches[0].clientX - start.x;
+      const dy = event.touches[0].clientY - start.y;
+      if (start.horizontal === null) {
+        if (Math.hypot(dx, dy) < 10) return;
+        start.horizontal = Math.abs(dx) > Math.abs(dy) * 1.5 && window.getSelection()?.isCollapsed !== false;
+      }
+      if (!start.horizontal) return;
+      // No page on that side: resist the drag instead of following the finger.
+      start.dx = (dx < 0 ? next : previous) ? dx : dx * 0.25;
+      if (!reducedMotion.matches) page.style.transform = offset(`${start.dx}px`);
     };
 
-    const cancelSwipe = () => { start = null; };
-    const events = { touchstart: startSwipe, touchend: endSwipe, touchcancel: cancelSwipe };
+    const endSwipe = () => {
+      if (!start) return;
+      const { dx, horizontal } = start;
+      start = null;
+      if (!horizontal) return;
+      const destination = Math.abs(dx) >= 65 && (dx < 0 ? next : previous);
+      if (reducedMotion.matches) {
+        if (destination) router.push(destination);
+      } else if (destination) {
+        leave(destination, dx);
+      } else {
+        settle(dx);
+      }
+    };
+
+    const cancelSwipe = () => {
+      if (start?.horizontal && !reducedMotion.matches) settle(start.dx);
+      start = null;
+    };
+
+    const events = { touchstart: startSwipe, touchmove: moveSwipe, touchend: endSwipe, touchcancel: cancelSwipe };
     Object.entries(events).forEach(([type, handler]) => document.addEventListener(type, handler, { passive: true, capture: true }));
-    return () => Object.entries(events).forEach(([type, handler]) => document.removeEventListener(type, handler, true));
+    return () => {
+      Object.entries(events).forEach(([type, handler]) => document.removeEventListener(type, handler, true));
+      page.style.transform = '';
+    };
   }, [menuOpen, next, previous, router]);
 
   return <ShortcutLinks {...props} active={current} shortcuts={shortcuts} />;

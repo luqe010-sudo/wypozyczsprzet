@@ -1,14 +1,15 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, ChevronDown, Clock, Crosshair, LayoutGrid, MapPin, Plus, Search, ShieldCheck, Truck } from 'lucide-react';
-import CategoryHubs from '../components/CategoryHubs';
+import { ArrowRight, ChevronDown, Clock, Crosshair, MapPin, Plus, Search, ShieldCheck, Truck } from 'lucide-react';
+import CategoryHubs, { CategoryTiles } from '../components/CategoryHubs';
 import FeaturedListings from '../components/FeaturedListings';
-import ListingCard from '../components/ListingCard';
+import LatestListings from '../components/LatestListings';
+import PopularEquipment from '../components/PopularEquipment';
 import RentalSteps from '../components/RentalSteps';
-import { CompactorIcon, ExcavatorIcon, GeneratorIcon, LiftIcon } from '../components/icons/EquipmentIcons';
+import { ExcavatorIcon } from '../components/icons/EquipmentIcons';
 import { fetchMarketplaceData, toCard } from '../lib/listings';
 import { cityLinks } from '../lib/hubs';
-import { SEARCH_DEFAULTS, featuredListings, findListings, listingCityCenter } from '../lib/search';
+import { SEARCH_DEFAULTS, featuredListings, findListings } from '../lib/search';
 import { MIN_LISTINGS_FOR_INDEXING, SITE_NAME, SITE_URL } from '../lib/site';
 
 export const revalidate = 3600;
@@ -18,15 +19,10 @@ export const metadata = {
 };
 
 const searchField = 'relative flex min-h-12 min-w-0 items-center gap-2.5 rounded-lg border border-slate-300 bg-card px-3.5 text-sm text-foreground focus-within:border-brand-500 dark:border-slate-600';
-const pillClass = 'flex min-h-12 shrink-0 items-center gap-2.5 rounded-full border px-5 text-sm font-medium text-foreground shadow-sm transition hover:border-amber-400 hover:bg-brand-100 dark:hover:bg-slate-700';
-const SAMPLE_CITY = 'Wrocław';
-
-const CATEGORY_PILLS = [
-  { icon: ExcavatorIcon, label: 'Minikoparki', query: 'minikoparki' },
-  { icon: CompactorIcon, label: 'Zagęszczarki', query: 'zagęszczarki' },
-  { icon: LiftIcon, label: 'Podnośniki', query: 'podnośniki' },
-  { icon: GeneratorIcon, label: 'Agregaty', query: 'agregaty' },
-];
+// More than "Pokaż więcej" reveals in a few clicks; past that /szukaj is the better tool.
+const LATEST_LIMIT = 48;
+// The "Podnośniki" and "Agregaty" pills already lead here, so the expanded panel does not repeat them.
+const PILL_CATEGORIES = ['access-platforms', 'power-generators'];
 
 const BENEFITS = [
   { icon: MapPin, title: 'Sprzęt od lokalnych firm', text: 'Wypożyczalnie w Twojej okolicy' },
@@ -59,12 +55,8 @@ export default async function Home() {
   const { listings, filters } = await fetchMarketplaceData();
   const popularCities = cityLinks(listings, { minListings: MIN_LISTINGS_FOR_INDEXING }).slice(0, 12);
   const featured = featuredListings(listings).map(toCard);
-  const nearby = findListings(listings, { ...SEARCH_DEFAULTS, city: SAMPLE_CITY }, listingCityCenter(listings, SAMPLE_CITY));
-  const localOffers = nearby.length >= 3;
-  const offers = (localOffers ? nearby : listings)
-    .toSorted((a, b) => Boolean(b.gallery[0]) - Boolean(a.gallery[0]))
-    .slice(0, 3);
-  const moreOffers = localOffers ? `/szukaj?city=${encodeURIComponent(SAMPLE_CITY)}` : '/szukaj';
+  // Featured offers already have their own strip right above this list.
+  const latest = findListings(listings.filter((listing) => !listing.isFeatured), SEARCH_DEFAULTS, null).slice(0, LATEST_LIMIT).map(toCard);
 
   const websiteJsonLd = {
     '@context': 'https://schema.org',
@@ -92,10 +84,10 @@ export default async function Home() {
 
       <section className="relative isolate" aria-labelledby="home-title">
         <div className="home-hero-photo" aria-hidden="true">
-          <Image src="/hero-minikoparka.webp" alt="" fill preload sizes="(max-width: 1023px) 100vw, 64vw" className="object-cover object-[62%_50%] lg:object-[85%_30%]" />
+          <Image src="/header.webp" alt="" fill preload sizes="(max-width: 1023px) 100vw, 70vw" className="object-cover object-[100%_50%] lg:object-[100%_0%]" />
         </div>
-        <div className="relative mx-auto max-w-7xl px-4 pt-7 sm:px-6 lg:pt-14">
-          <div className="pb-48 lg:pb-14">
+        <div className="relative mx-auto max-w-7xl px-4 pt-7 sm:px-6 lg:pt-20">
+          <div className="pb-48 lg:pb-28">
             <h1 id="home-title" className="text-[clamp(2.25rem,5vw,4rem)] font-extrabold leading-[1.05] tracking-[-0.04em] text-market-navy dark:text-white">
               Sprzęt do wynajęcia.<span className="block text-market-yellow">Blisko Ciebie.</span>
             </h1>
@@ -131,16 +123,9 @@ export default async function Home() {
         </div>
       </section>
 
-      <nav aria-label="Popularny sprzęt" data-no-tab-swipe className="no-scrollbar mx-auto flex max-w-7xl gap-3 overflow-x-auto px-4 pb-1 pt-5 sm:px-6 lg:justify-center">
-        {CATEGORY_PILLS.map(({ icon: Icon, label, query }, index) => (
-          <Link key={label} href={`/szukaj?q=${encodeURIComponent(query)}`} className={`${pillClass} ${index === 0 ? 'border-brand-200 bg-brand-100 dark:border-slate-600 dark:bg-slate-700' : 'border-border bg-card'}`}>
-            <Icon /> {label}
-          </Link>
-        ))}
-        <a href="#kategorie" className={`${pillClass} border-border bg-card`}>
-          <LayoutGrid size={19} aria-hidden="true" /> Wszystkie kategorie <ArrowRight size={16} aria-hidden="true" />
-        </a>
-      </nav>
+      <PopularEquipment>
+        <CategoryTiles listings={listings} skip={PILL_CATEGORIES} />
+      </PopularEquipment>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <ul className="grid grid-cols-2 gap-4 border-b border-border py-5 lg:grid-cols-4 lg:gap-0 lg:divide-x lg:divide-border">
@@ -160,22 +145,13 @@ export default async function Home() {
 
       <section className="mx-auto max-w-7xl px-4 pb-8 pt-7 sm:px-6" aria-labelledby="home-offers">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-1">
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
-            <h2 id="home-offers" className="market-heading">{localOffers ? 'Sprzęt dostępny w okolicy' : 'Oferty wynajmu sprzętu'}</h2>
-            {localOffers && (
-              <p className="flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-300">
-                <MapPin size={15} aria-hidden="true" /> {SAMPLE_CITY} i okolice (do {SEARCH_DEFAULTS.radius} km)
-              </p>
-            )}
-          </div>
-          <Link href={moreOffers} className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold hover:underline">
+          <h2 id="home-offers" className="market-heading">Najnowsze ogłoszenia</h2>
+          <Link href="/szukaj" className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold hover:underline">
             Zobacz wszystkie oferty <ArrowRight size={16} aria-hidden="true" />
           </Link>
         </div>
-        {offers.length > 0 ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {offers.map((listing) => <ListingCard key={listing.ID_sprzetu} listing={toCard(listing)} />)}
-          </div>
+        {latest.length > 0 ? (
+          <LatestListings listings={latest} />
         ) : (
           <div className="rounded-xl border border-border bg-card p-5">
             <p>W tej chwili nie ma opublikowanych ofert. Sprawdź firmy, które wynajmują sprzęt w Twojej okolicy.</p>
@@ -186,7 +162,7 @@ export default async function Home() {
 
       <section id="dla-wynajmujacych" className="mx-auto max-w-7xl scroll-mt-20 px-4 pb-8 sm:px-6">
         <div className="relative isolate flex flex-col items-start justify-between gap-5 overflow-hidden rounded-2xl bg-market-navy p-6 sm:px-8 md:flex-row md:items-center">
-          <Image src="/hero-minikoparka.webp" alt="" fill sizes="(max-width: 1280px) 100vw, 1280px" className="-z-20 object-cover object-[50%_35%] opacity-25" />
+          <Image src="/header.webp" alt="" fill sizes="(max-width: 1280px) 100vw, 1280px" className="-z-20 object-cover object-[50%_30%] opacity-25" />
           <div className="absolute inset-0 -z-10 bg-gradient-to-r from-market-navy via-market-navy/90 to-market-navy/40" aria-hidden="true" />
           <div className="flex items-center gap-5">
             <ExcavatorIcon size={56} strokeWidth={1.4} className="hidden shrink-0 text-market-yellow sm:block" />
