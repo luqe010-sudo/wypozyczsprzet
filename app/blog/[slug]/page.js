@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getArticleBySlug, articles } from '../../../lib/articles';
+import { breadcrumbJsonLd } from '../../../lib/hubs';
+import { SITE_NAME, SITE_URL } from '../../../lib/site';
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
@@ -8,7 +10,7 @@ export async function generateMetadata({ params }) {
   if (!article) return { title: 'Nie znaleziono artykułu' };
 
   return {
-    title: `${article.title} - Blog WypożyczSprzęt`,
+    title: `${article.seoTitle || article.title} | ${SITE_NAME}`,
     description: article.description,
     alternates: {
       canonical: `/blog/${article.slug}`,
@@ -87,23 +89,33 @@ export default async function ArticlePage({ params }) {
     });
   };
 
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Article',
-    headline: article.title,
-    description: article.description,
-    datePublished: article.date,
-    author: {
-      '@type': 'Organization',
-      name: 'WypożyczSprzęt'
-    }
-  };
+  const url = `${SITE_URL}/blog/${article.slug}`;
+  const organization = { '@type': 'Organization', name: SITE_NAME, url: SITE_URL };
+  const jsonLd = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: article.title,
+      description: article.description,
+      datePublished: article.date,
+      dateModified: article.updated || article.date,
+      image: `${SITE_URL}/header.png`,
+      mainEntityOfPage: url,
+      inLanguage: 'pl-PL',
+      author: organization,
+      publisher: organization,
+    },
+    breadcrumbJsonLd(SITE_URL, [
+      { name: 'Blog', path: '/blog' },
+      { name: article.title, path: `/blog/${article.slug}` },
+    ]),
+  ];
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
       />
       <div className="max-w-[800px] mx-auto px-4 py-12">
         <nav className="flex items-center gap-2 mb-8 text-sm text-gray-500 dark:text-gray-400">

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { CONTACT_EMAIL, INQUIRY_RETENTION_MONTHS } from '../../lib/site';
 
 export const metadata = {
-  title: 'Polityka prywatności | WypożyczSprzęt',
+  title: 'Polityka prywatności | wypozycz.online',
   description: 'Jakie dane przetwarza serwis wypozycz.online, w jakim celu i jakie masz prawa.',
   alternates: { canonical: '/polityka-prywatnosci' },
 };

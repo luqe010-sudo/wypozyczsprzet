@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 import InquiryList from '@/components/inquiries/InquiryList'
 
-export const metadata = { title: 'Zapytania od klientów | WypożyczSprzęt' }
+export const metadata = { title: 'Zapytania od klientów | wypozycz.online' }
 
 const pageSize = 25
 const filters = [

@@ -64,11 +64,14 @@ KPI: kliknięcia, wyświetlenia, liczba stron z ≥1 kliknięciem, liczba zapyta
 
 ## Etap 1: szybkie poprawki (tygodnie 1–2), wpływ na CTR
 
-- [ ] Szablon opisu meta oferty: „{Nazwa} na wynajem – {Miasto}, od {cena} zł/{jednostka}. {1 zdanie z opisu, bez wielkich liter}. Kontakt bez prowizji.”
-- [ ] Jedna nazwa marki w tytułach.
-- [ ] Article + BreadcrumbList na blogu, HowTo/BreadcrumbList na `/umowy/[slug]`.
-- [ ] Paginacja lub ładowanie porcjami w `/katalog`.
-- [ ] Z raportu „Niski CTR mimo top 10” przepisać tytuły 10 najczęściej wyświetlanych stron.
+Zrobione 2026-11-10 (czeka na wdrożenie):
+- [x] Opis meta oferty z szablonu (`listingMetaDescription` w `lib/format.js`): „{Nazwa} na wynajem – {Miasto}, od {cena} za dobę. Możliwa dostawa. {pierwsze zdanie opisu}. Bez prowizji.” Zdanie z opisu jest wybierane tak, żeby pomijać nagłówki WIELKIMI LITERAMI, specyfikacje „Producent: …”, wypunktowania i powitania.
+- [x] Jedna nazwa marki: `wypozycz.online` (jak logo i domena) we wszystkich tytułach, `SITE_NAME`, nadawcy maili. Stare nazwy są w `alternateName` danych WebSite.
+- [x] Pełny Article (publisher, mainEntityOfPage, image) + BreadcrumbList na blogu, BreadcrumbList na `/umowy/[slug]`.
+- [x] Tytuły pod zapytania z GSC: kategorie („Wynajem podnośników koszowych i rusztowań”, „Wynajem koparek, minikoparek i zagęszczarek”…), `/umowy` („Umowa wypożyczenia sprzętu – darmowe wzory PDF”), wzory umów („… – PDF do pobrania za darmo”), artykuły (`seoTitle` z ceną z treści artykułu), strona główna („Wynajem i wypożyczalnia sprzętu budowlanego”), katalog.
+- [x] Wzory umów linkują do ofert pasującej kategorii (sekcja „Jakiego sprzętu dotyczy?” i przycisk w panelu bocznym).
+- [x] `/katalog` wysyła do przeglądarki tylko pola potrzebne kartom (dane RSC ok. 130 KB). Sam HTML 200 kart nadal jest duży; pełne rozwiązanie to strony katalogu per miasto (Etap 0).
+- [ ] Po 2–4 tygodniach: porównać CTR kategorii, `/umowy` i ofert w `npm run gsc -- report 28`.
 
 ## Etap 2: strony typu sprzętu × miasto (tygodnie 2–6), największa dźwignia
 

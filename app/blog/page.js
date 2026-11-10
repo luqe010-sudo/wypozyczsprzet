@@ -2,20 +2,20 @@ import Link from 'next/link';
 import { articles } from '../../lib/articles';
 
 export const metadata = {
-  title: 'Poradniki i Blog - WypożyczSprzęt',
+  title: 'Poradniki i Blog - wypozycz.online',
   description: 'Baza wiedzy o wynajmie sprzętu budowlanego. Poradniki, zestawienia cen i wskazówki dla budowlańców oraz majsterkowiczów.',
   alternates: {
     canonical: '/blog',
   },
   openGraph: {
-    title: 'Poradniki i Blog - WypożyczSprzęt',
+    title: 'Poradniki i Blog - wypozycz.online',
     description: 'Baza wiedzy o wynajmie sprzętu budowlanego. Poradniki, zestawienia cen i wskazówki.',
     images: [
       {
         url: '/header.png',
         width: 1200,
         height: 630,
-        alt: 'Blog WypożyczSprzęt',
+        alt: 'Blog wypozycz.online',
       },
     ],
     type: 'website',

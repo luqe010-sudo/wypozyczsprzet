@@ -29,7 +29,7 @@ const company = await fetchCompanyBySlug(params.companySlug);
   );
   const cityName = matchingBranch?.city || params.city;
 
-  const title = `${company.name} – ${cityName} | Katalog firm – Wypozycz.Online`;
+  const title = `${company.name} – ${cityName} | Katalog firm – wypozycz.online`;
   const description = company.description
     ? `${company.name} w ${cityName}. ${company.description.substring(0, 140)}...`
     : `${company.name} – wypożyczalnia sprzętu budowlanego w ${cityName}. Sprawdź dane kontaktowe, adres i ofertę.`;

@@ -35,7 +35,7 @@ export default function AdminLayout({ children }) {
             </div>
             <div>
               <h1 className="text-xl font-black text-gray-900 dark:text-white leading-none">ADMIN</h1>
-              <p className="text-[10px] text-blue-600 font-bold uppercase tracking-widest mt-1">WypożyczSprzęt</p>
+              <p className="text-[10px] text-blue-600 font-bold uppercase tracking-widest mt-1">wypozycz.online</p>
             </div>
           </div>
 

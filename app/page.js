@@ -62,6 +62,8 @@ export default async function Home() {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: SITE_NAME,
+    // Names used on the site before the brand was unified, so Google ties them to this site.
+    alternateName: ['Wypożycz Online', 'WypożyczSprzęt'],
     url: SITE_URL,
     description: 'Ogłoszenia wynajmu sprzętu budowlanego i ogrodowego, głównie na Dolnym Śląsku.',
     inLanguage: 'pl-PL',

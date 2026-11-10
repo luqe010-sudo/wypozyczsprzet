@@ -1,5 +1,5 @@
 export const metadata = {
-  title: 'Logowanie - Wypożycz.online',
+  title: 'Logowanie - wypozycz.online',
   description: 'Zaloguj się do swojego konta, aby zarządzać ogłoszeniami.',
   alternates: {
     canonical: '/login',

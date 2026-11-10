@@ -14,6 +14,21 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import Link from 'next/link';
+import { SEO_CATEGORIES } from '../../../lib/categories';
+import { plainTextExcerpt } from '../../../lib/format';
+import { SITE_URL } from '../../../lib/site';
+
+// Offer categories a template is used for, so readers can go from the contract to the equipment.
+const OFFER_CATEGORIES = {
+  heavy: ['roboty-ziemne'],
+  construction: ['roboty-ziemne', 'sprzet-betoniarski', 'narzedzia'],
+  lifts: ['prace-na-wysokosci'],
+  scaffolding: ['prace-na-wysokosci'],
+  tools: ['narzedzia'],
+  garden: ['sprzet-ogrodowy'],
+  power: ['agregaty-i-zasilanie'],
+  universal: ['roboty-ziemne', 'prace-na-wysokosci', 'sprzet-ogrodowy', 'agregaty-i-zasilanie'],
+};
 
 export async function generateStaticParams() {
   return documents.map((doc) => ({
@@ -27,8 +42,11 @@ export async function generateMetadata({ params }) {
   if (!doc) return {};
 
   return {
-    title: `${doc.title} PDF - Pobierz wzór | Wypożycz.online`,
-    description: `Pobierz darmowy ${doc.title.toLowerCase()}. Dowiedz się co powinna zawierać umowa i na co zwrócić uwagę przy wynajmie.`,
+    title: `${doc.title} – PDF do pobrania za darmo | wypozycz.online`,
+    description: plainTextExcerpt(
+      `Darmowy ${doc.title.toLowerCase()} w PDF. Dotyczy m.in.: ${doc.equipmentTypes.slice(0, 3).join(', ').toLowerCase()}. Co powinien zawierać dokument i na co uważać przy wynajmie.`,
+      160,
+    ),
     alternates: {
       canonical: `/umowy/${doc.slug}`,
     },
@@ -47,10 +65,21 @@ export default async function DocumentDetailPage({ params }) {
   const relatedDocs = documents
     .filter(d => d.slug !== doc.slug && (d.categoryId === doc.categoryId || d.categoryId === 'universal'))
     .slice(0, 3);
+  const offerCategories = (OFFER_CATEGORIES[doc.categoryId] || []).map((slug) => ({ slug, name: SEO_CATEGORIES[slug].name }));
+  const breadcrumbs = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { name: 'Strona główna', item: SITE_URL },
+      { name: 'Wzory umów', item: `${SITE_URL}/umowy` },
+      { name: doc.title, item: `${SITE_URL}/umowy/${doc.slug}` },
+    ].map((entry, index) => ({ '@type': 'ListItem', position: index + 1, ...entry })),
+  };
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <FAQSchema faqs={doc.faqs} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs).replace(/</g, '\\u003c') }} />
       <Breadcrumbs items={[{ label: doc.title }]} />
 
       <Link 
@@ -114,6 +143,16 @@ export default async function DocumentDetailPage({ params }) {
                 </span>
               ))}
             </div>
+            {offerCategories.length > 0 && (
+              <p className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-gray-600 dark:text-gray-400">
+                <span>Oferty wynajmu:</span>
+                {offerCategories.map((category) => (
+                  <Link key={category.slug} href={`/${category.slug}`} className="font-semibold text-blue-600 hover:underline dark:text-blue-400">
+                    {category.name}
+                  </Link>
+                ))}
+              </p>
+            )}
           </section>
 
           {/* FAQ Section */}
@@ -177,11 +216,11 @@ export default async function DocumentDetailPage({ params }) {
               <p className="text-slate-300 text-sm mb-6">
                 Sprawdź ogłoszenia w Twojej okolicy. Bezpośredni kontakt, bez prowizji.
               </p>
-              <Link 
-                href="/"
+              <Link
+                href={offerCategories.length === 1 ? `/${offerCategories[0].slug}` : '/szukaj'}
                 className="market-action w-full"
               >
-                Przejdź do ogłoszeń
+                {offerCategories.length === 1 ? `Oferty: ${offerCategories[0].name}` : 'Przejdź do ogłoszeń'}
               </Link>
             </div>
 

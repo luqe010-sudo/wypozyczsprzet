@@ -1,23 +1,37 @@
 import { getDirectoryIndexData } from '../../lib/supabaseDirectory';
 import CatalogClient from './CatalogClient';
+import { plainTextExcerpt } from '../../lib/format';
+
+// Only what the cards and filters read is sent to the browser; full rows made the page about 1 MB.
+const toCatalogCard = (company) => ({
+  id: company.id,
+  name: company.name,
+  slug: company.slug,
+  category: company.category,
+  description: plainTextExcerpt(company.description, 200),
+  logo_url: company.logo_url,
+  rating: company.rating,
+  review_count: company.review_count,
+  branches: (company.branches || []).map((branch) => ({ city: branch.city, voivodeship: branch.voivodeship })),
+});
 
 export const metadata = {
-  title: 'Katalog wypożyczalni sprzętu budowlanego – Wypozycz.Online',
+  title: 'Wypożyczalnie sprzętu budowlanego – katalog firm według miast | wypozycz.online',
   description:
-    'Przeglądaj katalog sprawdzonych wypożyczalni sprzętu budowlanego w Polsce. Znajdź firmę w swoim mieście, porównaj oferty i dane kontaktowe.',
+    'Katalog wypożyczalni sprzętu budowlanego w Polsce: adresy, telefony i oddziały firm. Znajdź wypożyczalnię w swoim mieście lub województwie.',
   alternates: {
     canonical: '/katalog',
   },
   openGraph: {
     title: 'Katalog wypożyczalni sprzętu budowlanego',
     description:
-      'Przeglądaj katalog sprawdzonych wypożyczalni sprzętu budowlanego w Polsce.',
+      'Wypożyczalnie sprzętu budowlanego w Polsce według miast i województw.',
     images: [
       {
         url: '/header.png',
         width: 1200,
         height: 630,
-        alt: 'Katalog firm – Wypozycz.Online',
+        alt: 'Katalog firm – wypozycz.online',
       },
     ],
     type: 'website',
@@ -32,7 +46,7 @@ export default async function CatalogPage() {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     name: 'Katalog wypożyczalni sprzętu budowlanego',
-    description: 'Lista sprawdzonych wypożyczalni sprzętu budowlanego w Polsce.',
+    description: 'Lista wypożyczalni sprzętu budowlanego w Polsce.',
     numberOfItems: companies.length,
     itemListElement: companies.slice(0, 50).map((company, index) => ({
       '@type': 'ListItem',
@@ -55,7 +69,7 @@ export default async function CatalogPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <CatalogClient
-        companies={companies}
+        companies={companies.map(toCatalogCard)}
         cities={cities}
         voivodeships={voivodeships}
       />

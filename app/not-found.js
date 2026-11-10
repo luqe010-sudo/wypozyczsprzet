@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'Nie znaleziono strony | WypożyczSprzęt',
+  title: 'Nie znaleziono strony | wypozycz.online',
   robots: { index: false, follow: true },
 };
 

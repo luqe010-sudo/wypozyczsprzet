@@ -30,7 +30,7 @@ const company = await fetchCompanyBySlug(params.companySlug);
   );
   const voivName = matchingBranch?.voivodeship || params.voivodeship;
 
-  const title = `${company.name} – woj. ${voivName} | Katalog firm – Wypozycz.Online`;
+  const title = `${company.name} – woj. ${voivName} | Katalog firm – wypozycz.online`;
   const description = company.description
     ? `${company.name} w województwie ${voivName}. ${company.description.substring(0, 120)}...`
     : `${company.name} – wypożyczalnia sprzętu budowlanego w woj. ${voivName}. Sprawdź dane kontaktowe i ofertę.`;

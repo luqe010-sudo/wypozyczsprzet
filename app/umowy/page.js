@@ -6,8 +6,8 @@ import Breadcrumbs from '../../components/Breadcrumbs';
 import { FileText, ShieldCheck, Zap } from 'lucide-react';
 
 export const metadata = {
-  title: 'Darmowe wzory umów wynajmu sprzętu | Wypożycz.online',
-  description: 'Gotowe wzory umów i protokołów dla wypożyczalni oraz osób prywatnych. Ciężki sprzęt, maszyny budowlane, elektronarzędzia, agregaty i sprzęt ogrodowy.',
+  title: 'Umowa wypożyczenia sprzętu – darmowe wzory PDF | wypozycz.online',
+  description: 'Darmowe wzory do pobrania w PDF: umowa wypożyczenia i wynajmu sprzętu budowlanego, maszyn, rusztowań i elektronarzędzi oraz protokół zdawczo-odbiorczy.',
   keywords: 'wzór umowy wynajmu sprzętu budowlanego, umowa wynajmu koparki pdf, wzór umowy wynajmu elektronarzędzi, darmowy wzór umowy wynajmu',
   alternates: {
     canonical: '/umowy',

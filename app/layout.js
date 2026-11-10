@@ -16,13 +16,13 @@ const inter = Inter({
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
-  title: 'Wynajem sprzętu budowlanego i ogrodowego na Dolnym Śląsku | WypożyczSprzęt',
+  title: 'Wynajem i wypożyczalnia sprzętu budowlanego – Dolny Śląsk | wypozycz.online',
   description: 'Koparki, minikoparki, zagęszczarki, agregaty i narzędzia na wynajem. Kontakt bezpośrednio z wynajmującym, bez prowizji.',
 
   openGraph: {
     title: 'Wynajem sprzętu budowlanego i ogrodowego na Dolnym Śląsku',
     description: 'Koparki, minikoparki, zagęszczarki, agregaty i narzędzia na wynajem. Kontakt bezpośrednio z wynajmującym, bez prowizji.',
-    siteName: 'WypożyczSprzęt',
+    siteName: 'wypozycz.online',
     images: [
       {
         url: '/header.webp',
