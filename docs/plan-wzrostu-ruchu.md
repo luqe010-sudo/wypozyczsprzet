@@ -54,7 +54,9 @@ Wniosek: huby lokalne, które mają łapać 16 tys. wyświetleń fraz „wynajem
 - [x] Raport startowy 90 dni, ponowne wysłanie `sitemap.xml`, inspekcja hubów.
 - [x] Huby lokalne (kategoria×miasto, miasto, województwo) mają unikalną treść z danych ofert (`lib/hubContent.js`, `components/browse/HubSummary.js`): własny wstęp, tabelę cen za dobę według typu, FAQ z JSON-LD `FAQPage` i tytuł z typami sprzętu i ceną (np. „Glebogryzarki – wynajem Wrocław od 250 zł”). Gotowe 2026-11-10, czeka na wdrożenie.
 - [ ] `/prace-na-wysokosci/wroclaw` ma tylko 1 ofertę, więc ma `noindex`, a fraza „rusztowania wrocław” ma ponad 1000 wyświetleń. Do decyzji: liczyć do progu indeksacji oferty z 30 km i wypożyczalnie z katalogu albo zdobyć więcej ofert rusztowań we Wrocławiu.
-- [ ] Po wdrożeniu: w Search Console (UI, „Sprawdź URL” → „Poproś o zindeksowanie”) zgłosić `/wroclaw` i huby Wrocławia. API nie pozwala zgłaszać zwykłych stron do indeksu.
+- [x] Wdrożone 2026-11-10 (`316720b`). Tego dnia zgłoszono do indeksu w Search Console (UI, „Sprawdź URL” → „Poproś o zindeksowanie”, limit ok. 10 dziennie): `/wroclaw`, `/roboty-ziemne/wroclaw`, `/sprzet-ogrodowy/wroclaw`, `/dolnoslaskie`, `/chorzow`, `/swidnica`, `/walbrzych`, `/jelenia-gora`, `/sprzet-ogrodowy/kamieniec-wroclawski`, `/przyczepy-i-lawety/walbrzych`. API nie pozwala zgłaszać zwykłych stron.
+- [ ] Zgłosić pozostałe: `/prace-na-wysokosci/katy-wroclawskie`, `/sprzet-ogrodowy/legnickie-pole`, `/katy-wroclawskie`, `/legnickie-pole`, `/katalog`.
+- [ ] Ok. 2026-11-24: `npm run gsc -- inspect` dla zgłoszonych adresów, sprawdzić, czy weszły do indeksu.
 - [ ] `/katalog`: paginacja albo strony katalogu per miasto, żeby Google mógł go przeczytać.
 - [ ] Cotygodniowy raport (zaplanowane zadanie), porównanie tydzień do tygodnia.
 
