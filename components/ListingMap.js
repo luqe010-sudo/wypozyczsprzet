@@ -1,41 +1,18 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import Map, { Marker, NavigationControl, Popup } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import maplibregl from '../lib/mapLibre';
 import { MapPin } from 'lucide-react';
-import { FIORD_STYLE } from '../lib/mapStyleConfig';
+import { mapStyleFor, showPolishLabels } from '../lib/mapStyle';
 import { priceText } from '../lib/format';
 
-function buildStyle() {
-  const key = process.env.NEXT_PUBLIC_MAPTILER_KEY;
-  if (key) {
-    const style = JSON.parse(JSON.stringify(FIORD_STYLE));
-    if (style.sources?.openmaptiles) {
-      style.sources.openmaptiles.url = style.sources.openmaptiles.url.replace('{key}', key);
-    }
-    if (style.glyphs) style.glyphs = style.glyphs.replace('{key}', key);
-    return style;
-  }
-  return {
-    version: 8,
-    sources: {
-      'carto-dark': {
-        type: 'raster',
-        tiles: ['a', 'b', 'c', 'd'].map((sub) => `https://${sub}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png`),
-        tileSize: 256,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-      },
-    },
-    layers: [{ id: 'carto-dark-layer', type: 'raster', source: 'carto-dark' }],
-  };
-}
+const MAP_STYLE = mapStyleFor(process.env.NEXT_PUBLIC_MAPTILER_KEY);
 
 /** Single-listing map. Coordinates come from the database; they are set when a listing is saved. */
 export default function ListingMap({ listing }) {
   const [showPopup, setShowPopup] = useState(false);
-  const mapStyle = useMemo(() => buildStyle(), []);
 
   const lat = Number(listing.lat);
   const lng = Number(listing.lng);
@@ -44,12 +21,13 @@ export default function ListingMap({ listing }) {
   const address = listing.Lokalizacja ? `${listing.Lokalizacja}, ${listing.Miasto}` : listing.Miasto;
 
   return (
-    <div className="relative h-[320px] w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-800 dark:border-slate-700 md:h-[400px]">
+    <div className="relative h-[320px] w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800 md:h-[400px]">
       <Map
         mapLib={maplibregl}
         initialViewState={{ latitude: lat, longitude: lng, zoom: 13 }}
         style={{ width: '100%', height: '100%' }}
-        mapStyle={mapStyle}
+        mapStyle={MAP_STYLE}
+        onLoad={(event) => showPolishLabels(event.target)}
         scrollZoom={false}
       >
         <NavigationControl position="top-right" />

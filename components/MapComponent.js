@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import MapView, { FullscreenControl, GeolocateControl, Layer, NavigationControl, Popup, Source } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import maplibregl from '../lib/mapLibre';
-import { FIORD_STYLE } from '../lib/mapStyleConfig';
+import { CARTO_STYLE, mapStyleFor, showPolishLabels } from '../lib/mapStyle';
 import { offersLabel } from '../lib/format';
 import { listingCoordinates } from '../lib/search';
 import ListingCard from './ListingCard';
@@ -12,27 +12,7 @@ import ListingCard from './ListingCard';
 const VIEWPORT = { latitude: 52.1, longitude: 19.3, zoom: 6 };
 const SOURCE_ID = 'rental-offers';
 const POINTS_LAYER_ID = 'rental-offer-points';
-const CARTO_STYLE = {
-  version: 8,
-  sources: {
-    'carto-dark': {
-      type: 'raster',
-      tiles: ['a', 'b', 'c', 'd'].map((sub) => `https://${sub}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png`),
-      tileSize: 256,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    },
-  },
-  layers: [{ id: 'carto-dark-layer', type: 'raster', source: 'carto-dark' }],
-};
 const OFFER_COUNT = ['coalesce', ['get', 'totalOffers'], ['get', 'offers']];
-
-function getMapStyle(key) {
-  if (!key) return CARTO_STYLE;
-  const style = structuredClone(FIORD_STYLE);
-  style.sources.openmaptiles.url = style.sources.openmaptiles.url.replace('{key}', key);
-  style.glyphs = style.glyphs.replace('{key}', key);
-  return style;
-}
 
 function radiusFeature({ lat, lng }, radius) {
   const lngRadius = radius / (111.32 * Math.cos(lat * Math.PI / 180));
@@ -73,7 +53,7 @@ export default function MapComponent({ listings, searchCenter, radius, onLocatio
   const { groups, byListingId, geojson } = useMemo(() => locationsFor(listings), [listings]);
   const selectedGroup = byListingId.get(selectedId);
   const selected = selectedGroup?.listings.find((listing) => listing.ID_sprzetu === selectedId);
-  const mapStyle = useMemo(() => getMapStyle(fallbackStyle ? null : process.env.NEXT_PUBLIC_MAPTILER_KEY), [fallbackStyle]);
+  const mapStyle = useMemo(() => mapStyleFor(fallbackStyle ? null : process.env.NEXT_PUBLIC_MAPTILER_KEY), [fallbackStyle]);
   const circle = useMemo(() => searchCenter && radius ? radiusFeature(searchCenter, radius) : null, [searchCenter, radius]);
 
   const fitResults = useCallback((map) => {
@@ -130,6 +110,7 @@ export default function MapComponent({ listings, searchCenter, radius, onLocatio
         interactiveLayerIds={[POINTS_LAYER_ID]}
         onLoad={(event) => {
           ready.current = true;
+          showPolishLabels(event.target);
           fitResults(event.target);
         }}
         onError={(event) => {
