@@ -10,3 +10,7 @@ baza_wynajem_ulepszona.xlsx
 
 .vercel
 .env*
+
+# Google service account keys
+.secrets/
+*service-account*.json

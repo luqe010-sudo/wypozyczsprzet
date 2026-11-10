@@ -60,6 +60,7 @@ Ta lista została wygenerowana automatycznie przez skrypt narzędziowy `Living D
 *   **[SiteBrand.js](file:///e:/sprzety_budowlane/components/SiteBrand.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[ToastProvider.js](file:///e:/sprzety_budowlane/components/ToastProvider.js)**: Kontekst obsługi powiadomień toast (react-hot-toast).
 *   **[browse/BrowseListings.js](file:///e:/sprzety_budowlane/components/browse/BrowseListings.js)**: Reużywalny komponent interfejsu React w systemie.
+*   **[browse/HubSummary.js](file:///e:/sprzety_budowlane/components/browse/HubSummary.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[browse/HubView.js](file:///e:/sprzety_budowlane/components/browse/HubView.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[browse/SavedListings.js](file:///e:/sprzety_budowlane/components/browse/SavedListings.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[dashboard/DashboardNav.js](file:///e:/sprzety_budowlane/components/dashboard/DashboardNav.js)**: Reużywalny komponent interfejsu React w systemie.

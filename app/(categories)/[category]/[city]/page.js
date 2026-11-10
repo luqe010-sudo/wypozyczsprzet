@@ -4,7 +4,8 @@ import { SEO_CATEGORIES, getCitySlug } from '../../../../lib/categories';
 import { getCityCoordinates, getNearbyListings } from '../../../../lib/distance';
 import { getVoivodeship, getVoivodeshipSlugForCity, isVoivodeshipSlug } from '../../../../lib/regions';
 import { breadcrumbJsonLd, categoryLinks, cityLinks, companiesNear, itemListJsonLd } from '../../../../lib/hubs';
-import { offersLabel } from '../../../../lib/format';
+import { offersLabel, plainTextExcerpt } from '../../../../lib/format';
+import { buildHubContent, faqJsonLd, topTypesLabel } from '../../../../lib/hubContent';
 import { MIN_LISTINGS_FOR_INDEXING, SITE_NAME, SITE_URL } from '../../../../lib/site';
 import HubView from '../../../../components/browse/HubView';
 
@@ -42,11 +43,20 @@ export async function generateMetadata({ params }) {
   const place = resolvePlace(slug, filters.cities);
   if (!place) return {};
 
-  const count = listings.filter((l) => l.seoCategory === categorySlug).filter(inPlace(place, slug)).length;
+  const items = listings.filter((l) => l.seoCategory === categorySlug).filter(inPlace(place, slug));
+  const count = items.length;
   const url = `${SITE_URL}/${categorySlug}/${slug}`;
-  const title = `${category.name}: ${place.name} – wynajem sprzętu | ${SITE_NAME}`;
+  let title = `${category.name}: ${place.name} – wynajem sprzętu | ${SITE_NAME}`;
   const types = category.filters.slice(0, 3).map((f) => f.label).join(', ');
-  const description = `${category.name} (${place.name}): ${types}. ${offersLabel(count)} wynajmu, kontakt bezpośrednio z wynajmującym.`;
+  let description = `${category.name} (${place.name}): ${types}. ${offersLabel(count)} wynajmu, kontakt bezpośrednio z wynajmującym.`;
+  if (count > 0) {
+    // Query-shaped title ("Minikoparki, koparki – wynajem Wrocław od 140 zł") built from the offers on the page.
+    const content = buildHubContent(items, { place: place.name, categoryName: category.name, groupBy: 'subcategory' });
+    const lead = topTypesLabel(content) || category.name;
+    const from = content.minPrice != null ? ` od ${Math.round(content.minPrice)} zł` : '';
+    title = `${lead.charAt(0).toUpperCase()}${lead.slice(1)} – wynajem ${place.name}${from} | ${SITE_NAME}`;
+    description = plainTextExcerpt(`${content.intro} Kontakt bezpośrednio z wynajmującym, bez prowizji.`, 160);
+  }
 
   return {
     title,
@@ -86,6 +96,9 @@ export default async function LocalHubPage({ params }) {
 
   const companies = await companiesNear({ city: place.city, region: place.regionSlug });
   const title = `${category.name}: ${place.name}`;
+  const content = items.length > 0
+    ? buildHubContent(items, { place: place.name, categoryName: category.name, groupBy: 'subcategory' })
+    : null;
 
   return (
     <>
@@ -94,9 +107,11 @@ export default async function LocalHubPage({ params }) {
         { name: place.name, path: `/${categorySlug}/${slug}` },
       ]))}
       {jsonLdScript(itemListJsonLd(SITE_URL, title, items))}
+      {content?.faqs.length > 0 && jsonLdScript(faqJsonLd(content.faqs))}
       <HubView
         title={title}
-        intro={category.description}
+        intro={content?.intro || category.description}
+        summary={content}
         breadcrumbs={[{ label: category.name, href: `/${categorySlug}` }, { label: place.name }]}
         listings={items.map(toCard)}
         allCities={[...new Set(items.map((l) => l.Miasto).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'pl'))}

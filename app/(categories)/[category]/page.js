@@ -3,7 +3,8 @@ import { SEO_CATEGORIES, SEO_CATEGORY_SLUGS, getCitySlug } from '../../../lib/ca
 import { fetchMarketplaceData, toCard } from '../../../lib/listings';
 import { getVoivodeship, getVoivodeshipSlugForCity, isVoivodeshipSlug } from '../../../lib/regions';
 import { breadcrumbJsonLd, categoryLinks, cityLinks, companiesNear, itemListJsonLd } from '../../../lib/hubs';
-import { offersLabel } from '../../../lib/format';
+import { offersLabel, plainTextExcerpt } from '../../../lib/format';
+import { buildHubContent, faqJsonLd } from '../../../lib/hubContent';
 import { MIN_LISTINGS_FOR_INDEXING, SITE_NAME, SITE_URL } from '../../../lib/site';
 import HubView from '../../../components/browse/HubView';
 
@@ -54,7 +55,10 @@ export async function generateMetadata({ params }) {
 
   const place = hub.kind === 'region' ? `województwo ${hub.region.name.toLowerCase()}` : hub.city;
   const title = `Wynajem sprzętu budowlanego i ogrodowego: ${place} | ${SITE_NAME}`;
-  const description = `${offersLabel(hub.items.length)} wynajmu maszyn i narzędzi (${place}). Kontakt bezpośrednio z wynajmującym, bez prowizji.`;
+  const content = hub.items.length > 0 ? buildHubContent(hub.items, { place, groupBy: 'category' }) : null;
+  const description = content
+    ? plainTextExcerpt(`${content.intro} Kontakt bezpośrednio z wynajmującym, bez prowizji.`, 160)
+    : `${offersLabel(hub.items.length)} wynajmu maszyn i narzędzi (${place}). Kontakt bezpośrednio z wynajmującym, bez prowizji.`;
   return { title, description, robots, alternates: { canonical: url }, openGraph: { title, description, url, type: 'website' } };
 }
 
@@ -94,14 +98,18 @@ export default async function HubPage({ params }) {
   const placeName = isRegion ? `Województwo ${hub.region.name.toLowerCase()}` : hub.city;
   const regionSlug = isRegion ? slug : getVoivodeshipSlugForCity(hub.city);
   const companies = await companiesNear({ city: isRegion ? null : hub.city, region: regionSlug });
+  const content = hub.items.length > 0 ? buildHubContent(hub.items, { place: placeName, groupBy: 'category' }) : null;
 
   return (
     <>
       {jsonLdScript(breadcrumbJsonLd(SITE_URL, [{ name: placeName, path: `/${slug}` }]))}
       {jsonLdScript(itemListJsonLd(SITE_URL, `Oferty wynajmu: ${placeName}`, hub.items))}
+      {content?.faqs.length > 0 && jsonLdScript(faqJsonLd(content.faqs))}
       <HubView
         title={`Wynajem sprzętu: ${placeName}`}
-        intro={`${offersLabel(hub.items.length)} wynajmu maszyn i narzędzi. Dzwonisz lub piszesz bezpośrednio do wynajmującego.`}
+        intro={content?.intro || `${offersLabel(hub.items.length)} wynajmu maszyn i narzędzi. Dzwonisz lub piszesz bezpośrednio do wynajmującego.`}
+        summary={content}
+        summaryRowsHeading="Kategoria"
         breadcrumbs={[{ label: placeName }]}
         listings={cards}
         allCities={[...new Set(hub.items.map((l) => l.Miasto).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'pl'))}

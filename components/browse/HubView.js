@@ -2,6 +2,7 @@ import Link from 'next/link';
 import BrowseListings from './BrowseListings';
 import ListingCard from '../ListingCard';
 import CompanyListCard from '../directory/CompanyListCard';
+import HubSummary from './HubSummary';
 
 /** Shared layout of category, region and city landing pages. Everything but the filters is server-rendered. */
 export default function HubView({
@@ -19,6 +20,8 @@ export default function HubView({
   linkGroups = [],
   resultsHeading,
   emptyHint,
+  summary = null,
+  summaryRowsHeading,
 }) {
   return (
     <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 md:py-8">
@@ -46,6 +49,8 @@ export default function HubView({
         heading={resultsHeading}
         emptyHint={emptyHint}
       />
+
+      {summary && <HubSummary content={summary} rowsHeading={summaryRowsHeading} />}
 
       {nearby.length > 0 && (
         <section className="mt-10" aria-labelledby="nearby-heading">
