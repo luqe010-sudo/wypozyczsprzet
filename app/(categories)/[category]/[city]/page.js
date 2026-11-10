@@ -3,7 +3,7 @@ import { fetchMarketplaceData, toCard } from '../../../../lib/listings';
 import { SEO_CATEGORIES, getCitySlug } from '../../../../lib/categories';
 import { getCityCoordinates, getNearbyListings } from '../../../../lib/distance';
 import { getVoivodeship, getVoivodeshipSlugForCity, isVoivodeshipSlug } from '../../../../lib/regions';
-import { breadcrumbJsonLd, categoryLinks, cityLinks, companiesNear, itemListJsonLd } from '../../../../lib/hubs';
+import { breadcrumbJsonLd, catalogHrefFor, categoryLinks, cityLinks, companiesNear, itemListJsonLd } from '../../../../lib/hubs';
 import { offersLabel, plainTextExcerpt } from '../../../../lib/format';
 import { buildHubContent, faqJsonLd, topTypesLabel } from '../../../../lib/hubContent';
 import { MIN_LISTINGS_FOR_INDEXING, SITE_NAME, SITE_URL } from '../../../../lib/site';
@@ -123,6 +123,7 @@ export default async function LocalHubPage({ params }) {
         nearby={nearby.map(toCard)}
         nearbyLabel={nearbyLabel}
         companies={companies}
+        catalogHref={catalogHrefFor(companies, place.city)}
         linkGroups={[
           { title: 'Inne miejscowości', links: cityLinks(inCategory, { categorySlug, exclude: place.city }) },
           { title: 'Inne kategorie', links: categoryLinks(listings.filter(inPlace(place, slug)), { locationSlug: slug, exclude: categorySlug }) },

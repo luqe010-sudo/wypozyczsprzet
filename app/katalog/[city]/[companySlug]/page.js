@@ -103,7 +103,7 @@ const company = await fetchCompanyBySlug(params.companySlug);
       <div className="max-w-[900px] mx-auto px-4 py-6 md:py-10">
         <DirectoryBreadcrumbs
           items={[
-            { label: cityName, href: `/katalog?city=${params.city}` },
+            { label: cityName, href: `/katalog/${params.city}` },
             { label: company.name },
           ]}
         />

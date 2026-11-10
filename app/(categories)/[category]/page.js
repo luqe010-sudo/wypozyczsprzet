@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { SEO_CATEGORIES, SEO_CATEGORY_SLUGS, getCitySlug } from '../../../lib/categories';
 import { fetchMarketplaceData, toCard } from '../../../lib/listings';
 import { getVoivodeship, getVoivodeshipSlugForCity, isVoivodeshipSlug } from '../../../lib/regions';
-import { breadcrumbJsonLd, categoryLinks, cityLinks, companiesNear, itemListJsonLd } from '../../../lib/hubs';
+import { breadcrumbJsonLd, catalogHrefFor, categoryLinks, cityLinks, companiesNear, itemListJsonLd } from '../../../lib/hubs';
 import { offersLabel, plainTextExcerpt } from '../../../lib/format';
 import { buildHubContent, faqJsonLd } from '../../../lib/hubContent';
 import { MIN_LISTINGS_FOR_INDEXING, SITE_NAME, SITE_URL } from '../../../lib/site';
@@ -116,6 +116,7 @@ export default async function HubPage({ params }) {
         lockCity={!isRegion}
         resultsHeading="Oferty wynajmu"
         companies={companies}
+        catalogHref={catalogHrefFor(companies, isRegion ? null : hub.city)}
         linkGroups={[
           { title: 'Kategorie', links: categoryLinks(hub.items, { locationSlug: slug }) },
           { title: isRegion ? 'Miejscowości' : 'Miejscowości w regionie', links: cityLinks(listings, { region: regionSlug, exclude: hub.city }) },

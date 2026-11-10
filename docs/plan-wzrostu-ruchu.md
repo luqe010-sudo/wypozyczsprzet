@@ -57,7 +57,7 @@ Wniosek: huby lokalne, które mają łapać 16 tys. wyświetleń fraz „wynajem
 - [x] Wdrożone 2026-11-10 (`316720b`). Tego dnia zgłoszono do indeksu w Search Console (UI, „Sprawdź URL” → „Poproś o zindeksowanie”, limit ok. 10 dziennie): `/wroclaw`, `/roboty-ziemne/wroclaw`, `/sprzet-ogrodowy/wroclaw`, `/dolnoslaskie`, `/chorzow`, `/swidnica`, `/walbrzych`, `/jelenia-gora`, `/sprzet-ogrodowy/kamieniec-wroclawski`, `/przyczepy-i-lawety/walbrzych`. API nie pozwala zgłaszać zwykłych stron.
 - [ ] Zgłosić pozostałe: `/prace-na-wysokosci/katy-wroclawskie`, `/sprzet-ogrodowy/legnickie-pole`, `/katy-wroclawskie`, `/legnickie-pole`, `/katalog`.
 - [ ] Ok. 2026-11-24: `npm run gsc -- inspect` dla zgłoszonych adresów, sprawdzić, czy weszły do indeksu.
-- [ ] `/katalog`: paginacja albo strony katalogu per miasto, żeby Google mógł go przeczytać.
+- [x] `/katalog`: strony katalogu per miasto `/katalog/{miasto}` (indeksowane od 3 firm, w `katalog` sitemap: 10 miast), `/katalog` to lekki spis miast z wyszukiwarką (ok. 160 KB zamiast ok. 830 KB). Huby ofert linkują do katalogu swojego miasta. Gotowe 2026-11-10.
 - [ ] Cotygodniowy raport (zaplanowane zadanie), porównanie tydzień do tygodnia.
 
 KPI: kliknięcia, wyświetlenia, liczba stron z ≥1 kliknięciem, liczba zapytań wysłanych przez formularz (`inquiries`).

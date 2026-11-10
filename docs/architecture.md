@@ -76,6 +76,7 @@ Poniższa lista przedstawia trasy zdefiniowane w katalogu `app/`. Zostały one s
 *   `dla-wynajmujacych` -> `/dla-wynajmujacych` - Nowo wykryta dynamiczna trasa w systemie.
 *   `jak-to-dziala` -> `/jak-to-dziala` - Nowo wykryta dynamiczna trasa w systemie.
 *   `katalog` -> `/katalog` - Publiczny spis i wyszukiwarka firm w katalogu.
+*   `katalog/[city]` -> `/katalog/[city]` - Nowo wykryta dynamiczna trasa w systemie.
 *   `katalog/[city]/[companySlug]` -> `/katalog/[city]/[companySlug]` - Strona profilowa firmy w konkretnym mieście.
 *   `katalog/woj/[voivodeship]/[companySlug]` -> `/katalog/woj/[voivodeship]/[companySlug]` - Strona profilowa firmy w konkretnym województwie.
 *   `kontakt` -> `/kontakt` - Formularz kontaktowy i dane kontaktowe.

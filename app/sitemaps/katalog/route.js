@@ -1,5 +1,7 @@
 import {
+  MIN_COMPANIES_FOR_INDEXING,
   fetchAllCompanies,
+  getCatalogCities,
   getPrimaryCitySlug,
   voivodeshipSlug,
   slugify,
@@ -21,6 +23,12 @@ export async function GET() {
     priority: '0.8',
     changefreq: 'weekly',
   });
+
+  // City pages that are indexable (smaller ones are noindex).
+  for (const city of await getCatalogCities()) {
+    if (city.count < MIN_COMPANIES_FOR_INDEXING) continue;
+    urls.push({ loc: `${SITE_URL}/katalog/${city.slug}`, priority: '0.7', changefreq: 'weekly' });
+  }
 
   for (const company of companies) {
     const compSlug = company.slug || slugify(company.name);

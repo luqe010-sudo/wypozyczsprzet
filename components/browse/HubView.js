@@ -22,6 +22,7 @@ export default function HubView({
   emptyHint,
   summary = null,
   summaryRowsHeading,
+  catalogHref = '/katalog',
 }) {
   return (
     <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 md:py-8">
@@ -65,7 +66,7 @@ export default function HubView({
         <section className="mt-10" aria-labelledby="companies-heading">
           <div className="mb-4 flex items-baseline justify-between gap-3">
             <h2 id="companies-heading" className="text-lg font-semibold text-slate-900 dark:text-white">Wypożyczalnie w okolicy</h2>
-            <Link href="/katalog" className="flex-shrink-0 text-sm font-medium text-brand-600 hover:underline dark:text-brand-400">Cały katalog</Link>
+            <Link href={catalogHref} className="flex-shrink-0 text-sm font-medium text-brand-600 hover:underline dark:text-brand-400">{catalogHref === '/katalog' ? 'Cały katalog' : 'Zobacz wszystkie'}</Link>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {companies.map((company) => <CompanyListCard key={company.id} company={company} />)}
