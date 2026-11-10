@@ -3,9 +3,9 @@ import { ArrowRight, LayoutGrid } from 'lucide-react';
 import { MARKET_CATEGORIES, matchesMarketCategory } from '../lib/categories';
 import { offersLabel } from '../lib/format';
 
-/** Category links with offer counts; `skip` leaves out categories the surrounding UI already offers. */
-export function CategoryTiles({ listings, skip = [] }) {
-  return MARKET_CATEGORIES.map(({ value, label, hub }, index) => !skip.includes(value) && (
+/** Category links with offer counts. */
+function CategoryTiles({ listings }) {
+  return MARKET_CATEGORIES.map(({ value, label, hub }, index) => (
     <Link key={value} href={`/${hub}`} className="flex min-w-0 items-center gap-2 rounded-xl border border-border bg-card px-2 py-1.5 shadow-sm transition hover:border-brand-500 hover:bg-brand-50 dark:hover:bg-slate-800">
       <div className="shrink-0 overflow-hidden rounded-md bg-[#ebf0f5]">
         <span aria-hidden="true" className="market-category-art block h-[50px] w-[38px]" style={{ backgroundPosition: `${index % 4 / 3 * 100}% ${index < 4 ? '0%' : '100%'}` }} />

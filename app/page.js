@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, ChevronDown, Clock, Crosshair, MapPin, Plus, Search, ShieldCheck, Truck } from 'lucide-react';
-import CategoryHubs, { CategoryTiles } from '../components/CategoryHubs';
+import CategoryHubs from '../components/CategoryHubs';
 import FeaturedListings from '../components/FeaturedListings';
 import LatestListings from '../components/LatestListings';
 import PopularEquipment from '../components/PopularEquipment';
@@ -9,6 +9,7 @@ import RentalSteps from '../components/RentalSteps';
 import { ExcavatorIcon } from '../components/icons/EquipmentIcons';
 import { fetchMarketplaceData, toCard } from '../lib/listings';
 import { cityLinks } from '../lib/hubs';
+import { MARKET_CATEGORIES } from '../lib/categories';
 import { SEARCH_DEFAULTS, featuredListings, findListings } from '../lib/search';
 import { MIN_LISTINGS_FOR_INDEXING, SITE_NAME, SITE_URL } from '../lib/site';
 
@@ -23,6 +24,7 @@ const searchField = 'relative flex min-h-12 min-w-0 items-center gap-2.5 rounded
 const LATEST_LIMIT = 48;
 // The "Podnośniki" and "Agregaty" pills already lead here, so the expanded panel does not repeat them.
 const PILL_CATEGORIES = ['access-platforms', 'power-generators'];
+const MORE_CATEGORIES = MARKET_CATEGORIES.filter(({ value }) => !PILL_CATEGORIES.includes(value));
 
 const BENEFITS = [
   { icon: MapPin, title: 'Sprzęt od lokalnych firm', text: 'Wypożyczalnie w Twojej okolicy' },
@@ -125,9 +127,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <PopularEquipment>
-        <CategoryTiles listings={listings} skip={PILL_CATEGORIES} />
-      </PopularEquipment>
+      <PopularEquipment categories={MORE_CATEGORIES} />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <ul className="grid grid-cols-2 gap-4 border-b border-border py-5 lg:grid-cols-4 lg:gap-0 lg:divide-x lg:divide-border">
@@ -146,16 +146,11 @@ export default async function Home() {
       <FeaturedListings listings={featured} className="mx-auto max-w-7xl px-4 pt-7 sm:px-6" />
 
       <section className="mx-auto max-w-7xl px-4 pb-8 pt-7 sm:px-6" aria-labelledby="home-offers">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-1">
-          <h2 id="home-offers" className="market-heading">Najnowsze ogłoszenia</h2>
-          <Link href="/szukaj" className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold hover:underline">
-            Zobacz wszystkie oferty <ArrowRight size={16} aria-hidden="true" />
-          </Link>
-        </div>
         {latest.length > 0 ? (
           <LatestListings listings={latest} />
         ) : (
           <div className="rounded-xl border border-border bg-card p-5">
+            <h2 id="home-offers" className="market-heading mb-3">Najnowsze ogłoszenia</h2>
             <p>W tej chwili nie ma opublikowanych ofert. Sprawdź firmy, które wynajmują sprzęt w Twojej okolicy.</p>
             <Link href="/katalog" className="mt-3 inline-flex min-h-11 items-center gap-2 font-semibold hover:underline">Otwórz katalog firm <ArrowRight size={16} aria-hidden="true" /></Link>
           </div>

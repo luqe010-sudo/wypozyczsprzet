@@ -50,12 +50,12 @@ Ta lista została wygenerowana automatycznie przez skrypt narzędziowy `Living D
 *   **[FAQSchema.js](file:///e:/sprzety_budowlane/components/FAQSchema.js)**: Wstrzykuje dane FAQ w standardzie JSON-LD bezpośrednio do nagłówków SEO.
 *   **[FavoriteButton.js](file:///e:/sprzety_budowlane/components/FavoriteButton.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[FeaturedListings.js](file:///e:/sprzety_budowlane/components/FeaturedListings.js)**: Reużywalny komponent interfejsu React w systemie.
-*   **[LatestListings.js](file:///e:/sprzety_budowlane/components/LatestListings.js)**: Reużywalny komponent interfejsu React w systemie.
+*   **[LatestListings.js](file:///e:/sprzety_budowlane/components/LatestListings.js)**: One download per visit: switching back to the map reuses the pins already fetched.
 *   **[ListingCard.js](file:///e:/sprzety_budowlane/components/ListingCard.js)**: Premium karta prezentacyjna oferta z animacjami najechania myszką (hover), zdjęciem i ceną.
 *   **[ListingMap.js](file:///e:/sprzety_budowlane/components/ListingMap.js)**: Mapa szczegółów oferty zintegrowana z Maplibre GL, wektorowymi kafelkami i fallbackiem do CartoDB.
 *   **[MapComponent.js](file:///e:/sprzety_budowlane/components/MapComponent.js)**: Zaawansowana, pełnoekranowa mapa klastrująca lokalizacje wielu maszyn na rynku.
 *   **[Navbar.js](file:///e:/sprzety_budowlane/components/Navbar.js)**: Pasek nawigacji u góry ekranu z obsługą logowania, rejestracji i stanu sesji użytkownika.
-*   **[PopularEquipment.js](file:///e:/sprzety_budowlane/components/PopularEquipment.js)**: Reużywalny komponent interfejsu React w systemie.
+*   **[PopularEquipment.js](file:///e:/sprzety_budowlane/components/PopularEquipment.js)**: Pill-length names and an order that pairs short with long, so the panel is one row on a laptop
 *   **[RentalSteps.js](file:///e:/sprzety_budowlane/components/RentalSteps.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[SiteBrand.js](file:///e:/sprzety_budowlane/components/SiteBrand.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[ToastProvider.js](file:///e:/sprzety_budowlane/components/ToastProvider.js)**: Kontekst obsługi powiadomień toast (react-hot-toast).
