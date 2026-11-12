@@ -620,6 +620,11 @@ export async function adminCreateCompanyBranch(companyId, formData) {
       source: 'admin',
     }
 
+    // A company has one main branch; marking a new one demotes the previous.
+    if (rawData.is_main) {
+      await supabase.from('company_branches').update({ is_main: false }).eq('company_id', companyId).eq('is_main', true)
+    }
+
     const { data, error } = await supabase
       .from('company_branches')
       .insert([rawData])
@@ -654,6 +659,13 @@ export async function adminUpdateCompanyBranch(branchId, formData) {
       phone: formData.get('phone') || null,
       email: formData.get('email') || null,
       is_main: formData.get('is_main') === 'true',
+    }
+
+    if (rawData.is_main) {
+      const { data: branch } = await supabase.from('company_branches').select('company_id').eq('id', branchId).single()
+      if (branch) {
+        await supabase.from('company_branches').update({ is_main: false }).eq('company_id', branch.company_id).eq('is_main', true).neq('id', branchId)
+      }
     }
 
     const { data, error } = await supabase

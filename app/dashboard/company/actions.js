@@ -6,170 +6,148 @@ import { redirect } from 'next/navigation'
 import { geocodeAddress } from '@/lib/geocoding'
 import { sanitizeAddress } from '@/lib/utils'
 
+const text = (formData, name, max = 200) => {
+  const value = String(formData.get(name) ?? '').trim()
+  return value ? value.slice(0, max) : null
+}
+
+/** Company and main-branch fields from the form, with the checks the form also does in the browser. */
+function readCompanyForm(formData) {
+  const fields = {
+    name: text(formData, 'company_name', 160),
+    phone: text(formData, 'phone', 40),
+    email: text(formData, 'email', 200),
+    website: text(formData, 'website', 300),
+    zip_code: text(formData, 'postal_code', 12),
+    city: text(formData, 'city', 100),
+    address: text(formData, 'address', 200),
+  }
+  if (!fields.name) return { error: 'Podaj nazwę firmy.' }
+  if (!fields.phone) return { error: 'Podaj telefon, pod którym klienci mogą zadzwonić.' }
+  if (!fields.city) return { error: 'Podaj miejscowość siedziby.' }
+  if (fields.website && !/^https?:\/\//i.test(fields.website)) fields.website = `https://${fields.website}`
+  return { fields }
+}
+
+async function currentUser(supabase) {
+  const { data: { user } } = await supabase.auth.getUser()
+  return user
+}
+
+async function ownsCompany(supabase, companyId, userId) {
+  const { data } = await supabase
+    .from('companies')
+    .select('id')
+    .eq('id', companyId)
+    .eq('owner_user_id', userId)
+    .maybeSingle()
+  return Boolean(data)
+}
+
+function refreshCompany(companyId) {
+  revalidatePath('/dashboard')
+  if (companyId) {
+    revalidatePath(`/dashboard/company/${companyId}`)
+    revalidatePath(`/dashboard/company/${companyId}/edit`)
+  }
+  updateTag('listings')
+}
+
 export async function createCompany(formData) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await currentUser(supabase)
+  if (!user) return { error: 'Zaloguj się, aby dodać firmę.' }
 
-  if (!user) {
-    throw new Error('You must be logged in to create a company')
-  }
+  const { fields, error: formError } = readCompanyForm(formData)
+  if (formError) return { error: formError }
 
-  const address = formData.get('address')
-  const city = formData.get('city')
-  const sanitized = sanitizeAddress(address, city)
-  const coords = await geocodeAddress(sanitized)
+  const coords = await geocodeAddress(sanitizeAddress(fields.address, fields.city))
+  const location = { lat: coords?.lat ?? null, lng: coords?.lng ?? null }
 
-  const rawData = {
-    owner_user_id: user.id,
-    name: formData.get('company_name'),
-    phone: formData.get('phone'),
-    email: formData.get('email'),
-    website: formData.get('website'),
-    // Deprecated but kept for backward compatibility
-    zip_code: formData.get('postal_code'),
-    city: city,
-    address: address,
-    lat: coords?.lat || null,
-    lng: coords?.lng || null,
-    status: 'active',
-  }
-
-  const { data, error } = await supabase
+  const { data: company, error } = await supabase
     .from('companies')
-    .insert([rawData])
-    .select()
+    .insert([{ owner_user_id: user.id, status: 'active', ...fields, ...location }])
+    .select('id')
+    .single()
+  if (error) return { error: `Nie udało się utworzyć firmy: ${error.message}` }
 
-  if (error) {
-    return { error: error.message }
-  }
-
-  // Create main branch
-  const branchData = {
-    company_id: data[0].id,
+  const { error: branchError } = await supabase.from('company_branches').insert([{
+    company_id: company.id,
     name: 'Siedziba główna',
-    city: city,
-    zip_code: formData.get('postal_code'),
-    address: address,
-    lat: coords?.lat || null,
-    lng: coords?.lng || null,
-    phone: formData.get('phone'),
-    email: formData.get('email'),
+    city: fields.city,
+    zip_code: fields.zip_code,
+    address: fields.address,
+    phone: fields.phone,
+    email: fields.email,
+    ...location,
     is_main: true,
     source: 'user',
-  }
+  }])
+  if (branchError) console.error('createCompany: main branch insert failed', branchError)
 
-  await supabase.from('company_branches').insert([branchData])
-
-  revalidatePath('/dashboard')
-  updateTag('listings')
-  redirect(`/dashboard/company/${data[0].id}`)
+  refreshCompany(company.id)
+  redirect(`/dashboard/company/${company.id}`)
 }
 
 export async function updateCompany(id, formData) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await currentUser(supabase)
+  if (!user) return { error: 'Zaloguj się ponownie.' }
+  if (!(await ownsCompany(supabase, id, user.id))) return { error: 'Nie masz dostępu do tej firmy.' }
 
-  if (!user) {
-    throw new Error('Unauthorized')
-  }
+  const { fields, error: formError } = readCompanyForm(formData)
+  if (formError) return { error: formError }
 
-  // Verify ownership
-  const { data: company } = await supabase
-    .from('companies')
-    .select('owner_user_id')
-    .eq('id', id)
-    .single()
-
-  if (!company || company.owner_user_id !== user.id) {
-    throw new Error('Unauthorized or company not found')
-  }
-
-  const address = formData.get('address')
-  const city = formData.get('city')
-  const sanitized = sanitizeAddress(address, city)
-  const coords = await geocodeAddress(sanitized)
-
-  // Update company (keeping deprecated columns for backward compat)
-  const rawData = {
-    name: formData.get('company_name'),
-    phone: formData.get('phone'),
-    email: formData.get('email'),
-    website: formData.get('website'),
-    zip_code: formData.get('postal_code'),
-    city: city,
-    address: address,
-    lat: coords?.lat || null,
-    lng: coords?.lng || null,
-  }
-
-  const { error } = await supabase
-    .from('companies')
-    .update(rawData)
-    .eq('id', id)
-
-  if (error) {
-    return { error: error.message }
-  }
-
-  // Also update main branch
-  const branchUpdate = {
-    city: city,
-    zip_code: formData.get('postal_code'),
-    address: address,
-    lat: coords?.lat || null,
-    lng: coords?.lng || null,
-    phone: formData.get('phone'),
-    email: formData.get('email'),
-  }
-
-  await supabase
+  const { data: mainBranch } = await supabase
     .from('company_branches')
-    .update(branchUpdate)
+    .select('id, city, address, lat, lng')
     .eq('company_id', id)
     .eq('is_main', true)
+    .order('created_at')
+    .limit(1)
+    .maybeSingle()
 
-  revalidatePath('/dashboard')
-  revalidatePath(`/dashboard/company/${id}`)
-  updateTag('listings')
+  // Keep stored coordinates while the address is unchanged, so a geocoder outage cannot drop the company off the map.
+  const sameAddress = mainBranch
+    && (mainBranch.city || '') === (fields.city || '')
+    && (mainBranch.address || '') === (fields.address || '')
+    && mainBranch.lat != null
+  const coords = sameAddress
+    ? { lat: mainBranch.lat, lng: mainBranch.lng }
+    : await geocodeAddress(sanitizeAddress(fields.address, fields.city))
+  const location = { lat: coords?.lat ?? null, lng: coords?.lng ?? null }
+
+  const { error } = await supabase.from('companies').update({ ...fields, ...location }).eq('id', id)
+  if (error) return { error: `Nie udało się zapisać firmy: ${error.message}` }
+
+  const branchFields = {
+    city: fields.city,
+    zip_code: fields.zip_code,
+    address: fields.address,
+    phone: fields.phone,
+    email: fields.email,
+    ...location,
+  }
+  const { error: branchError } = mainBranch
+    ? await supabase.from('company_branches').update(branchFields).eq('id', mainBranch.id)
+    : await supabase.from('company_branches').insert([{ company_id: id, name: 'Siedziba główna', is_main: true, source: 'user', ...branchFields }])
+  if (branchError) return { error: `Dane firmy zapisane, ale nie udało się zapisać siedziby: ${branchError.message}` }
+
+  refreshCompany(id)
   redirect(`/dashboard/company/${id}`)
 }
 
 export async function deleteCompany(id) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await currentUser(supabase)
+  if (!user) return { error: 'Zaloguj się ponownie.' }
+  if (!(await ownsCompany(supabase, id, user.id))) return { error: 'Nie masz dostępu do tej firmy.' }
 
-  if (!user) {
-    throw new Error('Unauthorized')
-  }
+  await supabase.from('company_branches').delete().eq('company_id', id)
+  const { error } = await supabase.from('companies').delete().eq('id', id)
+  if (error) return { error: `Nie udało się usunąć firmy: ${error.message}` }
 
-  // Verify ownership
-  const { data: company } = await supabase
-    .from('companies')
-    .select('owner_user_id')
-    .eq('id', id)
-    .single()
-
-  if (!company || company.owner_user_id !== user.id) {
-    throw new Error('Unauthorized or company not found')
-  }
-
-  // Delete branches first (cascade should handle this, but just in case)
-  await supabase
-    .from('company_branches')
-    .delete()
-    .eq('company_id', id)
-  
-  const { error } = await supabase
-    .from('companies')
-    .delete()
-    .eq('id', id)
-
-  if (error) {
-    return { error: error.message }
-  }
-
-  revalidatePath('/dashboard')
-  updateTag('listings')
+  refreshCompany(null)
   redirect('/dashboard')
 }
 
@@ -177,81 +155,64 @@ export async function deleteCompany(id) {
 
 export async function createBranch(companyId, formData) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Unauthorized')
+  const user = await currentUser(supabase)
+  if (!user) return { error: 'Zaloguj się ponownie.' }
+  if (!(await ownsCompany(supabase, companyId, user.id))) return { error: 'Nie masz dostępu do tej firmy.' }
 
-  // Verify ownership
-  const { data: company } = await supabase
-    .from('companies')
-    .select('owner_user_id')
-    .eq('id', companyId)
-    .single()
+  const city = text(formData, 'city', 100)
+  const address = text(formData, 'address', 200)
+  if (!city || !address) return { error: 'Podaj miejscowość i adres oddziału.' }
 
-  if (!company || company.owner_user_id !== user.id) {
-    throw new Error('Unauthorized or company not found')
-  }
-
-  const address = formData.get('address')
-  const city = formData.get('city')
-  const sanitized = sanitizeAddress(address, city)
-  const coords = await geocodeAddress(sanitized)
-
-  const rawData = {
+  const coords = await geocodeAddress(sanitizeAddress(address, city))
+  const { error } = await supabase.from('company_branches').insert([{
     company_id: companyId,
-    name: formData.get('branch_name') || null,
-    city: city,
-    zip_code: formData.get('postal_code') || null,
-    address: address,
-    lat: coords?.lat || null,
-    lng: coords?.lng || null,
-    phone: formData.get('phone') || null,
-    email: formData.get('email') || null,
+    name: text(formData, 'branch_name', 120),
+    city,
+    zip_code: text(formData, 'postal_code', 12),
+    address,
+    lat: coords?.lat ?? null,
+    lng: coords?.lng ?? null,
+    phone: text(formData, 'phone', 40),
+    email: text(formData, 'email', 200),
     is_main: false,
     source: 'user',
-  }
+  }])
+  if (error) return { error: `Nie udało się dodać oddziału: ${error.message}` }
 
-  const { error } = await supabase
-    .from('company_branches')
-    .insert([rawData])
-
-  if (error) {
-    return { error: error.message }
-  }
-
-  revalidatePath(`/dashboard/company/${companyId}`)
-  revalidatePath(`/dashboard/company/${companyId}/edit`)
-  updateTag('listings')
-  return { success: true }
+  refreshCompany(companyId)
+  return { success: true, geocoded: Boolean(coords) }
 }
 
 export async function deleteBranch(branchId, companyId) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Unauthorized')
+  const user = await currentUser(supabase)
+  if (!user) return { error: 'Zaloguj się ponownie.' }
+  if (!(await ownsCompany(supabase, companyId, user.id))) return { error: 'Nie masz dostępu do tej firmy.' }
 
-  // Verify company ownership
-  const { data: company } = await supabase
-    .from('companies')
-    .select('owner_user_id')
-    .eq('id', companyId)
-    .single()
+  const { count } = await supabase
+    .from('equipment')
+    .select('id', { count: 'exact', head: true })
+    .eq('branch_id', branchId)
+  if (count) return { error: `Do tego oddziału ${count === 1 ? 'jest przypisane 1 ogłoszenie' : `jest przypisanych ${count} ogłoszeń`}. Najpierw przenieś je do innego oddziału.` }
 
-  if (!company || company.owner_user_id !== user.id) {
-    throw new Error('Unauthorized or company not found')
-  }
+  // The oldest main branch is the company seat and cannot be removed here.
+  const { data: seat } = await supabase
+    .from('company_branches')
+    .select('id')
+    .eq('company_id', companyId)
+    .eq('is_main', true)
+    .order('created_at')
+    .limit(1)
+    .maybeSingle()
+  if (seat?.id === branchId) return { error: 'Siedziby głównej nie można usunąć. Zmień jej adres w danych firmy.' }
 
   const { error } = await supabase
     .from('company_branches')
     .delete()
     .eq('id', branchId)
     .eq('company_id', companyId)
+  if (error) return { error: `Nie udało się usunąć oddziału: ${error.message}` }
 
-  if (error) {
-    return { error: error.message }
-  }
-
-  revalidatePath(`/dashboard/company/${companyId}`)
-  revalidatePath(`/dashboard/company/${companyId}/edit`)
-  updateTag('listings')
+  refreshCompany(companyId)
   return { success: true }
 }

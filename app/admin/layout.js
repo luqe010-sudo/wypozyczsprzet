@@ -1,113 +1,66 @@
 import Link from 'next/link'
-import { 
-  LayoutDashboard, 
-  Building2, 
-  BookOpen,
-  Package, 
-  Users, 
-  Home, 
-  Settings, 
-  ArrowLeft,
-  ShieldCheck,
-  Handshake,
-  Inbox
-} from 'lucide-react'
+import { ExternalLink, LayoutDashboard, LogOut, ShieldCheck } from 'lucide-react'
+import { createClient } from '@/utils/supabase/server'
+import { signout } from '@/app/login/actions'
+import AdminNav from '@/components/admin/AdminNav'
 
-export default function AdminLayout({ children }) {
-  const menuItems = [
-    { label: 'Dashboard', icon: LayoutDashboard, href: '/admin' },
-    { label: 'Firmy', icon: Building2, href: '/admin/companies' },
-    { label: 'Katalog', icon: BookOpen, href: '/admin/directory' },
-    { label: 'Sprzęt', icon: Package, href: '/admin/equipment' },
-    { label: 'Użytkownicy', icon: Users, href: '/admin/users' },
-    { label: 'Zapytania', icon: Inbox, href: '/admin/inquiries' },
-    { label: 'Zgłoszenia', icon: Handshake, href: '/admin/claims' },
-  ]
+export const metadata = {
+  title: 'Panel administratora | wypozycz.online',
+  robots: { index: false, follow: false },
+}
+
+/** Queue sizes shown next to the menu items; the proxy has already confirmed the admin role. */
+async function fetchQueueCounts() {
+  const supabase = await createClient()
+  const [listings, inquiries, claims] = await Promise.all([
+    supabase.from('equipment').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+    supabase.from('inquiries').select('id', { count: 'exact', head: true }).eq('status', 'new'),
+    supabase.from('company_claims').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+  ])
+  return {
+    pendingListings: listings.count || 0,
+    newInquiries: inquiries.count || 0,
+    pendingClaims: claims.count || 0,
+  }
+}
+
+const footerLink = 'flex min-h-11 shrink-0 items-center gap-2.5 rounded-lg px-3 text-sm font-medium text-slate-300 hover:bg-white/10 hover:text-white'
+
+export default async function AdminLayout({ children }) {
+  const counts = await fetchQueueCounts()
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 flex flex-col lg:flex-row">
-      {/* Sidebar (Desktop) */}
-      <aside className="w-full lg:w-64 bg-white dark:bg-slate-900 border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-slate-800 flex-shrink-0 lg:sticky lg:top-0 lg:h-screen z-50">
-        <div className="p-4 lg:p-6 flex lg:flex-col items-center lg:items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className="bg-blue-600 p-2 rounded-xl text-white">
-              <ShieldCheck className="w-6 h-6" />
-            </div>
-            <div>
-              <h1 className="text-xl font-black text-gray-900 dark:text-white leading-none">ADMIN</h1>
-              <p className="text-[10px] text-blue-600 font-bold uppercase tracking-widest mt-1">wypozycz.online</p>
-            </div>
-          </div>
+    <div className="min-h-screen bg-background lg:grid lg:grid-cols-[15.5rem_minmax(0,1fr)]">
+      <aside className="bg-market-navy text-white lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col lg:overflow-y-auto">
+        <div className="flex items-center justify-between gap-3 px-4 pb-2 pt-4 lg:block lg:px-5 lg:pb-4 lg:pt-6">
+          <Link href="/admin" className="flex items-center gap-2.5">
+            <span className="rounded-lg bg-market-yellow p-1.5 text-market-navy"><ShieldCheck size={20} aria-hidden="true" /></span>
+            <span>
+              <span className="block text-base font-extrabold leading-none tracking-tight">wypozycz.online</span>
+              <span className="mt-1 block text-[11px] font-semibold uppercase leading-none tracking-wider text-amber-300">Panel administratora</span>
+            </span>
+          </Link>
+          <Link href="/" className="inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-sm font-semibold text-slate-200 hover:bg-white/10 lg:hidden">
+            <ExternalLink size={16} aria-hidden="true" /> Strona
+          </Link>
+        </div>
 
-          <nav className="hidden lg:flex flex-col gap-1 w-full mt-8">
-            {menuItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-blue-50 dark:hover:bg-slate-800 hover:text-blue-600 dark:hover:text-blue-400 transition-all group"
-              >
-                <item.icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                <span className="font-bold">{item.label}</span>
-              </Link>
-            ))}
-            
-            <div className="mt-8 pt-8 border-t border-gray-100 dark:border-slate-800 flex flex-col gap-2">
-              <Link
-                href="/dashboard"
-                className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-800 transition-all"
-              >
-                <LayoutDashboard className="w-5 h-5" />
-                <span className="font-medium">Mój Panel</span>
-              </Link>
-              <Link
-                href="/"
-                className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-800 transition-all"
-              >
-                <Home className="w-5 h-5" />
-                <span className="font-medium">Strona główna</span>
-              </Link>
-            </div>
-          </nav>
-          
-          {/* Mobile Top Stats/Menu Info */}
-          <div className="lg:hidden flex items-center gap-2 w-full justify-between mt-2">
-            <span className="text-[10px] font-bold px-2 py-1 bg-blue-100 text-blue-800 rounded uppercase">Panel Admina</span>
-            <div className="flex gap-2">
-              <Link href="/dashboard" className="p-2 bg-gray-100 dark:bg-slate-800 rounded-lg text-gray-600 dark:text-gray-400 hover:text-blue-600">
-                <LayoutDashboard className="w-4 h-4" />
-              </Link>
-              <Link href="/" className="p-2 bg-gray-100 dark:bg-slate-800 rounded-lg text-gray-600 dark:text-gray-400 hover:text-blue-600">
-                <Home className="w-4 h-4" />
-              </Link>
-            </div>
-          </div>
+        <nav aria-label="Panel administratora" className="flex gap-1 overflow-x-auto px-3 pb-3 [scrollbar-width:none] lg:flex-1 lg:flex-col lg:overflow-visible lg:px-3 lg:pb-0">
+          <AdminNav counts={counts} />
+        </nav>
+
+        <div className="hidden border-t border-white/10 p-3 lg:block">
+          <Link href="/dashboard" className={footerLink}><LayoutDashboard size={18} aria-hidden="true" /> Panel wynajmującego</Link>
+          <Link href="/" className={footerLink}><ExternalLink size={18} aria-hidden="true" /> Strona główna</Link>
+          <form action={signout}>
+            <button type="submit" className={`${footerLink} w-full`}><LogOut size={18} aria-hidden="true" /> Wyloguj</button>
+          </form>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 p-4 md:p-8 pb-24 lg:pb-8">
-        <div className="max-w-7xl mx-auto">
-          {children}
-        </div>
-      </main>
-
-      {/* Mobile Bottom Navigation */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t border-gray-200 dark:border-slate-800 px-2 py-3 flex justify-around items-center z-50">
-        {menuItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className="flex flex-col items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-blue-600 transition-colors px-3"
-          >
-            <item.icon className="w-5 h-5" />
-            <span className="text-[10px] font-bold uppercase tracking-tighter">{item.label}</span>
-          </Link>
-        ))}
-        <Link href="/" className="flex flex-col items-center gap-1 text-gray-400 px-3">
-          <Home className="w-5 h-5" />
-          <span className="text-[10px] font-bold uppercase tracking-tighter">WWW</span>
-        </Link>
-      </nav>
+      <div className="min-w-0 px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
+        <div className="mx-auto max-w-6xl">{children}</div>
+      </div>
     </div>
   )
 }

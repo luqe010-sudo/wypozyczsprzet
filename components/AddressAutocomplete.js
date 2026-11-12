@@ -80,8 +80,11 @@ export default function AddressAutocomplete({ onSelect, defaultValue = '', place
             setShowDropdown(true);
           }}
           onFocus={() => setShowDropdown(true)}
+          onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
           placeholder={placeholder}
-          className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border pr-10"
+          aria-label="Wyszukaj adres"
+          autoComplete="off"
+          className="block min-h-11 w-full rounded-lg border border-slate-300 bg-card px-3 py-2 pr-10 text-base text-foreground sm:text-sm dark:border-slate-600"
         />
         <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
           {isLoading ? (

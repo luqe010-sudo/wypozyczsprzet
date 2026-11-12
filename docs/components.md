@@ -55,14 +55,17 @@ Ta lista została wygenerowana automatycznie przez skrypt narzędziowy `Living D
 *   **[ListingMap.js](file:///e:/sprzety_budowlane/components/ListingMap.js)**: Mapa szczegółów oferty zintegrowana z Maplibre GL, wektorowymi kafelkami i fallbackiem do CartoDB.
 *   **[MapComponent.js](file:///e:/sprzety_budowlane/components/MapComponent.js)**: Zaawansowana, pełnoekranowa mapa klastrująca lokalizacje wielu maszyn na rynku.
 *   **[Navbar.js](file:///e:/sprzety_budowlane/components/Navbar.js)**: Pasek nawigacji u góry ekranu z obsługą logowania, rejestracji i stanu sesji użytkownika.
-*   **[PopularEquipment.js](file:///e:/sprzety_budowlane/components/PopularEquipment.js)**: Pill-length names and an order that pairs short with long, so the panel is one row on a laptop
+*   **[PopularEquipment.js](file:///e:/sprzety_budowlane/components/PopularEquipment.js)**: Popular kinds of equipment open their subcategory, so a pill shows the same offers as the category filter.
 *   **[RentalSteps.js](file:///e:/sprzety_budowlane/components/RentalSteps.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[SiteBrand.js](file:///e:/sprzety_budowlane/components/SiteBrand.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[ToastProvider.js](file:///e:/sprzety_budowlane/components/ToastProvider.js)**: Kontekst obsługi powiadomień toast (react-hot-toast).
+*   **[admin/AdminNav.js](file:///e:/sprzety_budowlane/components/admin/AdminNav.js)**: Reużywalny komponent interfejsu React w systemie.
+*   **[admin/adminUi.js](file:///e:/sprzety_budowlane/components/admin/adminUi.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[browse/BrowseListings.js](file:///e:/sprzety_budowlane/components/browse/BrowseListings.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[browse/HubSummary.js](file:///e:/sprzety_budowlane/components/browse/HubSummary.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[browse/HubView.js](file:///e:/sprzety_budowlane/components/browse/HubView.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[browse/SavedListings.js](file:///e:/sprzety_budowlane/components/browse/SavedListings.js)**: Reużywalny komponent interfejsu React w systemie.
+*   **[dashboard/CompanyFields.js](file:///e:/sprzety_budowlane/components/dashboard/CompanyFields.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[dashboard/DashboardNav.js](file:///e:/sprzety_budowlane/components/dashboard/DashboardNav.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[dashboard/EquipmentList.js](file:///e:/sprzety_budowlane/components/dashboard/EquipmentList.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[dashboard/EquipmentRowActions.js](file:///e:/sprzety_budowlane/components/dashboard/EquipmentRowActions.js)**: Reużywalny komponent interfejsu React w systemie.
@@ -71,6 +74,7 @@ Ta lista została wygenerowana automatycznie przez skrypt narzędziowy `Living D
 *   **[directory/CompanyCard.js](file:///e:/sprzety_budowlane/components/directory/CompanyCard.js)**: Bogata karta profilowa firmy w katalogu (adresy oddziałów, mapa, recenzje, formularz roszczenia).
 *   **[directory/CompanyListCard.js](file:///e:/sprzety_budowlane/components/directory/CompanyListCard.js)**: Element listy firm prezentujący podsumowanie profilu w katalogu głównym.
 *   **[directory/DirectoryBreadcrumbs.js](file:///e:/sprzety_budowlane/components/directory/DirectoryBreadcrumbs.js)**: Specjalne ścieżki nawigacji dla katalogu firm.
+*   **[icons/CategoryIcons.js](file:///e:/sprzety_budowlane/components/icons/CategoryIcons.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[icons/EquipmentIcons.js](file:///e:/sprzety_budowlane/components/icons/EquipmentIcons.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[inquiries/InquiryList.js](file:///e:/sprzety_budowlane/components/inquiries/InquiryList.js)**: Reużywalny komponent interfejsu React w systemie.
 *   **[listing/InquiryForm.js](file:///e:/sprzety_budowlane/components/listing/InquiryForm.js)**: Reużywalny komponent interfejsu React w systemie.

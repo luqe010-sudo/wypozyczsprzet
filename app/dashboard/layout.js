@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
-import { LogOut } from 'lucide-react'
+import Link from 'next/link'
+import { LogOut, ShieldCheck } from 'lucide-react'
 import { signout } from '@/app/login/actions'
 import DashboardNav from '@/components/dashboard/DashboardNav'
 
@@ -12,6 +13,9 @@ export default async function DashboardLayout({ children }) {
     redirect('/login')
   }
 
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle()
+  const isAdmin = profile?.role === 'admin'
+
   return (
     <div className="mx-auto grid min-h-[65vh] max-w-7xl items-start gap-5 px-4 py-5 sm:px-6 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-6 lg:py-8">
       <aside className="listing-panel min-w-0">
@@ -21,6 +25,11 @@ export default async function DashboardLayout({ children }) {
         </div>
         <nav aria-label="Panel wynajmującego" className="flex flex-wrap gap-1 lg:flex-col">
           <DashboardNav />
+          {isAdmin && (
+            <Link href="/admin" className="flex min-h-11 items-center gap-2 rounded-lg px-2.5 text-sm font-semibold text-brand-700 hover:bg-background dark:text-amber-300">
+              <ShieldCheck size={17} aria-hidden="true" /> Panel administratora
+            </Link>
+          )}
           <form action={signout}>
             <button type="submit" className="flex min-h-11 w-full items-center gap-2 rounded-lg px-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700">
               <LogOut size={17} aria-hidden="true" /> Wyloguj

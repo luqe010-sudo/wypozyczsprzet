@@ -1,6 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import UsersTable from './UsersTable'
-import { Users } from 'lucide-react'
+import { AdminPageHeader } from '@/components/admin/adminUi'
 
 export default async function AdminUsersPage() {
   const supabase = await createClient()
@@ -17,16 +17,8 @@ export default async function AdminUsersPage() {
     .order('role', { ascending: false })
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <Users className="w-7 h-7 text-blue-600" />
-            Zarządzanie Użytkownikami
-          </h2>
-          <p className="text-gray-500 dark:text-gray-400">Przeglądaj profile i nadawaj uprawnienia administratora.</p>
-        </div>
-      </div>
+    <div className="space-y-5">
+      <AdminPageHeader title="Użytkownicy" description="Konta zarejestrowanych osób. Rolę administratora nadawaj tylko zaufanym osobom." />
 
       <UsersTable initialUsers={users || []} />
     </div>

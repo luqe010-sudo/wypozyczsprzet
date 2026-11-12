@@ -1,148 +1,54 @@
 'use client'
 
 import { useState } from 'react'
-import { createCompany } from '../actions'
-import { toast } from 'react-hot-toast'
 import Link from 'next/link'
 import { ArrowLeft, Building2 } from 'lucide-react'
-import AddressAutocomplete from '@/components/AddressAutocomplete'
+import { createCompany } from '../actions'
+import { AddressFields, CompanyFields } from '@/components/dashboard/CompanyFields'
 
 export default function NewCompanyPage() {
-  const [isLoading, setIsLoading] = useState(false)
-  const [city, setCity] = useState('')
-  const [postalCode, setPostalCode] = useState('')
-  const [address, setAddress] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
 
   async function handleSubmit(formData) {
-    setIsLoading(true)
+    setSaving(true)
+    setError('')
     const result = await createCompany(formData)
-    
+    // On success the action redirects to the company page.
     if (result?.error) {
-      toast.error(result.error)
-      setIsLoading(false)
+      setError(result.error)
+      setSaving(false)
     }
   }
 
-  const handleAddressSelect = (data) => {
-    setCity(data.city);
-    setPostalCode(data.postalCode);
-    setAddress(data.street || data.fullAddress.split(',')[0]);
-  };
-
   return (
-    <div className="max-w-3xl mx-auto">
-      <div className="mb-6 flex items-center">
-        <Link href="/dashboard" className="text-sm font-medium text-blue-600 hover:text-blue-500 flex items-center">
-          <ArrowLeft className="w-4 h-4 mr-1" />
-          Wróć do panelu
-        </Link>
-      </div>
+    <div className="space-y-4">
+      <Link href="/dashboard" className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-brand-700 hover:underline dark:text-amber-300">
+        <ArrowLeft size={16} aria-hidden="true" /> Wróć do pulpitu
+      </Link>
 
-      <div className="bg-white dark:bg-slate-800 shadow-sm rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden transition-colors">
-        <div className="px-4 py-5 sm:p-6">
-          <div className="flex items-center mb-5">
-            <Building2 className="w-6 h-6 text-blue-600 mr-2" />
-            <h3 className="text-lg leading-6 font-bold text-gray-900 dark:text-white">
-              Dodaj nową firmę
-            </h3>
-          </div>
-          
-          <form action={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-              {/* Autocomplete helper */}
-              <div className="sm:col-span-6 bg-blue-50 dark:bg-blue-900/10 p-4 rounded-xl border border-blue-100 dark:border-blue-900/20">
-                <label className="block text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-2">
-                  Wyszukaj adres (ułatwienie)
-                </label>
-                <AddressAutocomplete onSelect={handleAddressSelect} />
-              </div>
+      <header>
+        <h1 className="market-heading flex items-center gap-2"><Building2 size={22} aria-hidden="true" className="text-brand-600 dark:text-market-yellow" /> Dodaj firmę</h1>
+        <p className="mt-1 text-sm text-muted">Profil firmy jest potrzebny do publikowania ogłoszeń. Jeśli Twoja firma jest już w <Link href="/katalog" className="font-semibold underline">katalogu</Link>, możesz przejąć jej wizytówkę zamiast tworzyć nową.</p>
+      </header>
 
-              <div className="sm:col-span-6">
-                <label htmlFor="company_name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Nazwa firmy <span className="text-red-500">*</span>
-                </label>
-                <div className="mt-1">
-                  <input type="text" name="company_name" id="company_name" required
-                    className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border" />
-                </div>
-              </div>
+      <form action={handleSubmit} className="listing-panel space-y-6">
+        <fieldset disabled={saving} className="space-y-4">
+          <legend className="mb-3 text-lg font-bold">Dane firmy</legend>
+          <CompanyFields />
+        </fieldset>
+        <fieldset disabled={saving} className="space-y-4 border-t border-border pt-4">
+          <legend className="pr-3 text-lg font-bold">Siedziba</legend>
+          <p className="text-sm text-muted">Na podstawie adresu pokazujemy ogłoszenia na mapie i w wynikach dla okolicy.</p>
+          <AddressFields />
+        </fieldset>
 
-              <div className="sm:col-span-3">
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Telefon <span className="text-red-500">*</span>
-                </label>
-                <div className="mt-1">
-                  <input type="text" name="phone" id="phone" required
-                    className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border" />
-                </div>
-              </div>
+        {error && <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-800 dark:bg-red-950 dark:text-red-200">{error}</p>}
 
-              <div className="sm:col-span-3">
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Email firmowy
-                </label>
-                <div className="mt-1">
-                  <input type="email" name="email" id="email"
-                    className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border" />
-                </div>
-              </div>
-
-              <div className="sm:col-span-6">
-                <label htmlFor="website" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Strona WWW
-                </label>
-                <div className="mt-1">
-                  <input type="url" name="website" id="website" placeholder="https://"
-                    className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border" />
-                </div>
-              </div>
-
-              <div className="sm:col-span-2">
-                <label htmlFor="postal_code" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Kod pocztowy <span className="text-red-500">*</span>
-                </label>
-                <div className="mt-1">
-                  <input type="text" name="postal_code" id="postal_code" required
-                    value={postalCode} onChange={(e) => setPostalCode(e.target.value)}
-                    className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border" />
-                </div>
-              </div>
-
-              <div className="sm:col-span-4">
-                <label htmlFor="city" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Miejscowość <span className="text-red-500">*</span>
-                </label>
-                <div className="mt-1">
-                  <input type="text" name="city" id="city" required
-                    value={city} onChange={(e) => setCity(e.target.value)}
-                    className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border" />
-                </div>
-              </div>
-
-              <div className="sm:col-span-6">
-                <label htmlFor="address" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Adres (Ulica i numer)
-                </label>
-                <div className="mt-1">
-                  <input type="text" name="address" id="address"
-                    value={address} onChange={(e) => setAddress(e.target.value)}
-                    className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-gray-900 dark:text-white px-3 py-2 border" />
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-5 flex justify-end">
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-market-navy bg-market-yellow hover:bg-amber-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-              >
-                {isLoading ? 'Zapisywanie...' : 'Utwórz firmę'}
-              </button>
-            </div>
-          </form>
+        <div className="flex justify-end border-t border-border pt-4">
+          <button type="submit" disabled={saving} className="market-action">{saving ? 'Zapisywanie…' : 'Utwórz firmę'}</button>
         </div>
-      </div>
+      </form>
     </div>
   )
 }

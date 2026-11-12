@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Edit, PackageOpen } from 'lucide-react'
+import { Edit, ExternalLink, PackageOpen } from 'lucide-react'
 import EquipmentRowActions from './EquipmentRowActions'
 import ListingImage from '../listing/ListingImage'
 import { formatDate, priceText } from '@/lib/format'
@@ -12,6 +12,13 @@ const statuses = {
   stale: ['Ukryte: potwierdź aktualność', 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300'],
   hidden: ['Ukryte przez administratora', 'bg-background text-foreground'],
   rejected: ['Odrzucone', 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300'],
+}
+const hints = {
+  pending: 'Administrator sprawdzi ogłoszenie przed publikacją. Do tego czasu nie jest widoczne na stronie.',
+  stale: 'Ogłoszenie nie jest widoczne na stronie, bo nie potwierdzono jego aktualności. Potwierdź, aby wróciło.',
+  hidden: 'Administrator ukrył ogłoszenie. Napisz do nas, jeśli chcesz je przywrócić.',
+  rejected: 'Ogłoszenie nie spełnia regulaminu. Popraw je albo napisz do nas.',
+  incomplete: 'Uzupełnij zdjęcia lub opis, aby ogłoszenie było lepiej widoczne.',
 }
 const periods = { hour: 'godzina', day: 'doba', week: 'tydzień', month: 'miesiąc' }
 
@@ -45,7 +52,14 @@ export default function EquipmentList({ equipment = [], error = null, filtered =
                 <span className={`rounded px-2 py-1 font-semibold ${statusStyle}`}>{status}</span>
                 {item.last_confirmed_at && <span>Potwierdzono: {formatDate(item.last_confirmed_at)}</span>}
               </p>
-              <div className="mt-2"><EquipmentRowActions id={item.id} companyId={item.company_id} status={item.status} /></div>
+              {hints[item.status] && <p className="mt-1.5 text-xs text-muted">{hints[item.status]}</p>}
+              <div className="mt-2 flex flex-wrap items-center gap-2"><EquipmentRowActions id={item.id} companyId={item.company_id} status={item.status} />
+                {(item.status === 'active' || item.status === 'incomplete') && item.slug && (
+                  <a href={`/oferta/${item.slug}`} target="_blank" rel="noopener" className="inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold text-brand-700 hover:bg-background dark:text-amber-300">
+                    <ExternalLink size={14} aria-hidden="true" /> Zobacz na stronie
+                  </a>
+                )}
+              </div>
             </div>
             <Link href={`/dashboard/equipment/${item.id}/edit`} aria-label={`Edytuj ogłoszenie ${item.name}`} className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1.5 rounded-lg text-sm font-semibold text-muted hover:bg-background sm:px-3">
               <Edit size={18} aria-hidden="true" />

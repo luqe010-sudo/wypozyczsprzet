@@ -92,11 +92,20 @@ export default function InquiryList({ inquiries = [], showCompany = false, filte
               </div>
             )}
 
-            {showCompany && (
-              <p className="mt-2 text-xs text-muted">
-                {item.firm_notified_at ? 'Firma powiadomiona e-mailem.' : 'Firma nie została powiadomiona e-mailem. Przekaż zapytanie ręcznie.'}
-              </p>
-            )}
+            {showCompany && (() => {
+              if (item.firm_notified_at) return <p className="mt-2 text-xs text-muted">Firma powiadomiona e-mailem.</p>;
+              if (item.status !== 'new') return <p className="mt-2 text-xs text-muted">Firma nie dostała maila o tym zapytaniu.</p>;
+              const branches = item.companies?.company_branches || [];
+              const contact = branches.find((branch) => branch.is_main && (branch.phone || branch.email)) || branches.find((branch) => branch.phone || branch.email);
+              return (
+                <p className="mt-2 text-xs text-red-800 dark:text-red-300">
+                  Firma nie dostała maila o tym zapytaniu. Przekaż je ręcznie
+                  {contact?.phone && <>: <a className="font-semibold underline" href={`tel:${contact.phone.replace(/[^+\d]/g, '')}`}>{contact.phone}</a></>}
+                  {contact?.email && <>{contact.phone ? ', ' : ': '}<a className="font-semibold underline" href={`mailto:${contact.email}`}>{contact.email}</a></>}
+                  {!contact && item.companies ? ' (firma nie ma telefonu ani e-maila w oddziałach)' : ''}.
+                </p>
+              );
+            })()}
           </li>
         );
       })}

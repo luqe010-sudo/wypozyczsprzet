@@ -1,8 +1,8 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { ArrowRight, Building2, Inbox, MapPin, Package, Pause, Plus } from 'lucide-react'
+import { AlertTriangle, ArrowRight, BadgeCheck, Building2, Inbox, MapPin, Package, Pause, Plus } from 'lucide-react'
 import { createClient } from '@/utils/supabase/server'
-import { offersLabel } from '@/lib/format'
+import { offersLabel, plural } from '@/lib/format'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -10,7 +10,7 @@ export default async function DashboardPage() {
   if (!user) redirect('/login')
 
   const { data: companies, error } = await supabase.from('companies')
-    .select('id, name, city, company_branches(city, is_main), equipment(count)')
+    .select('id, name, city, email, verified_at, company_branches(city, email, is_main), equipment(count)')
     .eq('owner_user_id', user.id)
     .order('created_at', { ascending: false })
 
@@ -19,16 +19,30 @@ export default async function DashboardPage() {
     ? `/dashboard/company/${companyIds[0]}/equipment/new`
     : '/dashboard/ogloszenia#dodaj'
   const metrics = []
+  const alerts = []
 
   if (companyIds.length) {
-    const [published, paused, inquiries] = await Promise.all([
+    const [published, paused, inquiries, attention] = await Promise.all([
       supabase.from('equipment').select('id', { count: 'exact', head: true })
         .in('company_id', companyIds).in('status', ['active', 'incomplete']),
       supabase.from('equipment').select('id', { count: 'exact', head: true })
         .in('company_id', companyIds).eq('status', 'inactive'),
       supabase.from('inquiries').select('id', { count: 'exact', head: true })
         .in('company_id', companyIds).eq('status', 'new'),
+      supabase.from('equipment').select('status')
+        .in('company_id', companyIds).in('status', ['stale', 'pending', 'hidden', 'rejected']),
     ])
+    const count = (...statuses) => (attention.data || []).filter((item) => statuses.includes(item.status)).length
+    const stale = count('stale')
+    const pending = count('pending')
+    const blocked = count('hidden', 'rejected')
+    if (stale) alerts.push({ href: '/dashboard/ogloszenia?status=stale', text: `${stale} ${plural(stale, 'ogłoszenie jest ukryte', 'ogłoszenia są ukryte', 'ogłoszeń jest ukrytych')}, bo nie potwierdzono aktualności. Potwierdź, aby wróciły na stronę.` })
+    if (pending) alerts.push({ href: '/dashboard/ogloszenia?status=pending', text: `${pending} ${plural(pending, 'ogłoszenie czeka', 'ogłoszenia czekają', 'ogłoszeń czeka')} na sprawdzenie przez administratora.`, tone: 'info' })
+    if (blocked) alerts.push({ href: '/dashboard/ogloszenia?status=blocked', text: `${blocked} ${plural(blocked, 'ogłoszenie zostało ukryte lub odrzucone', 'ogłoszenia zostały ukryte lub odrzucone', 'ogłoszeń zostało ukrytych lub odrzuconych')} przez administratora.` })
+    for (const company of companies) {
+      const hasEmail = company.email || company.company_branches?.some((branch) => branch.email)
+      if (!hasEmail) alerts.push({ href: `/dashboard/company/${company.id}/edit`, text: `Firma „${company.name}” nie ma adresu e-mail, więc nie dostajesz maili o zapytaniach. Dodaj go w edycji firmy.` })
+    }
     metrics.push(
       { label: 'Opublikowane oferty', result: published, href: '/dashboard/ogloszenia?status=active', icon: Package },
       { label: 'Wstrzymane oferty', result: paused, href: '/dashboard/ogloszenia?status=inactive', icon: Pause },
@@ -47,6 +61,20 @@ export default async function DashboardPage() {
           <Link href={addHref} className="market-action"><Plus size={18} aria-hidden="true" /> Dodaj ogłoszenie</Link>
         )}
       </header>
+
+      {alerts.length > 0 && (
+        <ul aria-label="Wymaga uwagi" className="space-y-2">
+          {alerts.map(({ href, text, tone }) => (
+            <li key={text}>
+              <Link href={href} className={`flex items-start gap-2 rounded-lg border p-3 text-sm hover:underline ${tone === 'info' ? 'border-border bg-card text-foreground' : 'border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200'}`}>
+                <AlertTriangle size={17} className="mt-0.5 shrink-0" aria-hidden="true" />
+                <span className="flex-1">{text}</span>
+                <ArrowRight size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
 
       {metrics.length > 0 && (
         <section aria-label="Podsumowanie" className="grid gap-2 sm:grid-cols-3 sm:gap-3">
@@ -87,6 +115,7 @@ export default async function DashboardPage() {
                 <li key={company.id} className="listing-panel flex flex-col justify-between gap-4">
                   <div>
                     <h3 className="break-words text-lg font-bold">{company.name || 'Nienazwana firma'}</h3>
+                    {company.verified_at && <p className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-green-800 dark:text-green-300"><BadgeCheck size={14} aria-hidden="true" /> Zweryfikowana firma</p>}
                     <p className="mt-1 flex items-center gap-1.5 text-sm text-muted">
                       <MapPin size={16} aria-hidden="true" />
                       {mainBranch?.city || company.city || 'Brak lokalizacji'}
