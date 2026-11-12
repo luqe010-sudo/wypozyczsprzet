@@ -2,39 +2,24 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { BrickWall, Caravan, ChevronDown, Drill, LayoutGrid, Package, Sprout, Tractor } from 'lucide-react';
+import { ChevronDown, LayoutGrid } from 'lucide-react';
 import { CompactorIcon, ExcavatorIcon, GeneratorIcon, LiftIcon } from './icons/EquipmentIcons';
+import { CategoryIcon } from './icons/CategoryIcons';
+import { MARKET_CATEGORIES, subcategoryHref } from '../lib/categories';
 
+// Popular kinds of equipment open their subcategory, so a pill shows the same offers as the category filter.
 const PILLS = [
-  { icon: ExcavatorIcon, label: 'Minikoparki', href: `/szukaj?q=${encodeURIComponent('minikoparki')}` },
-  { icon: CompactorIcon, label: 'Zagęszczarki', href: `/szukaj?q=${encodeURIComponent('zagęszczarki')}` },
-  { icon: LiftIcon, label: 'Podnośniki', href: `/szukaj?q=${encodeURIComponent('podnośniki')}` },
-  { icon: GeneratorIcon, label: 'Agregaty', href: `/szukaj?q=${encodeURIComponent('agregaty')}` },
+  { icon: ExcavatorIcon, label: 'Minikoparki', href: subcategoryHref('roboty-ziemne', 'miniexcavators') },
+  { icon: CompactorIcon, label: 'Zagęszczarki', href: subcategoryHref('roboty-ziemne', 'compactors') },
+  { icon: LiftIcon, label: 'Podnośniki', href: subcategoryHref('prace-na-wysokosci', 'lifts') },
+  { icon: GeneratorIcon, label: 'Agregaty', href: subcategoryHref('agregaty-i-zasilanie', 'generators') },
 ];
 
-const lucideProps = { size: 24, strokeWidth: 1.6 };
-const CATEGORY_ICONS = {
-  earthmoving: (props) => <Tractor {...lucideProps} {...props} />,
-  tools: (props) => <Drill {...lucideProps} {...props} />,
-  trailers: (props) => <Caravan {...lucideProps} {...props} />,
-  'power-generators': GeneratorIcon,
-  concrete: (props) => <BrickWall {...lucideProps} {...props} />,
-  garden: (props) => <Sprout {...lucideProps} {...props} />,
-  'access-platforms': LiftIcon,
-  'other-equipment': (props) => <Package {...lucideProps} {...props} />,
-};
-
-// Pill-length names and an order that pairs short with long, so the panel is one row on a laptop
-// and three rows of two on a phone.
-const SHORT_LABELS = { tools: 'Narzędzia', garden: 'Ogród', 'other-equipment': 'Inny sprzęt' };
-const PANEL_ORDER = ['earthmoving', 'tools', 'trailers', 'other-equipment', 'concrete', 'garden'];
-const panelRank = (value) => (PANEL_ORDER.includes(value) ? PANEL_ORDER.indexOf(value) : PANEL_ORDER.length);
 const iconClass = 'size-5 shrink-0 sm:size-[26px]';
-
 const pillClass = 'flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-3.5 text-[13px] font-medium sm:min-h-12 sm:gap-2.5 sm:px-5 sm:text-sm text-foreground shadow-sm transition hover:border-amber-400 hover:bg-brand-100 dark:hover:bg-slate-700';
 
-/** Popular equipment pills; the remaining `categories` ({ value, label, hub }) open below in the same style. */
-export default function PopularEquipment({ categories }) {
+/** Popular equipment pills; "Wszystkie kategorie" opens every category below in the same style. */
+export default function PopularEquipment() {
   const [open, setOpen] = useState(false);
 
   return (
@@ -51,17 +36,14 @@ export default function PopularEquipment({ categories }) {
       </nav>
       <div id="more-categories" className={`mx-auto grid max-w-7xl px-4 transition-[grid-template-rows,visibility] duration-200 sm:px-6 ${open ? 'grid-rows-[1fr]' : 'invisible grid-rows-[0fr]'}`}>
         <div className="min-h-0 overflow-hidden">
-          <ul aria-label="Pozostałe kategorie" className="flex flex-wrap gap-2 pb-1 pt-2 sm:gap-3 sm:pt-3 lg:justify-center">
-            {[...categories].sort((a, b) => panelRank(a.value) - panelRank(b.value)).map(({ value, label, hub }) => {
-              const Icon = CATEGORY_ICONS[value] || LayoutGrid;
-              return (
-                <li key={value}>
-                  <Link href={`/${hub}`} className={`${pillClass} border-border bg-card`}>
-                    <Icon className={iconClass} aria-hidden="true" /> {SHORT_LABELS[value] || label}
-                  </Link>
-                </li>
-              );
-            })}
+          <ul aria-label="Kategorie" className="grid grid-cols-2 gap-2 pb-1 pt-2 sm:flex sm:flex-wrap sm:gap-3 sm:pt-3 lg:justify-center">
+            {MARKET_CATEGORIES.map(({ value, label, hub }) => (
+              <li key={value} className="min-w-0">
+                <Link href={`/${hub}`} className={`${pillClass} border-border bg-card max-sm:h-full max-sm:shrink max-sm:px-3 max-sm:leading-tight`}>
+                  <CategoryIcon category={value} className={iconClass} /> {label}
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
       </div>

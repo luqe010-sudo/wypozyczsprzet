@@ -10,6 +10,7 @@ import FavoriteButton from '@/components/FavoriteButton';
 import ListingCard from '@/components/ListingCard';
 import InquiryForm from '@/components/listing/InquiryForm';
 import ListingGallery from '@/components/listing/ListingGallery';
+import { capitalize, subcategoryHref } from '@/lib/categories';
 import { listingFacts, priceText } from '@/lib/format';
 import { trackEvent } from '@/lib/gtag';
 import { getExternalLinkProps, isBrokenLink } from '@/lib/seo-utils';
@@ -135,8 +136,8 @@ export default function ListingPageClient({ listing, related, categorySlug, cate
       <header className="mb-5 grid gap-4 sm:mb-7 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] lg:items-center lg:gap-8">
         <div className="flex min-w-0 items-start justify-between gap-3">
           <div className="min-w-0">
-            <Link href={`/${categorySlug}`} className="text-sm font-semibold text-brand-600 hover:underline dark:text-brand-400">
-              {listing.subcategoryLabel || categoryName}
+            <Link href={listing.subcategoryLabel ? subcategoryHref(categorySlug, listing.subcategory) : `/${categorySlug}`} className="text-sm font-semibold text-brand-600 hover:underline dark:text-brand-400">
+              {capitalize(listing.subcategoryLabel) || categoryName}
             </Link>
             <h1 className="mt-1 break-words text-3xl font-extrabold leading-tight tracking-tight text-foreground sm:text-4xl">{name}</h1>
             <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm text-slate-600 dark:text-slate-400">

@@ -48,6 +48,9 @@ const nextConfig = {
       { source: '/chorzow-pierwszy', destination: '/chorzow', permanent: true },
       { source: '/:category/chorzow-pierwszy', destination: '/:category/chorzow', permanent: true },
       { source: '/:category/chorzow-pierwszy/:slug', destination: '/:category/chorzow/:slug', permanent: true },
+      // Renamed categories (lib/categories.js RENAMED_CATEGORY_SLUGS).
+      { source: '/inny-sprzet-budowlany', destination: '/zaplecze-budowy', permanent: true },
+      { source: '/inny-sprzet-budowlany/:path*', destination: '/zaplecze-budowy/:path*', permanent: true },
     ];
   },
 };

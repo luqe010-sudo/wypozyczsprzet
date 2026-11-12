@@ -83,7 +83,7 @@ export default async function HubPage({ params }) {
           listings={cards}
           allCities={[...new Set(hub.items.map((l) => l.Miasto).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'pl'))}
           lockCategory
-          fixedSubcategories={category.filters}
+          fixedSubcategories={category.filters.filter(({ value }) => hub.items.some((l) => l.subcategory === value))}
           resultsHeading={`Oferty: ${category.name}`}
           linkGroups={[
             { title: 'Miejscowości', links: cityLinks(hub.items, { categorySlug: slug }) },

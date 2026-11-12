@@ -9,7 +9,6 @@ import RentalSteps from '../components/RentalSteps';
 import { ExcavatorIcon } from '../components/icons/EquipmentIcons';
 import { fetchMarketplaceData, toCard } from '../lib/listings';
 import { cityLinks } from '../lib/hubs';
-import { MARKET_CATEGORIES } from '../lib/categories';
 import { SEARCH_DEFAULTS, featuredListings, findListings } from '../lib/search';
 import { MIN_LISTINGS_FOR_INDEXING, SITE_NAME, SITE_URL } from '../lib/site';
 
@@ -22,9 +21,6 @@ export const metadata = {
 const searchField = 'relative flex min-h-12 min-w-0 items-center gap-2.5 rounded-lg border border-slate-300 bg-card px-3.5 text-sm text-foreground focus-within:border-brand-500 dark:border-slate-600';
 // More than "Pokaż więcej" reveals in a few clicks; past that /szukaj is the better tool.
 const LATEST_LIMIT = 48;
-// The "Podnośniki" and "Agregaty" pills already lead here, so the expanded panel does not repeat them.
-const PILL_CATEGORIES = ['access-platforms', 'power-generators'];
-const MORE_CATEGORIES = MARKET_CATEGORIES.filter(({ value }) => !PILL_CATEGORIES.includes(value));
 
 const BENEFITS = [
   { icon: MapPin, title: 'Sprzęt od lokalnych firm', text: 'Wypożyczalnie w Twojej okolicy' },
@@ -127,7 +123,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <PopularEquipment categories={MORE_CATEGORIES} />
+      <PopularEquipment />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <ul className="grid grid-cols-2 gap-4 border-b border-border py-5 lg:grid-cols-4 lg:gap-0 lg:divide-x lg:divide-border">
