@@ -3,7 +3,7 @@ import { SEO_CATEGORIES } from '../../../lib/categories';
 import { articles } from '../../../lib/articles';
 import { documents } from '../../../lib/umowy-data';
 import { getVoivodeshipSlugForCity } from '../../../lib/regions';
-import { MIN_LISTINGS_FOR_INDEXING, SITE_URL as BASE_URL } from '../../../lib/site';
+import { MIN_LISTINGS_FOR_CATEGORY_INDEXING, MIN_LISTINGS_FOR_INDEXING, SITE_URL as BASE_URL } from '../../../lib/site';
 
 function countBy(slugData, keyOf) {
   const counts = new Map();
@@ -74,7 +74,7 @@ export async function GET(request, { params }) {
 function generateCategoriesSitemap(slugData) {
   const counts = countBy(slugData, (item) => item.seoCategory);
   const categories = Object.values(SEO_CATEGORIES).filter(({ slug, minListingsForIndexing }) => (
-    !minListingsForIndexing || (counts.get(slug) || 0) >= MIN_LISTINGS_FOR_INDEXING
+    !minListingsForIndexing || (counts.get(slug) || 0) >= MIN_LISTINGS_FOR_CATEGORY_INDEXING
   ));
   const urls = categories.map(({ slug }) => `
     <url>

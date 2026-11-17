@@ -10,7 +10,7 @@ import { ExcavatorIcon } from '../components/icons/EquipmentIcons';
 import { fetchMarketplaceData, toCard } from '../lib/listings';
 import { cityLinks } from '../lib/hubs';
 import { SEARCH_DEFAULTS, featuredListings, findListings } from '../lib/search';
-import { MIN_LISTINGS_FOR_INDEXING, SITE_NAME, SITE_URL } from '../lib/site';
+import { MIN_LISTINGS_FOR_CATEGORY_INDEXING, SITE_NAME, SITE_URL } from '../lib/site';
 
 export const revalidate = 3600;
 
@@ -51,7 +51,7 @@ const FAQ = [
 
 export default async function Home() {
   const { listings, filters } = await fetchMarketplaceData();
-  const popularCities = cityLinks(listings, { minListings: MIN_LISTINGS_FOR_INDEXING }).slice(0, 12);
+  const popularCities = cityLinks(listings, { minListings: MIN_LISTINGS_FOR_CATEGORY_INDEXING }).slice(0, 12);
   const featured = featuredListings(listings).map(toCard);
   // Featured offers already have their own strip right above this list.
   const latest = findListings(listings.filter((listing) => !listing.isFeatured), SEARCH_DEFAULTS, null).slice(0, LATEST_LIMIT).map(toCard);

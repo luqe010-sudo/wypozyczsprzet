@@ -96,6 +96,35 @@ Każda nowa oferta w nowym mieście albo typie tworzy nową stronę, która moż
 - [ ] Mailing do 200 firm z katalogu: „przejmij profil i dodaj ofertę za darmo” (mechanizm przejęcia już jest).
 - [ ] Dla firm z katalogu: odznaka „Jesteśmy na wypozycz.online” z linkiem — zwiększa podaż i daje linki.
 - [ ] Rozważyć oferty spoza Dolnego Śląska (już są np. Cieszyn) — świadoma decyzja o regionie.
+- [ ] **Paczki redakcyjne do 300+ aktywnych ofert.** Hub typ×miasto był indeksowany od 3 ofert (`MIN_LISTINGS_FOR_INDEXING`; od 17.11 od 1), więc najpierw uzupełnialiśmy luki do 3. Każda paczka to manifest `scratch/editorial-batch-*.mjs` publikowany przez `scratch/publish-editorial-batch.mjs`. Fakty i ceny pochodzą wyłącznie ze stron firm. Stan liczymy skryptem `node --env-file=.env.local scratch/listing-counts.mjs`.
+
+  | Data | Paczka | Ofert w paczce | Aktywne oferty po | Indeksowalne huby (≥3) | Huby, które przekroczyły próg |
+  |---|---|---|---|---|---|
+  | 2026-11-10 | stan wyjściowy | – | 95 | 5 | – |
+  | 2026-11-10 | `2026-11-10` (MasterRent, Mobil Serwis, Atut Rental – Wrocław) | 18 | 113 | 10 | prace-na-wysokosci/wroclaw (1→5), agregaty-i-zasilanie/wroclaw (1→4), sprzet-betoniarski/wroclaw (1→3), narzedzia/wroclaw (2→4), sprzet-ogrodowy/wroclaw (2→4) |
+  | 2026-11-10 | `2026-11-10-2` (Wypożyczalnia Alex – Świdnica, JMR Rent – Jelenia Góra) | 20 | 133 | 19 | Świdnica: narzedzia, roboty-ziemne, sprzet-betoniarski, sprzet-ogrodowy (1→3), agregaty-i-zasilanie (0→3); Jelenia Góra: agregaty-i-zasilanie, narzedzia, prace-na-wysokosci (1→3), roboty-ziemne (0→3) |
+  | 2026-11-10 | `2026-11-10-3` (przyczepy: Lawety i Przyczepy Wrocław, Przyczepy Lubin, Nachtman; kontenery MIL-KON) | 10 | 143 | 23 | przyczepy-i-lawety/wroclaw (2→5), przyczepy-i-lawety/lubin (2→5), przyczepy-i-lawety/radwanice (2→4), inny-sprzet-budowlany/blonie (2→4) |
+  | 2026-11-10 | `2026-11-10-4` (Wypożyczalnia Narzędzi Oleśnica – DoMi) | 15 | 158 | 28 | Oleśnica: narzedzia, roboty-ziemne, sprzet-betoniarski, sprzet-ogrodowy, agregaty-i-zasilanie (0→3) |
+  | 2026-11-10 | `2026-11-10-5` (TransLift – Świdnica, Kam-Bud – Boguszów-Gorce) | 16 | 174 | 30 | prace-na-wysokosci/swidnica (0→5), narzedzia/boguszow-gorce (0→3) |
+  | 2026-11-10 | `2026-11-10-6` (Atut Rental – oddział Legnica) | 18 | 192 | 36 | Legnica: agregaty-i-zasilanie, narzedzia (1→4), prace-na-wysokosci, roboty-ziemne, sprzet-betoniarski, sprzet-ogrodowy (0→3) |
+  | 2026-11-10 | `2026-11-10-7` (Atut Rental – oddział Wrocław-Małuszów) | 20 | 212 | 42 | Małuszów: prace-na-wysokosci, roboty-ziemne (0→4), agregaty-i-zasilanie, narzedzia, sprzet-betoniarski, sprzet-ogrodowy (0→3) |
+  | 2026-11-16 | stan przed paczkami z 16.11 (po paczkach 11-08 … 11-16) | – | 285 | 49 | – |
+  | 2026-11-16 | `2026-11-16-2` (Wypożyczalnia Narzędzi Kłodzko), `2026-11-16-3` (Artech Głogów, bez cen), `2026-11-16-4` (Rental-Bud, Kostrzyna k. Zgorzelca) | 30 + 11 + 25 | 351 | 56 | narzedzia/klodzko (0→19), sprzet-czyszczacy/klodzko (0→3), narzedzia/glogow (1→8), Kostrzyna: narzedzia, sprzet-ogrodowy (0→7), roboty-ziemne, sprzet-betoniarski (0→4) |
+  | 2026-11-16 | `2026-11-16-5` (Sanitar Lubin, ceny netto → brutto) | 16 | 367 | 58 | narzedzia/lubin (0→10), agregaty-i-zasilanie/lubin (0→5) |
+
+  Nie otwieraj nowych stron ofert przed upływem 5 minut od publikacji: pierwsze wejście przy starej liście ofert zapisuje w cache 404 na godzinę (tak było z Kostrzyną 16.11). Najpierw sprawdź, czy oferta jest w `/szukaj?q=…`.
+
+  Nowe strony ofert mogą przez chwilę zwracać 404: lista ofert jest w cache 5 min, a odpowiedź strony do godziny (`revalidate = 3600`). Weryfikacja: `node scratch/check-editorial-publication.mjs <paczka>`.
+
+## Przegląd 2026-11-17 (Search Console, 2026-10-18 – 2026-11-14)
+
+- 28 dni: 171 kliknięć (poprzednio 184), 5 912 wyświetleń (6 951), CTR 2,9%, śr. pozycja 22,5. Zmiany z 10.11 jeszcze nie są widoczne w danych.
+- `/umowy` i PDF-y: 133 kliknięcia (78%). Oferty: 12 kliknięć z 2 036 wyświetleń. Strona główna: 9 kliknięć z 1 466 wyświetleń (poz. 47).
+- **Próg `MIN_LISTINGS_FOR_INDEXING = 3` (od 05.11) dał `noindex` ok. 90 hubom i stronom miast, które w 90 dniach miały 1 772 wyświetlenia i 60 kliknięć** (prawie cały ruch hubów, np. `/sprzet-ogrodowy/dzierzoniow`, `/stronie-slaskie`, `/agregaty-i-zasilanie/klodzko`, `/sobotka`). **Zrobione 17.11 (czeka na wdrożenie):** huby lokalne, miasta i województwa są indeksowane od 1 oferty (sitemapa: 150 hubów zamiast 58, 64 miasta zamiast 32, 4 województwa zamiast 2). Kategorie ogólnopolskie i miasta na stronie głównej nadal od 3 (`MIN_LISTINGS_FOR_CATEGORY_INDEXING`). Puste huby mają dalej `noindex`.
+- Inspekcja: `/prace-na-wysokosci/wroclaw` (fraza „rusztowania wrocław”, ok. 440 wyświetleń/28 dni) nadal „zeskanowana, ale nie zindeksowana”, ostatni crawl 23.05. Ruch idzie na pojedynczą ofertę Aluberg (poz. 11, 0 kliknięć). Wymaga ręcznego „Poproś o zindeksowanie”.
+- `/wroclaw`, `/roboty-ziemne/wroclaw`, `/sprzet-ogrodowy/wroclaw`, `/swidnica`, `/dolnoslaskie` już zindeksowane (problem duplikatu `/wroclaw` rozwiązany). Nowe huby z paczek redakcyjnych (`/narzedzia/lubin`, `/roboty-ziemne/legnica`, `/olesnica`, `/katalog`, `/katalog/wroclaw`) są „nieznane” albo „wykryte – niezindeksowane”.
+- Oferty z „wynajem” w nazwie miały tytuł „… - wynajem – wynajem” i opis „… wynajem na wynajem” (podnośnik w Dzierżoniowie: 99 wyświetleń, glebogryzarka we Wrocławiu: 150, obie 0 kliknięć). **Zrobione 17.11:** `listingSeoName` w `lib/format.js` ucina końcowe „- wynajem” i nie dokleja słowa drugi raz.
+- [ ] Ręcznie w Search Console „Poproś o zindeksowanie”: `/prace-na-wysokosci/wroclaw` (najpierw), `/agregaty-i-zasilanie/wroclaw`, `/sprzet-betoniarski/wroclaw`, `/narzedzia/lubin`, `/roboty-ziemne/legnica`, `/olesnica`, `/katalog/wroclaw`. Po wdrożeniu progu także huby, które wróciły do indeksu z ruchem: `/sprzet-ogrodowy/dzierzoniow`, `/stronie-slaskie`, `/agregaty-i-zasilanie/klodzko`, `/sobotka`, `/bystrzyca-klodzka`.
 
 ## Etap 5: linki i sygnały spoza strony (miesiące 2–6)
 

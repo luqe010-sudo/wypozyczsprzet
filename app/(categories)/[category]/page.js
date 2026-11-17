@@ -5,7 +5,7 @@ import { getVoivodeship, getVoivodeshipSlugForCity, isVoivodeshipSlug } from '..
 import { breadcrumbJsonLd, catalogHrefFor, categoryLinks, cityLinks, companiesNear, itemListJsonLd } from '../../../lib/hubs';
 import { offersLabel, plainTextExcerpt } from '../../../lib/format';
 import { buildHubContent, faqJsonLd } from '../../../lib/hubContent';
-import { MIN_LISTINGS_FOR_INDEXING, SITE_NAME, SITE_URL } from '../../../lib/site';
+import { MIN_LISTINGS_FOR_CATEGORY_INDEXING, MIN_LISTINGS_FOR_INDEXING, SITE_NAME, SITE_URL } from '../../../lib/site';
 import HubView from '../../../components/browse/HubView';
 
 export const revalidate = 3600;
@@ -38,7 +38,9 @@ export async function generateMetadata({ params }) {
   if (!hub) return {};
 
   const url = `${SITE_URL}/${slug}`;
-  const thin = hub.items.length < MIN_LISTINGS_FOR_INDEXING && (hub.kind !== 'category' || hub.category.minListingsForIndexing);
+  const thin = hub.kind === 'category'
+    ? Boolean(hub.category.minListingsForIndexing) && hub.items.length < MIN_LISTINGS_FOR_CATEGORY_INDEXING
+    : hub.items.length < MIN_LISTINGS_FOR_INDEXING;
   const robots = thin ? { index: false, follow: true } : undefined;
 
   if (hub.kind === 'category') {

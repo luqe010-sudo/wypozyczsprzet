@@ -6,7 +6,7 @@ import { getVoivodeship, getVoivodeshipSlugForCity, isVoivodeshipSlug } from '..
 import { breadcrumbJsonLd, catalogHrefFor, categoryLinks, cityLinks, companiesNear, itemListJsonLd } from '../../../../lib/hubs';
 import { offersLabel, plainTextExcerpt } from '../../../../lib/format';
 import { buildHubContent, faqJsonLd, topTypesLabel } from '../../../../lib/hubContent';
-import { MIN_LISTINGS_FOR_INDEXING, SITE_NAME, SITE_URL } from '../../../../lib/site';
+import { MIN_LISTINGS_FOR_CATEGORY_INDEXING, MIN_LISTINGS_FOR_INDEXING, SITE_NAME, SITE_URL } from '../../../../lib/site';
 import HubView from '../../../../components/browse/HubView';
 
 export const revalidate = 3600;
@@ -82,7 +82,7 @@ export default async function LocalHubPage({ params }) {
   let nearby = [];
   let nearbyLabel = '';
   if (place.isRegion) {
-    if (items.length < MIN_LISTINGS_FOR_INDEXING) {
+    if (items.length < MIN_LISTINGS_FOR_CATEGORY_INDEXING) {
       nearby = inCategory.filter((l) => getVoivodeshipSlugForCity(l.Miasto) !== slug).slice(0, 6);
       nearbyLabel = `${category.name} w innych regionach`;
     }

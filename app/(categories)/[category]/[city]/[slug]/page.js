@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { SEO_CATEGORIES, SEO_CATEGORY_SLUGS } from '../../../../../lib/categories';
 import { fetchListingBySlug, fetchSuggestions, isUnpublishedSlug, toCard } from '../../../../../lib/listings';
-import { formatDate, formatMoney, listingMetaDescription, plainTextExcerpt } from '../../../../../lib/format';
+import { formatDate, formatMoney, listingMetaDescription, listingSeoName, plainTextExcerpt } from '../../../../../lib/format';
 import { CONFIRMATION_REMINDER_DAYS, SITE_NAME, SITE_URL } from '../../../../../lib/site';
 import ListingPageClient from './ListingPageClient';
 import InactiveListingPage from './InactiveListingPage';
@@ -39,9 +39,9 @@ export async function generateMetadata({ params }) {
   }
 
   const { listing, canonicalPath } = data;
-  const name = listing['Sprzęt'] || 'Sprzęt budowlany';
+  const { name, mentionsRental } = listingSeoName(listing);
   const price = listing.priceType === 'fixed' && Number.isFinite(listing.priceAmount) ? ` od ${formatMoney(listing.priceAmount)}` : '';
-  const title = `${name} – wynajem, ${listing.Miasto}${price} | ${SITE_NAME}`;
+  const title = `${name}${mentionsRental ? '' : ' – wynajem'}, ${listing.Miasto}${price} | ${SITE_NAME}`;
   const description = listingMetaDescription(listing);
 
   return {
