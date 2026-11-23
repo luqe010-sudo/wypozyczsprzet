@@ -1,8 +1,10 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import ListingCard from './ListingCard';
+import { FEATURED_PRICE_PLN, featuredSalesOpen } from '../lib/site';
 
 const arrowClass = 'grid size-10 place-items-center rounded-lg border border-border bg-card text-foreground shadow-sm hover:bg-background disabled:cursor-default disabled:opacity-40';
 
@@ -44,6 +46,12 @@ export default function FeaturedListings({ listings, rentalQuery = '', className
         <h2 id="featured-heading" className="market-heading flex items-center gap-2">
           <Star size={20} fill="currentColor" className="shrink-0 text-amber-500" aria-hidden="true" /> Polecane ogłoszenia
         </h2>
+        <div className="flex items-center gap-2">
+        {featuredSalesOpen() && (
+          <Link href="/wyroznienie" className="inline-flex min-h-10 items-center rounded-lg px-2 text-sm font-semibold text-brand-700 underline-offset-2 hover:underline dark:text-amber-300">
+            Wyróżnij swoje ogłoszenie<span className="hidden sm:inline">&nbsp;za {FEATURED_PRICE_PLN} zł</span>
+          </Link>
+        )}
         {!(edges.start && edges.end) && (
           <div className="hidden gap-2 sm:flex">
             <button type="button" onClick={() => move(-1)} disabled={edges.start} aria-label="Poprzednie polecane ogłoszenia" className={arrowClass}>
@@ -54,6 +62,7 @@ export default function FeaturedListings({ listings, rentalQuery = '', className
             </button>
           </div>
         )}
+        </div>
       </div>
       {/* The bottom padding leaves room for a hovered card to grow; the scroller would clip it otherwise. */}
       <ul ref={scroller} onScroll={syncEdges} data-no-tab-swipe className="no-scrollbar -mx-4 -mb-12 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-12 pt-1 sm:-mx-6 sm:scroll-px-6 sm:px-6 lg:gap-4">

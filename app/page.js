@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, ChevronDown, Clock, Crosshair, MapPin, Plus, Search, ShieldCheck, Truck } from 'lucide-react';
+import { ArrowRight, ChevronDown, Clock, Crosshair, MapPin, Plus, Search, ShieldCheck, Star, Truck } from 'lucide-react';
 import CategoryHubs from '../components/CategoryHubs';
 import FeaturedListings from '../components/FeaturedListings';
 import LatestListings from '../components/LatestListings';
@@ -10,7 +10,7 @@ import { ExcavatorIcon } from '../components/icons/EquipmentIcons';
 import { fetchMarketplaceData, toCard } from '../lib/listings';
 import { cityLinks } from '../lib/hubs';
 import { SEARCH_DEFAULTS, featuredListings, findListings } from '../lib/search';
-import { MIN_LISTINGS_FOR_CATEGORY_INDEXING, SITE_NAME, SITE_URL } from '../lib/site';
+import { FEATURED_DAYS, FEATURED_PRICE_PLN, MIN_LISTINGS_FOR_CATEGORY_INDEXING, SITE_NAME, SITE_URL, featuredSalesOpen } from '../lib/site';
 
 export const revalidate = 3600;
 
@@ -162,6 +162,11 @@ export default async function Home() {
             <div>
               <h2 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">Masz sprzęt? <span className="text-market-yellow">Dodaj ofertę za darmo.</span></h2>
               <p className="mt-1.5 text-sm leading-relaxed text-slate-200 sm:text-base">Dotrzyj do klientów w swojej okolicy i wynajmuj bez prowizji.</p>
+              {featuredSalesOpen() && (
+                <Link href="/wyroznienie" className="mt-2 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-market-yellow underline-offset-2 hover:underline">
+                  <Star size={15} fill="currentColor" aria-hidden="true" /> Chcesz być bardziej widoczny? Wyróżnij ogłoszenie za {FEATURED_PRICE_PLN} zł / {FEATURED_DAYS} dni <ArrowRight size={15} aria-hidden="true" />
+                </Link>
+              )}
             </div>
           </div>
           <Link href="/dashboard/ogloszenia#dodaj" className="market-action min-h-12 shrink-0 px-6">
