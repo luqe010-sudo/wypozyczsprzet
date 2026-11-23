@@ -108,7 +108,7 @@ export default function EquipmentTable({ initialEquipment, initialStatus = '', i
     return run(
       item.id,
       () => setEquipmentFeatured(item.id, featured),
-      () => patch(item.id, { priority: featured ? 2 : 1 }),
+      () => patch(item.id, { priority: featured ? 2 : 1, featured_until: null }),
       featured ? 'Dodano do polecanych' : 'Usunięto z polecanych',
     )
   }
@@ -202,7 +202,7 @@ export default function EquipmentTable({ initialEquipment, initialStatus = '', i
                   </p>
                   <p className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted">
                     <span className={`rounded px-2 py-1 font-semibold ${status.style}`}>{status.label}</span>
-                    {featured && <span className="inline-flex items-center gap-1 rounded bg-amber-100 px-2 py-1 font-semibold text-amber-900 dark:bg-amber-400/15 dark:text-amber-200"><Star size={12} className="fill-current" aria-hidden="true" /> Polecane</span>}
+                    {featured && <span className="inline-flex items-center gap-1 rounded bg-amber-100 px-2 py-1 font-semibold text-amber-900 dark:bg-amber-400/15 dark:text-amber-200"><Star size={12} className="fill-current" aria-hidden="true" /> Polecane{item.featured_until && ` do ${dateOnly.format(new Date(item.featured_until))}`}</span>}
                     {item.companies && !item.companies.verified_at && <span className="rounded border border-border px-2 py-1">Firma niezweryfikowana</span>}
                     <span>Dodano {dateOnly.format(new Date(item.created_at))}</span>
                     {item.last_confirmed_at && <span>· potwierdzono {dateOnly.format(new Date(item.last_confirmed_at))}</span>}

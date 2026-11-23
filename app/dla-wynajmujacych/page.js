@@ -34,6 +34,7 @@ export default function ProviderPage() {
           </li>
         ))}
       </ul>
+      <p className="listing-panel text-sm">Chcesz, żeby ogłoszenie było widać wyżej? <Link href="/wyroznienie" className="font-semibold text-brand-700 underline dark:text-amber-300">Zobacz wyróżnienie ogłoszenia</Link>.</p>
     </div>
   );
 }

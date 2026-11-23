@@ -2,12 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { BookOpen, Building2, Handshake, Inbox, LayoutDashboard, Package, Users } from 'lucide-react'
+import { BookOpen, Building2, Handshake, Inbox, LayoutDashboard, Package, Star, Users } from 'lucide-react'
 
 const links = [
   { href: '/admin', label: 'Pulpit', icon: LayoutDashboard },
   { href: '/admin/equipment', label: 'Ogłoszenia', icon: Package, badge: 'pendingListings', badgeLabel: 'do moderacji' },
   { href: '/admin/inquiries', label: 'Zapytania', icon: Inbox, badge: 'newInquiries', badgeLabel: 'nowych' },
+  { href: '/admin/featured', label: 'Wyróżnienia', icon: Star, badge: 'newFeaturedRequests', badgeLabel: 'nowych zamówień' },
   { href: '/admin/claims', label: 'Przejęcia firm', icon: Handshake, badge: 'pendingClaims', badgeLabel: 'oczekujących' },
   { href: '/admin/companies', label: 'Firmy', icon: Building2 },
   { href: '/admin/directory', label: 'Katalog firm', icon: BookOpen },

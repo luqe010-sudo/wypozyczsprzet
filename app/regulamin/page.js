@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { FEATURED_DAYS, SELLER, featuredPriceText } from '@/lib/site';
 
 export const metadata = {
   title: 'Regulamin Serwisu | Wypożycz Sprzęt',
@@ -29,7 +30,7 @@ export default function RegulaminPage() {
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-100 dark:border-slate-700 pb-2">§1. Postanowienia ogólne</h2>
                 <ol className="list-decimal pl-5 space-y-2 leading-relaxed">
                   <li>Niniejszy regulamin określa zasady korzystania z serwisu internetowego „Wypożycz Sprzęt”, dostępnego pod adresem wypozycz.online.</li>
-                  <li>Właścicielem serwisu jest wypozycz.online.</li>
+                  <li>Właścicielem serwisu jest {SELLER.name ? `${SELLER.name}, ${SELLER.address}, NIP ${SELLER.nip}` : 'wypozycz.online'}.</li>
                   <li>Serwis umożliwia użytkownikom publikowanie ogłoszeń dotyczących wynajmu sprzętu oraz przeglądanie dostępnych ofert.</li>
                   <li>Korzystanie z serwisu oznacza akceptację niniejszego regulaminu.</li>
                 </ol>
@@ -115,8 +116,12 @@ export default function RegulaminPage() {
               <section>
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-100 dark:border-slate-700 pb-2">§7. Płatności</h2>
                 <ol className="list-decimal pl-5 space-y-2 leading-relaxed">
-                  <li>Serwis może w przyszłości wprowadzić płatne opcje, takie jak wyróżnienie ogłoszeń.</li>
-                  <li>Informacje o opłatach będą publikowane w serwisie.</li>
+                  <li>Dodanie i publikacja ogłoszenia są bezpłatne.</li>
+                  <li>Płatną opcją jest wyróżnienie ogłoszenia. Wyróżnione ogłoszenie jest pokazywane w sekcji „Polecane ogłoszenia” na stronie głównej i na stronach swojej kategorii oraz oznaczone etykietą „Polecane”. Serwis nie gwarantuje określonej liczby wyświetleń ani zapytań.</li>
+                  <li>Wyróżnienie kosztuje {featuredPriceText()} za {FEATURED_DAYS} dni dla jednego ogłoszenia. Aktualny opis i cena są na stronie <Link href="/wyroznienie" className="underline">Wyróżnienie ogłoszenia</Link>.</li>
+                  <li>Wyróżnienie zamawia się w panelu wynajmującego. Sprzedawca wystawia fakturę{SELLER.vatExempt ? ' bez VAT' : ''}, a wyróżnienie zostaje włączone po zaksięgowaniu wpłaty. Okres wyróżnienia liczy się od dnia włączenia, a przy przedłużeniu od końca bieżącego okresu. Wyróżnienie nie odnawia się automatycznie.</li>
+                  <li>Wyróżnienie jest usługą dla przedsiębiorców. Jeśli ogłoszenie zostanie usunięte za naruszenie regulaminu, opłata nie podlega zwrotowi. Jeśli wyróżnienie nie działało z przyczyn leżących po stronie serwisu, okres zostanie przedłużony o czas przerwy.</li>
+                  {SELLER.name && <li>Sprzedawcą płatnych opcji jest {SELLER.name}, {SELLER.address}, NIP {SELLER.nip}.</li>}
                 </ol>
               </section>
 

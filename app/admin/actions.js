@@ -9,6 +9,8 @@ import { slugify, citySlug, voivodeshipSlug } from '@/lib/slugify'
 import { createSupabaseAdminClient } from '@/lib/supabaseAdmin'
 import { generateUniqueSlug } from '@/lib/listings'
 import { parseListingFields } from '@/lib/listingForm'
+import { sendEmail } from '@/lib/email'
+import { FEATURED_DAYS, SITE_URL } from '@/lib/site'
 
 const USER_ROLES = new Set(['user', 'admin'])
 const EQUIPMENT_STATUSES = new Set(['active', 'pending', 'inactive', 'rejected', 'incomplete', 'hidden', 'stale'])
@@ -342,12 +344,81 @@ export async function setEquipmentFeatured(id, featured) {
     const { supabase } = await checkAdmin()
     const { error } = await supabase
       .from('equipment')
-      .update({ priority: featured ? 2 : 1 })
+      // Featured by hand has no end date; un-featuring also drops a paid period.
+      .update({ priority: featured ? 2 : 1, featured_until: null })
       .eq('id', id)
 
     if (error) throw error
     revalidatePath('/admin/equipment')
     updateTag('listings')
+    return { success: true }
+  } catch (error) {
+    return { error: error.message }
+  }
+}
+
+/** Paid featuring: extends the listing by FEATURED_DAYS from today or from the end of the current period. */
+export async function activateFeaturedRequest(requestId) {
+  try {
+    const { supabase } = await checkAdmin()
+    const { data: request } = await supabase
+      .from('featured_requests')
+      .select('id, status, equipment_id, requested_by, equipment (name, priority, featured_until)')
+      .eq('id', requestId)
+      .single()
+    if (!request) throw new Error('Nie znaleziono zamówienia.')
+    if (request.status !== 'new') throw new Error('To zamówienie zostało już obsłużone.')
+
+    const now = Date.now()
+    const current = request.equipment?.featured_until ? new Date(request.equipment.featured_until).getTime() : 0
+    if (request.equipment?.priority > 1 && !current) throw new Error('Ogłoszenie jest już wyróżnione bezterminowo.')
+    const until = new Date(Math.max(now, current) + FEATURED_DAYS * 24 * 60 * 60 * 1000).toISOString()
+
+    const { error: equipmentError } = await supabase
+      .from('equipment')
+      .update({ priority: 2, featured_until: until })
+      .eq('id', request.equipment_id)
+    if (equipmentError) throw equipmentError
+
+    const { error } = await supabase
+      .from('featured_requests')
+      .update({ status: 'paid', handled_at: new Date().toISOString(), featured_until: until })
+      .eq('id', requestId)
+      .eq('status', 'new')
+    if (error) throw error
+
+    const admin = createSupabaseAdminClient()
+    const { data: owner } = admin ? await admin.auth.admin.getUserById(request.requested_by) : { data: null }
+    const untilText = new Date(until).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Warsaw' })
+    await sendEmail({
+      to: owner?.user?.email,
+      subject: `Wyróżnienie aktywne: ${request.equipment?.name}`,
+      text: `Dzień dobry,
+
+dziękujemy za wpłatę. Ogłoszenie „${request.equipment?.name}” jest wyróżnione do ${untilText}.
+
+Panel: ${SITE_URL}/dashboard/ogloszenia`,
+    })
+
+    revalidatePath('/admin/featured')
+    revalidatePath('/admin/equipment')
+    updateTag('listings')
+    return { success: true, featuredUntil: until }
+  } catch (error) {
+    return { error: error.message }
+  }
+}
+
+export async function cancelFeaturedRequest(requestId) {
+  try {
+    const { supabase } = await checkAdmin()
+    const { error } = await supabase
+      .from('featured_requests')
+      .update({ status: 'cancelled', handled_at: new Date().toISOString() })
+      .eq('id', requestId)
+      .eq('status', 'new')
+    if (error) throw error
+    revalidatePath('/admin/featured')
     return { success: true }
   } catch (error) {
     return { error: error.message }

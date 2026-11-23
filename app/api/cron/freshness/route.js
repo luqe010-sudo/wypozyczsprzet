@@ -2,9 +2,13 @@ import { NextResponse } from 'next/server';
 import { revalidateTag } from 'next/cache';
 import { createSupabaseAdminClient } from '@/lib/supabaseAdmin';
 import { emailConfigured, sendEmail } from '@/lib/email';
-import { CONFIRMATION_GRACE_DAYS, CONFIRMATION_REMINDER_DAYS, INQUIRY_RETENTION_MONTHS, SITE_URL } from '@/lib/site';
+import {
+  CONFIRMATION_GRACE_DAYS, CONFIRMATION_REMINDER_DAYS, FEATURED_DAYS, FEATURED_PRICE_PLN, FEATURED_REMINDER_DAYS,
+  INQUIRY_RETENTION_MONTHS, SITE_URL,
+} from '@/lib/site';
 
-const daysAgo = (days) => new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+const DAY_MS = 24 * 60 * 60 * 1000;
+const daysAgo = (days) => new Date(Date.now() - days * DAY_MS).toISOString();
 
 /**
  * Daily job: reminds owners to confirm their listings, hides those left unconfirmed
@@ -20,7 +24,7 @@ export async function GET(request) {
   const admin = createSupabaseAdminClient();
   if (!admin) return NextResponse.json({ error: 'Not configured' }, { status: 500 });
 
-  const result = { reminded: 0, hidden: 0, anonymised: 0 };
+  const result = { reminded: 0, hidden: 0, anonymised: 0, featuredExpired: 0, featuredReminded: 0 };
 
   if (emailConfigured()) {
     const { data: owned, error } = await admin
@@ -60,6 +64,45 @@ export async function GET(request) {
     }
   }
 
+  // Paid featuring ends on its own. Listings featured by hand have no end date and stay.
+  const { data: expired, error: expireError } = await admin
+    .from('equipment')
+    .update({ priority: 1, featured_until: null })
+    .gt('priority', 1)
+    .lt('featured_until', new Date().toISOString())
+    .select('id');
+  if (expireError) return NextResponse.json({ error: expireError.message }, { status: 500 });
+  result.featuredExpired = expired.length;
+
+  // The job runs once a day, so each period falls into this one-day window exactly once.
+  if (emailConfigured()) {
+    const { data: ending, error: endingError } = await admin
+      .from('equipment')
+      .select('id, name, featured_until, company_id, companies!inner (owner_user_id, email)')
+      .gt('priority', 1)
+      .gte('featured_until', new Date(Date.now() + (FEATURED_REMINDER_DAYS - 1) * DAY_MS).toISOString())
+      .lt('featured_until', new Date(Date.now() + FEATURED_REMINDER_DAYS * DAY_MS).toISOString());
+    if (endingError) return NextResponse.json({ error: endingError.message }, { status: 500 });
+
+    for (const listing of ending) {
+      const { data: owner } = listing.companies.owner_user_id
+        ? await admin.auth.admin.getUserById(listing.companies.owner_user_id)
+        : { data: null };
+      const until = new Date(listing.featured_until).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Warsaw' });
+      const sent = await sendEmail({
+        to: owner?.user?.email || listing.companies.email,
+        subject: `Wyróżnienie „${listing.name}” kończy się ${until}`,
+        text: `Dzień dobry,
+
+wyróżnienie ogłoszenia „${listing.name}” kończy się ${until}. Potem ogłoszenie wróci na zwykłe miejsce w wynikach.
+
+Możesz je przedłużyć o ${FEATURED_DAYS} dni za ${FEATURED_PRICE_PLN} zł przyciskiem „Przedłuż wyróżnienie” w panelu:
+${SITE_URL}/dashboard/ogloszenia`,
+      });
+      if (sent.sent) result.featuredReminded += 1;
+    }
+  }
+
   const retentionCutoff = new Date();
   retentionCutoff.setMonth(retentionCutoff.getMonth() - INQUIRY_RETENTION_MONTHS);
   const { data: anonymised, error: anonymiseError } = await admin
@@ -71,6 +114,6 @@ export async function GET(request) {
   if (anonymiseError) return NextResponse.json({ error: anonymiseError.message }, { status: 500 });
   result.anonymised = anonymised.length;
 
-  if (result.hidden > 0) revalidateTag('listings', 'max');
+  if (result.hidden > 0 || result.featuredExpired > 0) revalidateTag('listings', 'max');
   return NextResponse.json(result);
 }

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { CONTACT_EMAIL, INQUIRY_RETENTION_MONTHS } from '../../lib/site';
+import { CONTACT_EMAIL, INQUIRY_RETENTION_MONTHS, SELLER } from '../../lib/site';
 
 export const metadata = {
   title: 'Polityka prywatności | wypozycz.online',
@@ -15,7 +15,7 @@ export default function PrivacyPolicyPage() {
       <h1 className="text-2xl font-bold text-slate-900 dark:text-white md:text-3xl">Polityka prywatności</h1>
 
       <h2 className={headingClass}>1. Administrator</h2>
-      <p>Administratorem danych jest podmiot prowadzący serwis wypozycz.online. W sprawach danych osobowych napisz na <a className="underline" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.</p>
+      <p>Administratorem danych jest {SELLER.name ? `${SELLER.name}, ${SELLER.address}, NIP ${SELLER.nip}, prowadzący serwis wypozycz.online` : 'podmiot prowadzący serwis wypozycz.online'}. W sprawach danych osobowych napisz na <a className="underline" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.</p>
 
       <h2 className={headingClass}>2. Jakie dane przetwarzamy i po co</h2>
       <ul className="list-disc space-y-2 pl-5">

@@ -31,7 +31,7 @@ export default async function MyListingsPage({ searchParams }) {
   let error = companyError
   if (companiesById.size) {
     const query = supabase.from('equipment')
-      .select('id, company_id, name, slug, image_url, category, price_type, price_amount, rental_period, last_confirmed_at, status')
+      .select('id, company_id, name, slug, image_url, category, price_type, price_amount, rental_period, last_confirmed_at, status, priority, featured_until, featured_requests(status)')
       .in('company_id', [...companiesById.keys()])
       .order('created_at', { ascending: false })
     if (filter.statuses.length) query.in('status', filter.statuses)

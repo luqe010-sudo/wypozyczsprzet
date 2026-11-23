@@ -20,7 +20,7 @@ export default async function CompanyDetailsPage({ params: routeParams }) {
     supabase.from('companies').select('*').eq('id', params.id).eq('owner_user_id', user.id).single(),
     supabase.from('company_branches').select('*').eq('company_id', params.id).order('is_main', { ascending: false }).order('created_at'),
     supabase.from('equipment')
-      .select('id, company_id, name, slug, image_url, category, price_type, price_amount, rental_period, last_confirmed_at, status')
+      .select('id, company_id, name, slug, image_url, category, price_type, price_amount, rental_period, last_confirmed_at, status, priority, featured_until, featured_requests(status)')
       .eq('company_id', params.id)
       .order('created_at', { ascending: false }),
     supabase.from('inquiries').select('id', { count: 'exact', head: true }).eq('company_id', params.id).eq('status', 'new'),

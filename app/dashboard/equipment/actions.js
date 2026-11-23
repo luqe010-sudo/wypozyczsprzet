@@ -6,7 +6,7 @@ import { revalidatePath, updateTag } from 'next/cache'
 import { generateUniqueSlug } from '@/lib/listings'
 import { parseListingFields } from '@/lib/listingForm'
 import { adminEmail, sendEmail } from '@/lib/email'
-import { SITE_URL } from '@/lib/site'
+import { FEATURED_DAYS, FEATURED_PRICE_PLN, SITE_URL, featuredPriceText, featuredSalesOpen } from '@/lib/site'
 
 async function requireOwnedCompany(supabase, companyId) {
   const { data: { user } } = await supabase.auth.getUser()
@@ -229,6 +229,50 @@ export async function setEquipmentPaused(id, companyId, paused) {
 
   if (error) return { error: error.message }
   if (saved?.status !== status) return { error: 'Status ogłoszenia się zmienił. Odśwież stronę i spróbuj ponownie.' }
+  refresh(companyId)
+  return { success: true }
+}
+
+/** The owner asks to feature a published listing; the admin turns it on once paid. */
+export async function requestFeatured(id, companyId) {
+  if (!featuredSalesOpen()) return { error: 'Wyróżnienia nie są jeszcze dostępne.' }
+
+  const supabase = await createClient()
+  const company = await requireOwnedCompany(supabase, companyId)
+  const { data: { user } } = await supabase.auth.getUser()
+
+  const { data: listing } = await supabase
+    .from('equipment')
+    .select('name, status')
+    .eq('id', id)
+    .eq('company_id', companyId)
+    .single()
+  if (!listing) return { error: 'Nie znaleziono ogłoszenia.' }
+  if (!['active', 'incomplete'].includes(listing.status)) {
+    return { error: 'Wyróżnić można tylko opublikowane ogłoszenie.' }
+  }
+
+  const { error } = await supabase
+    .from('featured_requests')
+    .insert([{ equipment_id: id, company_id: companyId, requested_by: user.id }])
+  if (error?.code === '23505') return { error: 'Zgłoszenie dla tego ogłoszenia już czeka na realizację.' }
+  if (error) return { error: error.message }
+
+  await Promise.all([
+    sendEmail({
+      to: adminEmail(),
+      subject: `Zamówienie wyróżnienia: ${listing.name}`,
+      text: `Firma ${company.name} zamawia wyróżnienie ogłoszenia „${listing.name}” (${FEATURED_PRICE_PLN} zł / ${FEATURED_DAYS} dni).\nKontakt: ${user.email}\n\nPo wpłacie włącz wyróżnienie: ${SITE_URL}/admin/featured`,
+      replyTo: user.email,
+    }),
+    sendEmail({
+      to: user.email,
+      subject: `Zamówienie wyróżnienia: ${listing.name}`,
+      text: `Dzień dobry,\n\notrzymaliśmy zamówienie wyróżnienia ogłoszenia „${listing.name}” na ${FEATURED_DAYS} dni za ${featuredPriceText()}.\n\nW ciągu 1 dnia roboczego wyślemy fakturę z danymi do płatności. Wyróżnienie włączymy po zaksięgowaniu wpłaty i potwierdzimy to mailem.\n\nSzczegóły: ${SITE_URL}/wyroznienie`,
+      replyTo: adminEmail(),
+    }),
+  ])
+
   refresh(companyId)
   return { success: true }
 }

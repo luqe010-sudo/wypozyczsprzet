@@ -1,8 +1,9 @@
 import Link from 'next/link'
-import { Edit, ExternalLink, PackageOpen } from 'lucide-react'
+import { Edit, ExternalLink, PackageOpen, Star } from 'lucide-react'
 import EquipmentRowActions from './EquipmentRowActions'
 import ListingImage from '../listing/ListingImage'
 import { formatDate, priceText } from '@/lib/format'
+import { featuredSalesOpen } from '@/lib/site'
 
 const statuses = {
   active: ['Opublikowane', 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300'],
@@ -39,6 +40,8 @@ export default function EquipmentList({ equipment = [], error = null, filtered =
     <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card shadow-sm">
       {equipment.map((item) => {
         const [status, statusStyle] = statuses[item.status] || ['Status nieznany', 'bg-background text-foreground']
+        const featured = item.priority > 1
+        const requestOpen = (item.featured_requests || []).some((request) => request.status === 'new')
         return (
           <li key={item.id} className="flex items-start gap-3 p-3 sm:gap-4 sm:p-4">
             <div className="relative h-[4.5rem] w-16 shrink-0 overflow-hidden rounded-lg bg-background sm:w-24">
@@ -50,10 +53,17 @@ export default function EquipmentList({ equipment = [], error = null, filtered =
               <p className="mt-1 text-sm font-semibold text-foreground">{priceText({ priceType: item.price_type, priceAmount: item.price_amount, Czas: periods[item.rental_period] })}</p>
               <p className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted">
                 <span className={`rounded px-2 py-1 font-semibold ${statusStyle}`}>{status}</span>
+                {featured && (
+                  <span className="inline-flex items-center gap-1 rounded bg-market-yellow px-2 py-1 font-semibold text-market-navy">
+                    <Star size={12} fill="currentColor" aria-hidden="true" />
+                    {item.featured_until ? `Wyróżnione do ${formatDate(item.featured_until)}` : 'Wyróżnione'}
+                  </span>
+                )}
+                {requestOpen && <span className="rounded bg-amber-100 px-2 py-1 font-semibold text-amber-900 dark:bg-amber-950 dark:text-amber-200">Wyróżnienie zamówione, czeka na płatność</span>}
                 {item.last_confirmed_at && <span>Potwierdzono: {formatDate(item.last_confirmed_at)}</span>}
               </p>
               {hints[item.status] && <p className="mt-1.5 text-xs text-muted">{hints[item.status]}</p>}
-              <div className="mt-2 flex flex-wrap items-center gap-2"><EquipmentRowActions id={item.id} companyId={item.company_id} status={item.status} />
+              <div className="mt-2 flex flex-wrap items-center gap-2"><EquipmentRowActions id={item.id} companyId={item.company_id} status={item.status} canRequestFeatured={featuredSalesOpen() && !requestOpen} featured={featured} />
                 {(item.status === 'active' || item.status === 'incomplete') && item.slug && (
                   <a href={`/oferta/${item.slug}`} target="_blank" rel="noopener" className="inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold text-brand-700 hover:bg-background dark:text-amber-300">
                     <ExternalLink size={14} aria-hidden="true" /> Zobacz na stronie

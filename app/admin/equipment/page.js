@@ -10,7 +10,7 @@ export default async function AdminEquipmentPage({ searchParams }) {
 
   const { data: equipment, error } = await supabase
     .from('equipment')
-    .select('id, name, slug, status, priority, image_url, category, price_type, price_amount, rental_period, created_at, last_confirmed_at, company_id, companies(name, verified_at), company_branches(city), equipment_categories(name)')
+    .select('id, name, slug, status, priority, featured_until, image_url, category, price_type, price_amount, rental_period, created_at, last_confirmed_at, company_id, companies(name, verified_at), company_branches(city), equipment_categories(name)')
     .order('created_at', { ascending: false })
 
   const one = (value) => (typeof value === 'string' ? value : '')

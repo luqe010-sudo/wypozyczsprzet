@@ -12,15 +12,17 @@ export const metadata = {
 /** Queue sizes shown next to the menu items; the proxy has already confirmed the admin role. */
 async function fetchQueueCounts() {
   const supabase = await createClient()
-  const [listings, inquiries, claims] = await Promise.all([
+  const [listings, inquiries, claims, featured] = await Promise.all([
     supabase.from('equipment').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
     supabase.from('inquiries').select('id', { count: 'exact', head: true }).eq('status', 'new'),
     supabase.from('company_claims').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+    supabase.from('featured_requests').select('id', { count: 'exact', head: true }).eq('status', 'new'),
   ])
   return {
     pendingListings: listings.count || 0,
     newInquiries: inquiries.count || 0,
     pendingClaims: claims.count || 0,
+    newFeaturedRequests: featured.count || 0,
   }
 }
 
