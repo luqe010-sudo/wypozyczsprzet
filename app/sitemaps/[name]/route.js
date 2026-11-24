@@ -1,5 +1,6 @@
 import { fetchMarketplaceData } from '../../../lib/listings';
-import { SEO_CATEGORIES } from '../../../lib/categories';
+import { SEO_CATEGORIES, getCitySlug } from '../../../lib/categories';
+import { areaCategoryLinks } from '../../../lib/hubs';
 import { articles } from '../../../lib/articles';
 import { documents } from '../../../lib/umowy-data';
 import { getVoivodeshipSlugForCity } from '../../../lib/regions';
@@ -38,7 +39,8 @@ export async function GET(request, { params }) {
       xml = generateOffersSitemap(slugData);
     } else if (name === 'local-hubs.xml') {
       const slugData = await fetchAllSlugs();
-      xml = generateLocalHubsSitemap(slugData);
+      const { listings } = await fetchMarketplaceData();
+      xml = generateLocalHubsSitemap(slugData, areaHubPaths(listings));
     } else if (name === 'static-pages.xml') {
       xml = generateStaticSitemap();
     } else if (name === 'blog.xml') {
@@ -101,8 +103,20 @@ function generateOffersSitemap(slugData) {
   return wrapInUrlset(urls);
 }
 
-function generateLocalHubsSitemap(slugData) {
-  const localHubsMap = new Map();
+/** Category×town hubs without local offers that are indexed on offers from around the town (lib/hubs.js). */
+function areaHubPaths(listings) {
+  const paths = new Map();
+  const towns = [...new Set(listings.map((l) => l.Miasto).filter(Boolean))];
+  for (const town of towns) {
+    for (const { href, updated } of areaCategoryLinks(listings, town, getCitySlug(town))) {
+      paths.set(href.slice(1), new Date(updated || 0));
+    }
+  }
+  return paths;
+}
+
+function generateLocalHubsSitemap(slugData, areaHubs = new Map()) {
+  const localHubsMap = new Map(areaHubs);
   const hubCounts = countBy(slugData, (item) => (item.seoCategory && item.citySlug ? `${item.seoCategory}/${item.citySlug}` : null));
   slugData.forEach(item => {
     if (item.seoCategory && item.citySlug && hubCounts.get(`${item.seoCategory}/${item.citySlug}`) >= MIN_LISTINGS_FOR_INDEXING) {

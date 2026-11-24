@@ -126,6 +126,25 @@ Każda nowa oferta w nowym mieście albo typie tworzy nową stronę, która moż
 - Oferty z „wynajem” w nazwie miały tytuł „… - wynajem – wynajem” i opis „… wynajem na wynajem” (podnośnik w Dzierżoniowie: 99 wyświetleń, glebogryzarka we Wrocławiu: 150, obie 0 kliknięć). **Zrobione 17.11:** `listingSeoName` w `lib/format.js` ucina końcowe „- wynajem” i nie dokleja słowa drugi raz.
 - [ ] Ręcznie w Search Console „Poproś o zindeksowanie”: `/prace-na-wysokosci/wroclaw` (najpierw), `/agregaty-i-zasilanie/wroclaw`, `/sprzet-betoniarski/wroclaw`, `/narzedzia/lubin`, `/roboty-ziemne/legnica`, `/olesnica`, `/katalog/wroclaw`. Po wdrożeniu progu także huby, które wróciły do indeksu z ruchem: `/sprzet-ogrodowy/dzierzoniow`, `/stronie-slaskie`, `/agregaty-i-zasilanie/klodzko`, `/sobotka`, `/bystrzyca-klodzka`.
 
+## Przegląd 2026-11-24 (14 dni: 2026-11-09 – 11-22 vs 2026-10-26 – 11-08)
+
+| | 09.11–22.11 | 26.10–08.11 |
+|---|---|---|
+| Kliknięcia | 70 | 93 |
+| Wyświetlenia | 3 042 | 3 119 |
+| CTR | 2,3% | 3,0% |
+| Śr. pozycja | 16,3 | 25,3 |
+
+- **Wdrożenie z 17.11 (próg 1 oferty, poprawka „wynajem”) trafiło na produkcję dopiero 23.11.** Między 12.11 a 23.11 nie było żadnego deployu (blokada konta Vercel), więc w danych go jeszcze nie ma. Google odwiedził `/sprzet-ogrodowy/dzierzoniow` 20.11 i zobaczył jeszcze `noindex`. Teraz strony na produkcji go nie mają.
+- Spadek kliknięć dotyczy tylko `/umowy`: 49 zamiast 79. `wzor-umowy-wynajmu-rusztowan.pdf` ma 3 kliknięcia zamiast 24 przy tej samej pozycji (ok. 2), bo fraza „umowa najmu rusztowania pdf” prawie zniknęła (sezon). Protokół zdawczo-odbiorczy jest zindeksowany, a jego wyświetlenia z 4–5.11 były jednorazowym skokiem.
+- Ruch poza umowami: 21 kliknięć zamiast 14. Frazy „wynajem/wypożyczalnia”: 13 kliknięć zamiast 9, śr. pozycja 24,5 zamiast 32,8.
+- **Zmiany z 10.11 (treść hubów, tytuły) działają na stronach miast:** strony miast i kategorii mają 873 wyświetlenia zamiast 310 (ok. 65 dziennie zamiast 11). Przykłady: `/walbrzych` 156, `/jelenia-gora` 108 (3 kliknięcia), `/dolnoslaskie` 88, `/swidnica` 65. Huby kategoria×miasto mają ok. 23 wyświetlenia dziennie zamiast 16.
+- Strona główna ma 109 wyświetleń zamiast 857, bo odpadły ogólne frazy na pozycjach 50–90 („wynajem maszyn budowlanych”). Nie dawały kliknięć, ale trzeba to obserwować.
+- `/prace-na-wysokosci/wroclaw` jest dla Google „nieznany” (wcześniej „zeskanowany, niezindeksowany”). Prośby o zindeksowanie z listy z 17.11 nadal nie są zrobione. Fraza „rusztowania wrocław” ma 42 wyświetlenia na poz. 13.
+- Audyt 186 URL-i z historią wyświetleń: ok. 40 hubów z kliknięciami miało `noindex`, bo zniknęła ich ostatnia lokalna oferta (np. `/narzedzia/olawa`, `/narzedzia/sobotka`, `/roboty-ziemne/bielawa`). `/roboty-ziemne/walbrzych` nie miał ofert, a frazy „wynajem minikoparka/koparka/zagęszczarka/ładowarka wałbrzych” (ok. 85 wyświetleń) trafiały na `/walbrzych` na poz. 21–34. Oferty z Chorzowa (zagęszczarka, skoczek, agregat malarski) cron ukrył jako niepotwierdzone (`stale`), dlatego `/chorzow` i jego huby zwracają 404. Właściciel ogłoszenia musi potwierdzić aktualność.
+- **Zrobione 24.11: huby „okolicy”.** Hub kategoria×miasto bez lokalnych ofert jest indeksowany, gdy w promieniu 30 km są co najmniej 3 oferty od co najmniej 2 firm, a miejscowość nie jest przedmieściem większego hubu (miejscowość z 3+ takimi ofertami w promieniu 15 km). Tytuł: „Zagęszczarki i skoczki, minikoparki – wynajem Wałbrzych i okolice od 100 zł”. Oferty z okolicy są głównymi wynikami, z odległością. Linki: strona miasta („Kategorie”) i inne huby („Inne kategorie”). Sitemapa `local-hubs.xml`: 209 adresów zamiast 151. Reguła: `nearbyHub` w `lib/hubs.js`, progi w `lib/site.js`.
+- Następny przegląd ok. 8.12, gdy zmiany z 23.11 będą w danych od dwóch tygodni. Sprawdź wtedy Dzierżoniów, Stronie Śląskie, Kłodzko i Sobótkę oraz huby „okolicy” (`/roboty-ziemne/walbrzych`, `/narzedzia/olawa`, `/roboty-ziemne/bielawa`).
+
 ## Etap 5: linki i sygnały spoza strony (miesiące 2–6)
 
 - [ ] Lokalne katalogi firm i portale budowlane (Dolny Śląsk).
